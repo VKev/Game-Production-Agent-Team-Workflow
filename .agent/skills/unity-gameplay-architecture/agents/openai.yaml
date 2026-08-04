@@ -1,0 +1,11 @@
+interface:
+  display_name: "Unity Gameplay Architecture"
+  short_description: "Select Unity architecture and folder structure without overengineering"
+  default_prompt: "Analyze this Unity feature and select the simplest suitable architecture and folder structure. Compare relevant options, define responsibilities, ownership, dependencies, lifetimes, communication, file placement, assembly boundaries, GDD-backed extension seams, implementation scope, AGENTS.md updates, and verification."
+policy:
+  allow_implicit_invocation: true
+  products:
+    - chatgpt
+    - codex
+    - api
+    - atlas
