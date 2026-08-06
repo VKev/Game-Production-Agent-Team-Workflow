@@ -1,3 +1,0 @@
-interface:
-  display_name: "Unity Jobs Burst Native Collections"
-  short_description: "Design safe, measured Unity jobs and Burst workloads"

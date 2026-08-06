@@ -1,4 +1,0 @@
-interface:
-  display_name: "Unity UI Controller Binding"
-  short_description: "Build data-bound Unity UI with clear ownership"
-  default_prompt: "Use $unity-ui-controller-binding to design or implement this Unity screen with UIView, UIController, DataContext, IBindable components, and dynamic BindList items."

@@ -1,3 +1,0 @@
-interface:
-  display_name: "Unity Async, Coroutines, and UniTask"
-  short_description: "Choose and implement lifetime-safe Unity async workflows"
