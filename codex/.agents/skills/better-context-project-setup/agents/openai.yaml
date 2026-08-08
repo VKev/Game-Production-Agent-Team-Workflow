@@ -1,0 +1,4 @@
+interface:
+  display_name: "Better Context Setup"
+  short_description: "Install and initialize Unity project maps"
+  default_prompt: "Use $better-context-project-setup to install and initialize Better Context Unity for this repository."

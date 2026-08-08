@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up CocoIndex Code"
+  short_description: "Configure semantic code search for Codex"
+  default_prompt: "Use $cocoindex-code-project-setup to configure CocoIndex Code for this project when a Voyage API key is available."

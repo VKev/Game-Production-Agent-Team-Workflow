@@ -1,0 +1,13 @@
+interface:
+  display_name: Unity UI Hierarchy Architecture
+  short_description: Design responsive uGUI hierarchies with fewer batch breaks
+  default_prompt: Review or design this Unity uGUI hierarchy for responsive Safe Area behavior, fewer accidental draw-call and batching breaks, controlled Canvas rebuilds, and maintainable descriptive object names. Provide a before-and-after hierarchy, explain tradeoffs, and include a profiler validation plan.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  allow_implicit_invocation: true
+  products:
+    - chatgpt
+    - codex
+    - api
+    - atlas

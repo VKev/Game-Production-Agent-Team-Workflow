@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up CodeGraph"
+  short_description: "Install CodeGraph and connect it to Codex"
+  default_prompt: "Use $codegraph-project-setup to install CodeGraph when missing, configure Codex only, and initialize this project index."

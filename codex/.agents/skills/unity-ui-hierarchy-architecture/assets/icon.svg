@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Unity UI hierarchy architecture icon">
+  <rect width="64" height="64" rx="12" fill="#111827"/>
+  <rect x="10" y="10" width="44" height="12" rx="3" fill="#E5E7EB"/>
+  <rect x="10" y="27" width="20" height="12" rx="3" fill="#9CA3AF"/>
+  <rect x="34" y="27" width="20" height="12" rx="3" fill="#D1D5DB"/>
+  <rect x="10" y="44" width="12" height="10" rx="3" fill="#6B7280"/>
+  <rect x="26" y="44" width="12" height="10" rx="3" fill="#F3F4F6"/>
+  <rect x="42" y="44" width="12" height="10" rx="3" fill="#9CA3AF"/>
+  <path d="M32 22v5M20 39v5M44 39v5M20 42h24" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+</svg>

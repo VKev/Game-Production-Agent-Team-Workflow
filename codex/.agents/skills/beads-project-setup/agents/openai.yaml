@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Beads"
+  short_description: "Install and configure Beads for Codex"
+  default_prompt: "Use $beads-project-setup to install Beads when missing and configure it for this project."

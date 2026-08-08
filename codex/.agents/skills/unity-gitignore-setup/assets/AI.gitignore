@@ -1,0 +1,26 @@
+# Project-local AI agent and editor files
+/.agent/
+/.agents/
+/.beads/
+/.codex/
+/.claude/
+/.cursor/
+/.gemini/
+/.windsurf/
+/.continue/
+/.cline/
+/.cocoindex_code/
+/.codegraph/
+/.better-context/
+/.ctx-summaries.json
+/.roo/
+/.serena/
+/.agent-temp/
+/.art-temp/
+/.config-mcp/
+/.mcp.json
+/.vscode/
+
+# Agent instructions and all Markdown documentation
+*.md
+*.md.meta
