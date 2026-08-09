@@ -5,7 +5,7 @@ description: Design, implement, debug, and verify runtime or visual Unity animat
 
 # DOTween Pro Development
 
-Read [references/sources.md](references/sources.md). Confirm the installed DOTween fingerprints and require `DOTweenSetupRequired() == false` before diagnosing missing modules or writing integration code.
+Read [references/sources.md](references/sources.md). Confirm the installed DOTween fingerprints, inspect the project's actual `DOTweenSettings.modules` state, and require `DOTweenSetupRequired() == false` before diagnosing missing modules or writing integration code. A false setup-required result alone does not prove that a module is enabled.
 
 ## Choose the animation surface
 

@@ -22,6 +22,8 @@ Use the live Unity Registry compatible-version list rather than a hard-coded onl
 - [Unity Editor command-line arguments](https://docs.unity3d.com/Manual/EditorCommandLineArguments.html): documents `-importPackage` and the single-open-project constraint.
 - [Unity `AssetDatabase.ImportPackage`](https://docs.unity3d.com/ScriptReference/AssetDatabase.ImportPackage.html): documents non-interactive import with `interactive: false`.
 - [Unity Package Manager scripting API](https://docs.unity3d.com/ScriptReference/PackageManager.Client.Add.html): supported route for adding required UPM dependencies from Editor code.
+- [Unity Package Manager `Client.AddAndRemove`](https://docs.unity3d.com/2023.1/Documentation/ScriptReference/PackageManager.Client.AddAndRemove.html): batches compatible package-graph additions/removals in one request and is available in the Unity 2022.3 documentation stream.
+- [Unity `AssetDatabase.StartAssetEditing`](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/AssetDatabase.StartAssetEditing.html): queues asset imports until `StopAssetEditing`; therefore it must not wrap `.unitypackage` import calls.
 - [Coplay MCP for Unity `execute_code`](https://github.com/CoplayDev/unity-mcp/blob/main/website/docs/reference/tools/scripting_ext/execute_code.md): live Editor route used for import, dependency requests, and post-import verification.
 
 ## Package identity and current-version checks

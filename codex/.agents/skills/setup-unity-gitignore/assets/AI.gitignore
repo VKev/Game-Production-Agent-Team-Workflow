@@ -12,7 +12,9 @@
 /.cocoindex_code/
 /.codegraph/
 /.better-context/
+/.ctxignore
 /.ctx-summaries.json
+/codegraph.json
 /.roo/
 /.serena/
 /.agent-temp/

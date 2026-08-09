@@ -1,6 +1,6 @@
 # Sources
 
-- Installed snapshot: `Assets/KINEMATION/RetargetPro/Online Documentation.url`, runtime/editor asmdefs, `RetargetProfile.cs`, `DynamicRetargeter.cs`, and feature implementations. No embedded comparable version was found.
+- Installed snapshot: `Assets/Plugins/KINEMATION/RetargetPro/Online Documentation.url`, runtime/editor asmdefs, `RetargetProfile.cs`, `DynamicRetargeter.cs`, and feature implementations. No embedded comparable version was found.
 - [Retarget Pro documentation](https://kinemation.gitbook.io/retarget-pro): official workflow index.
 - [Welcome and compatibility notes](https://kinemation.gitbook.io/retarget-pro): official scope and current target/baking limitations.
 - [Retarget Profile](https://kinemation.gitbook.io/retarget-pro/workflow/retarget-profile): rigs, poses, mappings, and features.

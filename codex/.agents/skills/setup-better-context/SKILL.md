@@ -12,13 +12,14 @@ Install the custom Better Context Unity CLI from the user's Git repository and c
 - Package and command: `better-context-unity`.
 - Approved source: `git+https://github.com/VKev/Better-Context.git@main`.
 - Project cache: `.better-context/`.
+- Project scan policy: `.ctxignore`.
 - Optional summary store: `.ctx-summaries.json`.
 - Managed map markers: `<!-- better-context-unity:begin -->` and `<!-- better-context-unity:end -->`.
 
 ## Workflow
 
 1. Resolve and canonicalize the exact target project root. Record whether `HEAD` exists, its SHA, and the staged-path list. Stop if the index is already non-empty.
-2. Require the root `.gitignore` to ignore `.better-context/`, `.ctx-summaries.json`, and Markdown files, and confirm none is tracked. When orchestrated by `setup-agents`, `setup-unity-gitignore` owns these rules and must complete first.
+2. Require the root `.gitignore` to ignore `.better-context/`, `.ctxignore`, `.ctx-summaries.json`, and Markdown files, and confirm none is tracked. When orchestrated by `setup-agents`, `setup-unity-gitignore` owns these rules and must complete first.
 3. Resolve `uv` before invoking it:
    - If `uv --version` succeeds, reuse it.
    - If it is missing or cannot start, follow the official standalone installation command in [references/sources.md](references/sources.md) once.
@@ -33,12 +34,30 @@ Install the custom Better Context Unity CLI from the user's Git repository and c
    - Wrong source, broken command, or missing summary capabilities: `uv tool install --force --refresh "git+https://github.com/VKev/Better-Context.git@main"`.
    - Do not reinstall or contact the network when the existing installation already passes every check.
 6. Resolve the CLI again. If uv installed it but the command is not on PATH, resolve `uv tool dir --bin`, add only that directory to the current process PATH, and retry once. Stop if the command still cannot run.
-7. Inspect project map state:
+7. Merge this managed vendor block into root `.ctxignore`, preserving every user-authored pattern and placing the block after any negation that would re-include these exact roots:
+
+   ```text
+   # setup-agents:vendor-context:begin
+   Assets/Plugins/Demigiant/
+   Assets/Plugins/Sirenix/
+   Assets/Plugins/RootMotion/
+   Assets/Plugins/Feel/
+   Assets/Plugins/FImpossible Creations/
+   Assets/Plugins/KINEMATION/
+   Assets/Plugins/Technie/
+   Assets/Plugins/Roslyn/
+   # setup-agents:vendor-context:end
+   ```
+
+   These are registered third-party roots, not project-owned `Assets/Plugins` code. Never replace them with a broad `Assets/Plugins/` rule. Verify the installed matcher reports every registered root ignored and a project-owned probe such as `Assets/Plugins/Game/Probe.cs` eligible.
+8. Before regeneration, repair only stale Better Context output beneath those exact vendor roots. For each `AGENTS.md` containing this tool's managed markers, remove only the managed block; delete the file only when nothing but whitespace remains. Preserve handwritten content and never touch an unmarked file. Remove a paired `.meta` only when its exact `AGENTS.md` was deleted and the meta is untracked/generated.
+9. Inspect project map state:
    - If `.better-context/manifest.json`, `.better-context/staleness.json`, and the root managed marker exist, run `better-context-unity --root <project-root> verify`.
    - If verification succeeds, skip generation.
-   - If maps are missing or verification reports stale state, run `better-context-unity --root <project-root> agents` once with no summaries.
+   - When orchestrated by `setup-agents` and live Unity package imports are still pending, configure the ignore policy but defer a missing first map or stale refresh until the single post-import refresh. Preserve an already healthy map.
+   - Otherwise, if maps are missing or verification reports stale state, run `better-context-unity --root <project-root> agents` once with no summaries.
    - Allow a bounded ten-minute budget for the first Unity scan and report progress at least once per minute. A timeout is incomplete setup, not success.
-8. Verify the command, version, exact Git source, summary flags, fresh project state, root managed marker, effective ignore behavior, unchanged `HEAD`, and empty staged-path list. Better Context is a local CLI and needs no MCP registration or Codex restart.
+10. Verify the command, version, exact Git source, summary flags, `.ctxignore` behavior, fresh project state when generation was due, root managed marker, absence of managed vendor maps, unchanged `HEAD`, and empty staged-path list. Better Context is a local CLI and needs no MCP registration or Codex restart.
 
 ## Runtime handoff
 

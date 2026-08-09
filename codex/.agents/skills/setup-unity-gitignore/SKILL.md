@@ -1,6 +1,6 @@
 ---
 name: setup-unity-gitignore
-description: Add, verify, or repair a Unity project .gitignore from bundled official Unity and project-local AI templates without overwriting existing rules. Use when preparing a copied Codex agent package, when Unity-generated files are not ignored, or when .codex, .agents, .agent-temp, .beads, .better-context, .cocoindex_code, .codegraph, .vscode, other local AI state, and Markdown files must stay out of Git.
+description: Add, verify, or repair a Unity project .gitignore from bundled official Unity and project-local AI templates without overwriting existing rules. Use when preparing a copied Codex agent package, when Unity-generated files are not ignored, or when .codex, .agents, .agent-temp, .beads, .better-context, .ctxignore, codegraph.json, .cocoindex_code, .codegraph, .vscode, other local AI state, and Markdown files must stay out of Git.
 ---
 
 # Unity Gitignore Setup
@@ -39,7 +39,9 @@ Use `git check-ignore --no-index -v` from the repository root. At minimum, confi
 - `.cocoindex_code/settings.yml`
 - `.codegraph/codegraph.db`
 - `.better-context/manifest.json`
+- `.ctxignore`
 - `.ctx-summaries.json`
+- `codegraph.json`
 - `.serena/project.yml`
 - `.agent-temp/probe.txt`
 - `.art-temp/probe.txt`

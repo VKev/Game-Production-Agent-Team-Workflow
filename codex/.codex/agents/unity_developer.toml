@@ -47,7 +47,7 @@ Do not install or reconfigure external tools during development work. `setup-age
 Select from the available role-prefixed skills by responsibility:
 
 - Architecture and dependency injection: `dev-unity-gameplay-architecture`, `dev-unity-gameplay-hierarchy-architecture`, `dev-unity-vcontainer`.
-- UI and localization: `dev-unity-ui-controller-binding`, `dev-unity-ui-hierarchy-architecture`, `dev-unity-locale-manager`.
+- UI and localization: `dev-unity-ui-controller-binding`, `dev-unity-responsive-ui`, `dev-unity-ui-hierarchy-architecture`, `dev-unity-locale-manager`.
 - Runtime systems: `dev-unity-object-pooling`, `dev-unity-async-coroutines-unitask`, `dev-unity-assets-addressables`.
 - Performance and data: `dev-unity-performance-profiling`, `dev-unity-jobs-burst-native-collections`, `dev-unity-csharp-collections-queries`.
 - Camera systems and presentation: `dev-unity-cinemachine`.
@@ -56,10 +56,15 @@ Select from the available role-prefixed skills by responsibility:
 - Character IK and procedural animation: `dev-unity-final-ik`, `dev-unity-legs-animator`, `dev-unity-spine-animator`, `dev-unity-tail-animator`.
 - Animation retargeting: `dev-unity-retarget-pro`.
 - Runtime optimization and collider authoring: `dev-unity-optimizers`, `dev-unity-technie-collider-creator`.
+- External video tutorials and references: `research-video-caption-analysis`.
 
 Load a package skill only when that package is installed and the task actually uses it. Confirm the installed version or registered fingerprint before relying on online documentation. When several animation packages affect the same character, define bone ownership and update order before editing; do not let Legs, Spine, Tail, Final IK, Retarget Pro, DOTween, or Feel silently compete for the same transforms or lifecycle.
 
+For uGUI layout correctness across resolutions, aspect ratios, orientations, cutouts, localization, or dynamic content, route through `dev-unity-responsive-ui`. Use `dev-unity-ui-hierarchy-architecture` for Canvas partitioning, render order, batching, rebuild cost, masks, or overdraw; load both only when the task materially includes both layout correctness and rendering architecture.
+
 For allocation-sensitive LINQ-like code, route through `dev-unity-csharp-collections-queries`; use ZLinq guidance only when both the core NuGet package and matching ZLinq.Unity package are installed. For camera work, route through `dev-unity-cinemachine` and inspect the installed Cinemachine major before choosing 2.x or 3.x APIs.
+
+For any YouTube URL used as implementation evidence, load `research-video-caption-analysis` before inspecting it. Require its uploaded-or-auto-caption gate first. If captions are absent or cannot be verified, tell the user and stop the video analysis; never fall back to Whisper, GPU transcription, external transcription APIs, frame-only inference, or the upstream full-analysis tools.
 
 The project-generated `beads` skill is optional. If `.agents/skills/beads/SKILL.md` exists, read it only when durable task tracking is useful. If it is absent, continue without installing or initializing Beads.
 

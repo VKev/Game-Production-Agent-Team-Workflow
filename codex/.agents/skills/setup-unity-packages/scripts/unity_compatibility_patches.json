@@ -1,0 +1,935 @@
+{
+  "schema_version": 1,
+  "description": "Exact compatibility patches proven by the clean Unity 2022.3 setup run. Apply only when archive and per-file hashes match.",
+  "profiles": [
+    {
+      "id": "feel-6.0-unity-2022",
+      "archive": "Feel.unitypackage",
+      "archive_sha256": "b422040ecba5efd0b6b54f2667d7ba2bbba30e7511e2f10b6bfd8fceb7dd4438",
+      "asset_version": "6.0",
+      "unity_major_min": 2022,
+      "unity_major_max_exclusive": 2023,
+      "files": [
+        {
+          "path": "Assets/Feel/FeelDemos/GettingStartedTutorial/Scripts/GettingStartedTutorialHeroReference.cs",
+          "source_sha256": "1649a8cdd1e80592837fbfcf1d89f13b7983a1ed4c5b8d73bebdeec69c868305",
+          "result_sha256": "ac040a2ae3805a7316c1feb31b8fbb1d9930035a544d9ceded153c691a86bc0a",
+          "hunks": [
+            {
+              "start": 60,
+              "delete": 1,
+              "insert": [
+                "\t\t\tif (_jumping && (_velocityLastFrame < 0) && (Mathf.Abs(_rigidbody.velocity.y) < _lowVelocity))\n"
+              ]
+            },
+            {
+              "start": 73,
+              "delete": 1,
+              "insert": [
+                "\t\t\t_velocityLastFrame = _rigidbody.velocity.y;\n"
+              ]
+            },
+            {
+              "start": 91,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/FeelDemos/Strike/Scripts/Strike.cs",
+          "source_sha256": "84286a56f2ed3a5688b0a87e056eb04ebc99ce434a60126a3e72f518d36608d1",
+          "result_sha256": "f5eb561b2a5b3ccf3130d1ddc72b95e3a6221f178ff186ae178c09d7f6b076e4",
+          "hunks": [
+            {
+              "start": 21,
+              "delete": 1,
+              "insert": [
+                "\t\t\tRb.velocity = Vector3.zero;\n"
+              ]
+            },
+            {
+              "start": 270,
+              "delete": 1,
+              "insert": [
+                "\t\t\tBowlingBallRb.velocity = Vector3.zero;\n"
+              ]
+            },
+            {
+              "start": 321,
+              "delete": 1,
+              "insert": [
+                "#endif\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMFeedbacks/Editor/Core/MMF_PlayerCopy.cs",
+          "source_sha256": "7a9b91d803887bbf9cd3c877b235e3d2fcc73038339967ded7ea8888dedd99ec",
+          "result_sha256": "c087ca12b7bb6f37ae5bf25711262831440827b723b2330617bcc2beae6cc3df",
+          "hunks": [
+            {
+              "start": 53,
+              "delete": 1,
+              "insert": [
+                "\t\t\tforeach (MMF_Player player in Object.FindObjectsByType<MMF_Player>(FindObjectsInactive.Include, FindObjectsSortMode.None).Where(p => p.KeepPlayModeChanges))\n"
+              ]
+            },
+            {
+              "start": 61,
+              "delete": 1,
+              "insert": [
+                "\t\t\tforeach (MMF_Player player in Object.FindObjectsByType<MMF_Player>(FindObjectsInactive.Include, FindObjectsSortMode.None).Where(MMF_PlayerCopy.RuntimeChanges.ContainsKey))\n"
+              ]
+            },
+            {
+              "start": 144,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMFeedbacks/MMFeedbacks/Core/ObjectPool/MMMiniObjectPooler.cs",
+          "source_sha256": "182194880cbb72cfa1936f0975dbce38bcc41d0db409ab5f4b56c6a0da7d9bac",
+          "result_sha256": "136d31f0638177eb20a112af5704cae3f6a5d1ce4819697128d24ce72c9196c1",
+          "hunks": [
+            {
+              "start": 85,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\tvar pools = FindObjectsByType<MMMiniObjectPool>(FindObjectsSortMode.None);\n"
+              ]
+            },
+            {
+              "start": 236,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMFeedbacks/MMFeedbacks/Feedbacks/MMF_Rigidbody.cs",
+          "source_sha256": "915a57c5c0d59e608b9e1cb346afe7ee003aebbcef04210af529be9ead380e1c",
+          "result_sha256": "ddcf5599b5b58ea830b37fb1d165823d17cecbbbdd7fd2634daeef5a2cc13f07",
+          "hunks": [
+            {
+              "start": 104,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\trb.velocity = Vector3.zero;\n"
+              ]
+            },
+            {
+              "start": 139,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMFeedbacks/MMFeedbacks/Feedbacks/MMF_Rigidbody2D.cs",
+          "source_sha256": "4b3cf024d5048d0249c9af7065f7368b52ea265a76c121169dfa8752d482025c",
+          "result_sha256": "b278e7b97d054a4ed0635a9f99f249c54ecaae4e3125e0e2013c3b1f2e1586a2",
+          "hunks": [
+            {
+              "start": 100,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\trb.velocity = Vector2.zero;\n"
+              ]
+            },
+            {
+              "start": 131,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMFeedbacks/MMFeedbacksForThirdParty/MMTools/Feedbacks/MMF_MMSoundManagerSound.cs",
+          "source_sha256": "fb5eba31478b883a9326acc16a20ccbacea59046f7d9bcbacca97b3dc78e2279",
+          "result_sha256": "3e97d93600675138dbb870a2f1e4762cfa59add8bb5b5f4c1084f02fecc4fb51",
+          "hunks": [
+            {
+              "start": 7,
+              "delete": 0,
+              "insert": [
+                "#if !UNITY_6000_0_OR_NEWER\n",
+                "using AudioResource = UnityEngine.AudioClip;\n",
+                "#endif\n"
+              ]
+            },
+            {
+              "start": 780,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 781,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#else\n",
+                "\t\t\t\taudioSource.clip = audioResourceToPlay;\n",
+                "\t\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 877,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Accessories/MMCinemachine/MMCinemachineZone/MMCinemachineZone.cs",
+          "source_sha256": "2e79a80763662da5a200dc1117e3c63f65156916aed20c210877cea83b9c8c35",
+          "result_sha256": "383de2955c9b5764959f447932453559bfe76bc7ebe2b6c114efe4cc801a2db9",
+          "hunks": [
+            {
+              "start": 120,
+              "delete": 1,
+              "insert": [
+                "\t\t\tforeach (var zone in FindObjectsByType<MMCinemachineZone>(FindObjectsSortMode.None))\n"
+              ]
+            },
+            {
+              "start": 335,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Accessories/MMCinemachine/MMCinemachineZone/MMCinemachineZone2D.cs",
+          "source_sha256": "f99235bb1012f5803f138f2690c4e04e1d0c541dd3e343105613b0338ca389f1",
+          "result_sha256": "b53afcbc5da4e73474f2eef4b40ed02660df7937bd053c6718f594bbc3afafbe",
+          "hunks": [
+            {
+              "start": 92,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 93,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#else\n",
+                "\t\t\t\tboxCollider2D.usedByComposite = true;\n",
+                "\t\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 100,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 101,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#else\n",
+                "\t\t\t\tcircleCollider2D.usedByComposite = true;\n",
+                "\t\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 109,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 110,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#else\n",
+                "\t\t\t\tpolygonCollider2D.usedByComposite = true;\n",
+                "\t\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 184,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Accessories/MMDebugMenu/Scripts/UIClasses/MMDebugMenuRadioButton.cs",
+          "source_sha256": "2683d260c8e3043bbb8fb5fef4e1b5947ba5079fc9be97d7a168d5de0b7c795a",
+          "result_sha256": "e66a5a6ff13fb8e20cee64264d9d75b598533f62d6e2e5c94dfbd40585ff6e85",
+          "hunks": [
+            {
+              "start": 33,
+              "delete": 1,
+              "insert": [
+                "\t\t\tMMDebugMenuRadioButton[] radioButtons = FindObjectsByType<MMDebugMenuRadioButton>(FindObjectsSortMode.None);\n"
+              ]
+            },
+            {
+              "start": 60,
+              "delete": 1,
+              "insert": [
+                "#endif\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Accessories/MMMovement/MMSquashAndStretch.cs",
+          "source_sha256": "9457a92a954a56739cd5695445dd1702327a0c70e15759d37a049c408c9727f6",
+          "result_sha256": "75c8fcb155e8f7f7a46762e2f171e625918723d095c232860bbed5302288b5a6",
+          "hunks": [
+            {
+              "start": 192,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\tVelocity = _rigidbody.velocity;\n"
+              ]
+            },
+            {
+              "start": 197,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\tVelocity = _rigidbody2D.velocity;\n"
+              ]
+            },
+            {
+              "start": 320,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Accessories/MMPhysics/MMRigidbodyInterface.cs",
+          "source_sha256": "c2b0fc2bd9c6ae65ec4cc982e83703cbb3cc63c613dd5c407e7ab2774f01e528",
+          "result_sha256": "cf6c50d7269331f0f3527bcf60fd7ccd3bce35ab0b2af0ef05c3ff3a1eb77cb0",
+          "hunks": [
+            {
+              "start": 66,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\treturn(_rigidbody2D.velocity);\n"
+              ]
+            },
+            {
+              "start": 72,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\t\treturn(_rigidbody.velocity);\n"
+              ]
+            },
+            {
+              "start": 83,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\t_rigidbody2D.velocity = value;\n"
+              ]
+            },
+            {
+              "start": 86,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\t_rigidbody.velocity = value;\n"
+              ]
+            },
+            {
+              "start": 317,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/Editor/MMAttributes/MMMonoBehaviourUITKEditor.cs",
+          "source_sha256": "b1dc6e91965f44da7f09b45871e6db8f1b6c2d8b38f6fd129923382bad8e1c80",
+          "result_sha256": "1a8e14b415a1f8fbad0ed4bcde3b9cdf96ae6cda839db90318b255c97f0c6d67",
+          "hunks": [
+            {
+              "start": 120,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\tbool groupIsOpen = EditorPrefs.GetBool(string.Format($\"{group.GroupName}{fieldInfoList[i].Name}{target.GetInstanceID()}\"), fallbackOpenState);\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/Editor/MMAttributes/MMNavMeshAreaMaskAttributeDrawer.cs",
+          "source_sha256": "e6ebd6fb92abf7b4590c4b119866a00fd04fe1c796f9e2f1803ef40b92503ad0",
+          "result_sha256": "bdbe2fcdfab01d4ad4d10c2221da0332872934c63530f65eeea4493c0b56e519",
+          "hunks": [
+            {
+              "start": 11,
+              "delete": 1,
+              "insert": [
+                "\t\t\tstring[] navMeshAreaNames = GameObjectUtility.GetNavMeshAreaNames();\n"
+              ]
+            },
+            {
+              "start": 31,
+              "delete": 1,
+              "insert": [
+                "#endif\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMAudio/MMAudioListener/MMAudioListener.cs",
+          "source_sha256": "4dcf8cd28f4cf82a608091b64c7ecb9299cfa37039a66c50cddc7c98522d717c",
+          "result_sha256": "d9e252541ac8b3cdacaa08b7d694cdba5f4cefb3ffb3dc349ae127d684d0e44c",
+          "hunks": [
+            {
+              "start": 23,
+              "delete": 1,
+              "insert": [
+                "\t\t\t_otherListeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);\n"
+              ]
+            },
+            {
+              "start": 34,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMAudio/MMSoundManager/Events/MMSoundManagerSoundPlayEvent.cs",
+          "source_sha256": "b9a1a56e1e24fcc4dbbdbcc6ba4b2c6b46fdf0eb75b12876dd38827f819efd72",
+          "result_sha256": "7b9d4eb67da947cf38b95e2dfb4ec2b4a455751169b93abdd1364058defbbfd1",
+          "hunks": [
+            {
+              "start": 4,
+              "delete": 0,
+              "insert": [
+                "#if !UNITY_6000_0_OR_NEWER\n",
+                "using AudioResource = UnityEngine.AudioClip;\n",
+                "#endif\n"
+              ]
+            },
+            {
+              "start": 80,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMAudio/MMSoundManager/MMForceDestroyInPlayMode.cs",
+          "source_sha256": "04ab5eb897d8c9024442c237885cc78ea561ca44183be832335643eb546de6d0",
+          "result_sha256": "ec5d6095a3776a15f47df8fba8841e466ff0935d02c47be290d75175f2f1e69a",
+          "hunks": [
+            {
+              "start": 31,
+              "delete": 1,
+              "insert": [
+                "\t\t\tMMForceDestroyInPlayMode[] sounds = FindObjectsByType<MMForceDestroyInPlayMode>(FindObjectsInactive.Include, FindObjectsSortMode.None);\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMAudio/MMSoundManager/MMSoundManager.cs",
+          "source_sha256": "ba690fff49b9431b75b0905348f20d88a1ab4708b905903085f751cd066a1067",
+          "result_sha256": "0f87fd7584b711a7e5081d780001a7e61bea87556518c6b2a4f450283ea8af45",
+          "hunks": [
+            {
+              "start": 6,
+              "delete": 0,
+              "insert": [
+                "#if !UNITY_6000_0_OR_NEWER\n",
+                "using AudioResource = UnityEngine.AudioClip;\n",
+                "#endif\n"
+              ]
+            },
+            {
+              "start": 266,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 267,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#else\n",
+                "\t\t\t\taudioSource.clip = audioResourceToPlay;\n",
+                "\t\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 1665,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMAudio/MMSoundManager/MMSoundManagerAudioPool.cs",
+          "source_sha256": "1ab3ff04bcffe0d3d7e33e4f52c0c8b016958db6539830cc75a937941b1ebbdc",
+          "result_sha256": "50fddfa13d001eb88927c70a11049e2e69305223b36323150d32f2f84bc0bdbf",
+          "hunks": [
+            {
+              "start": 70,
+              "delete": 0,
+              "insert": [
+                "\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 71,
+              "delete": 0,
+              "insert": [
+                "\t\t\t#else\n",
+                "\t\t\tif (source.clip != null)\n",
+                "\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 97,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 98,
+              "delete": 0,
+              "insert": [
+                "\t\t\t\t#else\n",
+                "\t\t\t\tif (source.clip != null)\n",
+                "\t\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 167,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMAudio/MMSoundManager/MMSoundManagerPlayOptions.cs",
+          "source_sha256": "912b0c355b2b0f6bb1dd8b25ce2a4f2f8b7bd6805f1e73a3c5a6e8279c450735",
+          "result_sha256": "a496583e05c92adcc6d14364d8fcb88ddeac1ef89011f452468049721f480767",
+          "hunks": [
+            {
+              "start": 5,
+              "delete": 0,
+              "insert": [
+                "#if !UNITY_6000_0_OR_NEWER\n",
+                "using AudioResource = UnityEngine.AudioClip;\n",
+                "#endif\n"
+              ]
+            },
+            {
+              "start": 195,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMObjectPool/MMObjectPooler.cs",
+          "source_sha256": "ff6cc2b1db3e9abd2bf27e9bcecbd32f809d7d098e1c27bcbcc3531d155d8d80",
+          "result_sha256": "1cbe4f6753a375018431fd45ea69c5ec57c2abceefee5f544acce25f5043686a",
+          "hunks": [
+            {
+              "start": 122,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\tvar pools = FindObjectsByType<MMObjectPool>(FindObjectsSortMode.None);\n"
+              ]
+            },
+            {
+              "start": 234,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMSaveLoad/MMPersistenceManager.cs",
+          "source_sha256": "0638cd82f0a7b8533cf733c66039513d7dc5ead384a96ae9b28a4811268814b5",
+          "result_sha256": "d5766c533dbfbca81e0659399fc1480902528d8e242e4c819ca92ad98d923d58",
+          "hunks": [
+            {
+              "start": 255,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\treturn FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None).OfType<IMMPersistent>().ToArray();\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/MMTools/Core/MMSingletons/MMPersistentHumbleSingleton.cs",
+          "source_sha256": "506db5b3d6e83a9b0034c359114867ff13d7fed0877418011bfd1d85885557cf",
+          "result_sha256": "ebdbb350ee20d9a007e86f5dc74bc414b7b116c8f82b2cd0ac62ccb9148045ab",
+          "hunks": [
+            {
+              "start": 65,
+              "delete": 1,
+              "insert": [
+                "\t\t\tT[] check = FindObjectsByType<T>(FindObjectsSortMode.None);\n"
+              ]
+            },
+            {
+              "start": 84,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/NiceVibrations/Define/NiceVibrationsDefineSymbols.cs",
+          "source_sha256": "7c73de93e35b66a206ab1262162c086f5a3b1188529f452a0fb6ad261455b5b8",
+          "result_sha256": "3fcb51261b4791f16e6d62303b44edf479888c4a9ae57c1422758f7202c9e60b",
+          "hunks": [
+            {
+              "start": 7,
+              "delete": 0,
+              "insert": [
+                "#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 8,
+              "delete": 0,
+              "insert": [
+                "#endif\n"
+              ]
+            },
+            {
+              "start": 32,
+              "delete": 0,
+              "insert": [
+                "\t\t\t#if UNITY_6000_0_OR_NEWER\n"
+              ]
+            },
+            {
+              "start": 52,
+              "delete": 0,
+              "insert": [
+                "\t\t\t#endif\n"
+              ]
+            },
+            {
+              "start": 61,
+              "delete": 1,
+              "insert": [
+                "}\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/NiceVibrations/Demo/DemoAssets/BallDemo/Scripts/BallDemoBall.cs",
+          "source_sha256": "86604c19414e6cba3dde62bea32e9e1f1e378051693e51ba8935104a6527022a",
+          "result_sha256": "d09c5fcff47bb6cad741c87985ee2b70de5e90a10dc40bed6a3108129de36932",
+          "hunks": [
+            {
+              "start": 68,
+              "delete": 1,
+              "insert": [
+                "\t\t\t#if UNITY_6000_0_OR_NEWER\n",
+                "\t\t\tfloat amplitude = _rigidBody.linearVelocity.magnitude / 100f;\n",
+                "\t\t\t#else\n",
+                "\t\t\tfloat amplitude = _rigidBody.velocity.magnitude / 100f;\n",
+                "\t\t\t#endif\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Feel/NiceVibrations/Demo/DemoAssets/BallDemo/Scripts/BallPusher.cs",
+          "source_sha256": "c0eb64ae5f91129e3bee26454d7d2331f1fb4f470fefce31828c30a1a7bae2ce",
+          "result_sha256": "4f0ff75acff6112b7290b44cd3ba73135e0879dd94f66c3bea1aa6a92dbbd19b",
+          "hunks": [
+            {
+              "start": 24,
+              "delete": 1,
+              "insert": [
+                "\t\t\t#if UNITY_6000_0_OR_NEWER\n",
+                "\t\t\tcollider.attachedRigidbody.linearVelocity = Vector2.zero;\n",
+                "\t\t\t#else\n",
+                "\t\t\tcollider.attachedRigidbody.velocity = Vector2.zero;\n",
+                "\t\t\t#endif\n"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "final-ik-2.5-unity-2022",
+      "archive": "FinalIK.unitypackage",
+      "archive_sha256": "d764ea0ff2a7c379731ef0ff8cde62f7aadabedd321e86f0b97eebd11fd8a8c0",
+      "asset_version": "2.5",
+      "unity_major_min": 2022,
+      "unity_major_max_exclusive": 2023,
+      "files": [
+        {
+          "path": "Assets/Plugins/RootMotion/FinalIK/IK Components/IKExecutionOrder.cs",
+          "source_sha256": "d6b72ba0c089aa338cb784208c5556a9db03e89779ef772afa94247086b9d97d",
+          "result_sha256": "bab146e234d4d034bb5b4b135f0135243a635c203206f43608bad947b31e3122",
+          "hunks": [
+            {
+              "start": 27,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\treturn animator.updateMode == AnimatorUpdateMode.AnimatePhysics;\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Plugins/RootMotion/FinalIK/Ragdoll Utility/RagdollUtility.cs",
+          "source_sha256": "28e617e54f288b7cf2433b7baf435f4574a187e71391cfb6e2157a415e36bc4b",
+          "result_sha256": "9618c764df116c23ab9932de8c68facaac4e6f338d722a6590e4d092de452f69",
+          "hunks": [
+            {
+              "start": 118,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\t\tr.velocity = (deltaPosition / deltaTime) * velocityWeight;\n"
+              ]
+            },
+            {
+              "start": 299,
+              "delete": 1,
+              "insert": [
+                "\t\t\tif (animator.updateMode != AnimatorUpdateMode.AnimatePhysics || (animator.updateMode == AnimatorUpdateMode.AnimatePhysics && fixedFrame)) {\n"
+              ]
+            },
+            {
+              "start": 350,
+              "delete": 1,
+              "insert": [
+                "\t\t\tanimator.updateMode = AnimatorUpdateMode.AnimatePhysics;\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Plugins/RootMotion/FinalIK/_DEMOS/FBBIK/Scripts/ExplosionDemo.cs",
+          "source_sha256": "d720927413ce72a8091e2e27d3103930f93f39367104fb1bc6e4afbb089e8e78",
+          "result_sha256": "a0a30ff8da1d2e6b6e3ea30770e1dadbd017fd6db6f09dc3101dddf3b73ec77d",
+          "hunks": [
+            {
+              "start": 53,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\tr.velocity = (direction.normalized + (Vector3.up * upForce)) * explosionForce * forceMlp;\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Plugins/RootMotion/FinalIK/_DEMOS/FBBIK/Scripts/MotionAbsorbCharacter.cs",
+          "source_sha256": "a792bfba267658cc0d5d7b9fc86af528057e2c24cb5d322d5a5a45bc1db9455f",
+          "result_sha256": "9de513cb162d0d766473ad9c808c0aba8e1302d83662f197eeb3c0f18d5f4e43",
+          "hunks": [
+            {
+              "start": 40,
+              "delete": 1,
+              "insert": [
+                "\t\t\tcubeRigidbody.velocity = Vector3.zero;\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Plugins/RootMotion/Shared Demo Assets/Scripts/Character Controllers/CharacterAnimationThirdPerson.cs",
+          "source_sha256": "2f1581a58f2d316b10c57bf1f75c59cd99d4ccbba8925bfc018ae79783696824",
+          "result_sha256": "f14ec81d7d770a79b27e1cc7b4408870a84d2c15a710fc069b6a62878deefb04",
+          "hunks": [
+            {
+              "start": 46,
+              "delete": 1,
+              "insert": [
+                "            animatePhysics = animator.updateMode == AnimatorUpdateMode.AnimatePhysics;\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Plugins/RootMotion/Shared Demo Assets/Scripts/Character Controllers/CharacterBase.cs",
+          "source_sha256": "b2b2cc60afafb342f2de546c6beefa3baeac71e561620f2b5bc0791f96d98a6a",
+          "result_sha256": "ddb1d58a303dd9b5c3e24278b9ea50c60a857311aa0ce8294676116b74bb54ba",
+          "hunks": [
+            {
+              "start": 2,
+              "delete": 0,
+              "insert": [
+                "#if !UNITY_6000_0_OR_NEWER\n",
+                "using PhysicsMaterial = UnityEngine.PhysicMaterial;\n",
+                "using PhysicsMaterialCombine = UnityEngine.PhysicMaterialCombine;\n",
+                "#endif\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Plugins/RootMotion/Shared Demo Assets/Scripts/Character Controllers/CharacterThirdPerson.cs",
+          "source_sha256": "1612771cb633d09638914a5cfa66dea900f8a77e3594b179cda5de372a9af750",
+          "result_sha256": "a177295fa3aa2fd0a7580256e349ded6fd6108d505377f5e621c6fa109ed8aa1",
+          "hunks": [
+            {
+              "start": 127,
+              "delete": 1,
+              "insert": [
+                "\t\t\tverticalVelocity = V3Tools.ExtractVertical(r.velocity, gravity, 1f);\n"
+              ]
+            },
+            {
+              "start": 152,
+              "delete": 1,
+              "insert": [
+                "\t\t\tbool stopSlide = !fullRootMotion && onGround && userControl.state.move == Vector3.zero && r.velocity.magnitude < 0.5f && groundDistance < airborneThreshold * 0.5f;\n"
+              ]
+            },
+            {
+              "start": 163,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\tr.velocity = Vector3.zero;\n"
+              ]
+            },
+            {
+              "start": 180,
+              "delete": 2,
+              "insert": [
+                "\t\t\t\t\tr.velocity = jumpVelocity;\n",
+                "\t\t\t\t\tr.velocity += transform.up * jumpPower * doubleJumpPowerMlp;\n"
+              ]
+            },
+            {
+              "start": 239,
+              "delete": 1,
+              "insert": [
+                "                    velocity = Vector3.Lerp(r.velocity, airMove, Time.deltaTime * airControl);\n"
+              ]
+            },
+            {
+              "start": 244,
+              "delete": 1,
+              "insert": [
+                "                    r.velocity = r.velocity - transform.up * stickyForce * Time.deltaTime;\n"
+              ]
+            },
+            {
+              "start": 248,
+              "delete": 1,
+              "insert": [
+                "                Vector3 verticalVelocity = V3Tools.ExtractVertical(r.velocity, gravity, 1f);\n"
+              ]
+            },
+            {
+              "start": 259,
+              "delete": 1,
+              "insert": [
+                "                r.velocity = horizontalVelocity + verticalVelocity;\n"
+              ]
+            },
+            {
+              "start": 262,
+              "delete": 1,
+              "insert": [
+                "                r.velocity = velocity;\n"
+              ]
+            },
+            {
+              "start": 295,
+              "delete": 1,
+              "insert": [
+                "\t\t\tif (onGround && velocityY < 0f) r.velocity = V3Tools.ExtractHorizontal(r.velocity, gravity, 1f);\n"
+              ]
+            },
+            {
+              "start": 393,
+              "delete": 1,
+              "insert": [
+                "                StartCoroutine(JumpSmooth(jumpVelocity - r.velocity));\n"
+              ]
+            },
+            {
+              "start": 396,
+              "delete": 1,
+              "insert": [
+                "                r.velocity = jumpVelocity;\n"
+              ]
+            },
+            {
+              "start": 440,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\tVector3 horizontalVelocity = V3Tools.ExtractHorizontal(r.velocity, gravity, 1f);\n"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "Assets/Plugins/RootMotion/Shared Scripts/SolverManager.cs",
+          "source_sha256": "7cb1e756cb426ae19f9076505c1ed95631e1bd4c139c07b6cd09abfd53bf820b",
+          "result_sha256": "cb44c3b54b8c9f72c21e775c6d25def300d8a1bb517b2fafaaa202a8f95f30ca",
+          "hunks": [
+            {
+              "start": 49,
+              "delete": 1,
+              "insert": [
+                "\t\t\t\tif (animator != null) return animator.updateMode == AnimatorUpdateMode.AnimatePhysics;\n"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

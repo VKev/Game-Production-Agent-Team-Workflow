@@ -1,6 +1,6 @@
 # Sources
 
-- Installed snapshot: `Assets/Technie/PhysicsCreator/Technie Collider Creator Readme.pdf`, package source, examples, and asmdefs. The registered source label is `1.3.1`.
+- Installed snapshot: `Assets/Plugins/Technie/PhysicsCreator/Technie Collider Creator Readme.pdf`, package source, examples, and asmdefs. The registered source label is `1.3.1`.
 - [Technie official site](https://technie.dev/): publisher product overview and support route.
 - [Technie Collider Creator 2 on Unity Asset Store](https://marketplace.unity.com/packages/tools/physics/technie-collider-creator-2-217070): release/compatibility cross-check.
 - Installed manual topics: Rigid/Skinned quick starts, hull types, auto-hull settings, inflation, dynamic skinned update modes, LOD, API example, editor-data ownership, precision, and troubleshooting.

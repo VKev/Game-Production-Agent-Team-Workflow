@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Analyzer Setup"
+  short_description: "Configure caption-gated video analysis for Codex"
+  default_prompt: "Use $setup-video-analyzer to install and configure caption-gated video analysis for Codex only."

@@ -21,6 +21,16 @@ exclude_patterns:
   - "Assets/Plugins/Editor/JetBrains*"
   - "Assets/SceneDependencyCache*"
 
+  # Registered third-party source. Keep project-owned Assets/Plugins code eligible.
+  - "Assets/Plugins/Demigiant/**"
+  - "Assets/Plugins/Sirenix/**"
+  - "Assets/Plugins/RootMotion/**"
+  - "Assets/Plugins/Feel/**"
+  - "Assets/Plugins/FImpossible Creations/**"
+  - "Assets/Plugins/KINEMATION/**"
+  - "Assets/Plugins/Technie/**"
+  - "Assets/Plugins/Roslyn/**"
+
   # Serialized Unity assets and generated IDE/project files
   - "**/*.meta"
   - "**/*.unity"

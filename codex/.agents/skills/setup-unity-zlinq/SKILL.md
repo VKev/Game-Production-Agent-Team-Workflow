@@ -17,6 +17,15 @@ The setup is `correct` only when all three layers verify:
 
 Classify a missing layer independently. Treat a fork, local/embed source, dirty Git source, disabled or unknown NuGet source, newer installed version, version disagreement, or unrecognized configuration ownership as `ambiguous`; do not replace or downgrade it.
 
+## Setup-agents phase contract
+
+When orchestrated by `setup-agents`:
+
+- **Editor-closed preparation:** require the exact target project to be closed. Perform only workflow sections 1–3: inspect state, verify the coherent release set, and preserve or create the allowed NuGet configuration. Do not launch Unity or batch mode, call Package Manager, install NuGetForUnity/ZLinq/ZLinq.Unity, refresh assets, compile, or test. Report all Unity-owned layers as `pending (editor-ready)`.
+- **Live pass:** use the one already-open target Editor. Execute sections 4–6 in their strict dependency order. Wait for package operations, Unity compilation, and domain reload only when they block the next layer. Do not run Unity Test Runner or the `AsValueEnumerable()` probe after each layer; contribute that probe and broad compilation evidence to the orchestrator's consolidated final pass.
+
+On resume, preserve a correct preparation result and continue from the first missing live layer.
+
 ## Workflow
 
 ### 1. Resolve and preserve project state
@@ -50,14 +59,14 @@ Use the live Unity Editor and `UnityEditor.PackageManager.Client`; never edit Un
 1. Inspect the installed package through `Client.List`.
 2. If absent, install the verified tagged URL returned by the checker: `https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity#<tag>`.
 3. If older and sourced from the official repository or matching OpenUPM package, update to that verified URL. If already correct, skip mutation.
-4. Wait for Package Manager resolution, domain reload, and compilation. Verify package ID, version, official source/revision, `NuGetForUnity` editor assembly, and public installer API before proceeding.
+4. Wait for Package Manager resolution, domain reload, and the Unity-controlled compilation needed before the next layer. Verify package ID, version, official source/revision, `NuGetForUnity` editor assembly, and public installer API before proceeding; this is a dependency gate, not a separate broad test pass.
 
 ### 5. Install ZLinq from NuGet second
 
 Use NuGetForUnity's public API from the verified installed version. For the current API shape, construct `NugetForUnity.Models.NugetPackageIdentifier("ZLinq", version)`, set `IsManuallyInstalled = true`, and call `NugetForUnity.NugetPackageInstaller.InstallIdentifier(...)`. If the live execution compiler cannot reference the non-auto-referenced editor assembly, reflection may bind only those exact public types, constructor, property, and method after confirming their signatures. Never call private or internal APIs.
 
 - If public signatures changed in a future NuGetForUnity release, stop with `installer API verification pending`; do not edit `packages.config` to simulate installation.
-- Require the call to return true, wait for asset refresh and compilation, then inspect `InstalledPackagesManager.InstalledPackages` and the active `packages.config`.
+- Require the call to return true, wait for the asset refresh and Unity-controlled compilation needed before the next layer, then inspect `InstalledPackagesManager.InstalledPackages` and the active `packages.config`. Do not run a separate project test pass here.
 - Require an explicit `ZLinq` entry at the verified version and an installed `ZLinq.dll` selected for Unity's compatible .NET Standard profile.
 - Do not install `ZLinq.DropInGenerator`; it is optional, changes compilation behavior per assembly, and requires a separate explicit decision.
 
@@ -67,11 +76,11 @@ After core `ZLinq.dll` verifies, install the checker-provided tagged URL through
 
 `https://github.com/Cysharp/ZLinq.git?path=src/ZLinq.Unity/Assets/ZLinq.Unity#<tag>`
 
-Wait for resolution, domain reload, and compilation. If `com.cysharp.zlinq` is already installed at the same official version, skip. Update only a recognized older official source. Treat a different major/source, newer version, or core/Unity version mismatch as `ambiguous`.
+Wait for resolution, domain reload, and Unity-controlled compilation to settle. If `com.cysharp.zlinq` is already installed at the same official version, skip. Update only a recognized older official source. Treat a different major/source, newer version, or core/Unity version mismatch as `ambiguous`.
 
 ### 7. Verify and report
 
-Require all of the following before reporting success:
+Require all of the following before reporting success. Under `setup-agents`, collect the broad compilation and deferred compile-probe evidence in its single final pass:
 
 - NuGetForUnity, core ZLinq, and ZLinq.Unity versions and sources match the verified release set.
 - `ZLinq.dll`, the `ZLinq.Unity` assembly, active `NuGet.config`, and explicit `packages.config` entry exist.
@@ -87,4 +96,5 @@ Report each layer as `skipped`, `created`, `repaired`, `pending`, or `blocked`, 
 - Never edit `Packages/manifest.json`, `Packages/packages-lock.json`, or `packages.config` manually to claim an install.
 - Never overwrite NuGet configuration, persist credentials, use prereleases, downgrade a newer installation, or silently replace a fork/local package.
 - Never install DropInGenerator, Unity Collections, or another optional package solely because ZLinq supports it.
+- During `setup-agents`, never launch Unity or batch mode in preparation, open a second Editor in the live pass, or run the deferred compile probe before all Unity package operations finish.
 - Never stage, commit, push, or modify another AI client during project setup.

@@ -1,6 +1,6 @@
 # Sources
 
-- Installed snapshot: `Assets/Feel/readme.txt`; package manual links and source comments under `Assets/Feel/MMFeedbacks/` are authoritative for exact installed APIs.
+- Installed snapshot: `Assets/Plugins/Feel/readme.txt`; package manual links and source comments under `Assets/Plugins/Feel/MMFeedbacks/` are authoritative for exact installed APIs.
 - [Feel documentation](https://feel-docs.moremountains.com/): official documentation index.
 - [Getting started](https://feel-docs.moremountains.com/getting-started.html): `MMF_Player` creation and event/code triggering.
 - [MMF_Player](https://feel-docs.moremountains.com/mmf-player.html): current player lifecycle and migration context.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity Responsive UI"
+  short_description: "Build safe-area responsive Unity uGUI layouts"
+  default_prompt: "Use $dev-unity-responsive-ui to audit and improve this Unity uGUI screen across aspect ratios, safe areas, and localization."

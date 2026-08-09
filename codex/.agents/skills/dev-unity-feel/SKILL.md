@@ -5,7 +5,7 @@ description: Design, implement, extend, profile, and verify game feedback using 
 
 # Feel Development
 
-Read [references/sources.md](references/sources.md) and confirm `Assets/Feel/readme.txt`. The registered snapshot is Feel `6.0`; do not write against a different online version without checking installed source.
+Read [references/sources.md](references/sources.md) and confirm `Assets/Plugins/Feel/readme.txt`. The registered snapshot is Feel `6.0`; do not write against a different online version without checking installed source.
 
 ## Core workflow
 

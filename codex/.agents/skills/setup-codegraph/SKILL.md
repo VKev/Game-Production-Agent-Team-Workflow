@@ -1,6 +1,6 @@
 ---
 name: setup-codegraph
-description: Check, install, connect, initialize, and verify the official CodeGraph source-code knowledge graph for Codex only. Use when preparing a copied Codex agent package, when the CodeGraph CLI or Codex MCP entry is missing or stale, or when a project needs its local .codegraph index.
+description: Check, install, connect, initialize, and verify the official CodeGraph source-code knowledge graph for Codex only, with project-owned Unity code indexed and registered vendor source excluded. Use when preparing a copied Codex agent package, when the CodeGraph CLI or Codex MCP entry is missing or stale, or when a project needs its local .codegraph index.
 ---
 
 # CodeGraph Project Setup
@@ -11,10 +11,10 @@ Install CodeGraph from its official standalone distribution, connect only Codex 
 
 1. Resolve and canonicalize the exact target project root. Treat the CodeGraph CLI and Codex MCP registration as user-level state shared by projects; treat `.codegraph/` as a per-project index.
 2. Before making changes, record whether `HEAD` exists, its SHA, and the staged-path list. Also record the existence and hashes of these exact Claude paths when present: `~/.claude.json`, `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `<project-root>/.claude/settings.json`, `<project-root>/.claude/settings.local.json`, and `<project-root>/CLAUDE.md`. Do not recursively inspect Claude directories. Stop if the Git index is already non-empty.
-3. Confirm the root `.gitignore` effectively ignores `.codegraph/` and that no `.codegraph/` path is tracked. When orchestrated by `setup-agents`, `setup-unity-gitignore` must complete first. Do not initialize CodeGraph until both checks pass.
+3. Confirm the root `.gitignore` effectively ignores `.codegraph/` and root `codegraph.json`, and that neither is tracked. When orchestrated by `setup-agents`, `setup-unity-gitignore` must complete first. Do not initialize CodeGraph until these checks pass.
 4. Resolve `codegraph` (`Get-Command codegraph -ErrorAction SilentlyContinue` on Windows or `command -v codegraph` on POSIX) before invoking it:
-   - If `codegraph version`, `codegraph install --help`, and `codegraph init --help` succeed and expose the required explicit-target installer and one-step initialization behavior, record the version and do not reinstall or upgrade it.
-   - If the executable runs but lacks the required `codex` target, `--location`, `--yes`, or one-step `codegraph init` behavior, treat it as an incompatible installation and repair it once with the official standalone installer. Do not upgrade solely because a newer version exists.
+   - If `codegraph version`, `codegraph install --help`, and `codegraph init --help` succeed and expose the required explicit-target installer, one-step initialization, and project `codegraph.json` `exclude` behavior, record the version and do not reinstall or upgrade it.
+   - If the executable runs but lacks the required `codex` target, `--location`, `--yes`, one-step `codegraph init`, or project exclusion behavior, treat it as an incompatible installation and repair it once with the official standalone installer. Do not upgrade solely because a newer version exists.
    - If the command is absent or cannot start, install the official standalone release once:
      - Windows PowerShell: `irm https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.ps1 | iex`
      - macOS or Linux: `curl -fsSL https://raw.githubusercontent.com/colbymchenry/codegraph/main/install.sh | sh`
@@ -27,13 +27,19 @@ Install CodeGraph from its official standalone distribution, connect only Codex 
 
    Reinspect the resulting Codex entry. This explicit target is mandatory: never use auto-detection, `all`, or another client target.
 8. If the official installer cannot update Codex but the CLI itself works, run `codegraph install --print-config codex`, validate the emitted snippet, and merge only that exact CodeGraph MCP entry into the active Codex configuration. Preserve unrelated TOML and instruction content. Do not guess a replacement entry or use this fallback to conceal a CLI, permission, or parsing failure.
-9. Check the project index. Initial indexing may legitimately take several minutes in a large Unity project; allow a bounded ten-minute budget, surface progress at least once per minute, and treat a timeout as incomplete rather than successful:
-   - If `.codegraph/` is absent, run `codegraph init` with no flags from the exact project root. Current CodeGraph builds the initial graph during this command.
+9. Parse or create root `codegraph.json`, preserving every unrelated key, then merge these exact gitignore-style entries into its `exclude` array:
+
+   `Assets/Plugins/Demigiant/`, `Assets/Plugins/Sirenix/`, `Assets/Plugins/RootMotion/`, `Assets/Plugins/Feel/`, `Assets/Plugins/FImpossible Creations/`, `Assets/Plugins/KINEMATION/`, `Assets/Plugins/Technie/`, and `Assets/Plugins/Roslyn/`.
+
+   Stop on invalid JSON, duplicate keys, a non-array `exclude`, or a CLI version that does not support project `exclude` configuration. Never replace this list or broaden it to `Assets/Plugins/`; project-owned plugin code must remain indexable. Validate that each exact vendor probe is excluded and `Assets/Plugins/Game/Probe.cs` remains eligible.
+10. Check the project index. Initial indexing may legitimately take several minutes in a large Unity project; allow a bounded ten-minute budget, surface progress at least once per minute, and treat a timeout as incomplete rather than successful:
+   - When orchestrated by `setup-agents` and live Unity package imports are still pending, defer a missing initial index until the single post-import refresh; installation, policy, and MCP registration may still be `restart-ready`.
+   - Otherwise, if `.codegraph/` is absent, run `codegraph init` with no flags from the exact project root. Current CodeGraph builds the initial graph during this command.
    - If `.codegraph/` exists and `codegraph status <project-root>` is healthy, skip initialization.
    - If status explicitly reports an uninitialized project, run `codegraph init` once from the exact root and recheck.
-   - If status reports pending synchronization, run one bounded `codegraph sync <project-root>` and recheck.
+   - If status reports pending synchronization, or the exclude policy changed and old vendor nodes may remain, run one bounded `codegraph sync <project-root>` and recheck.
    - If the index is corrupt, locked, points at another root, or remains unhealthy, stop and report it. Never delete, rebuild, or replace an existing index automatically.
-10. Verify `codegraph version`, `codegraph status <project-root>`, the exact Codex MCP command and arguments, `.codegraph/` ignore/untracked behavior, unchanged known Claude configuration hashes, unchanged `HEAD`, and an empty staged-path list. Report that Codex must restart before the new MCP server becomes available.
+11. Verify `codegraph version`, `codegraph status <project-root>` when indexing was due, exact vendor exclusion and project-code eligibility, the exact Codex MCP command and arguments, `.codegraph/` plus `codegraph.json` ignore/untracked behavior, unchanged known Claude configuration hashes, unchanged `HEAD`, and an empty staged-path list. Report that Codex must restart before the new MCP server becomes available.
 
 ## Runtime handoff
 
