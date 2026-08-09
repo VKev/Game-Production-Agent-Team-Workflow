@@ -1,6 +1,6 @@
 ---
 name: dev-unity-csharp-collections-queries
-description: "Documentation-grounded guidance for choosing, implementing, reviewing, and optimizing C# collections and data-query techniques in Unity 2022.3.62f2. Use for arrays, lists, dictionaries, sets, queues, stacks, sorted and concurrent containers, read-only views, spans, memory views, array/collection pools, loops, LINQ, iterators, cached indexes, reusable buffers, Unity non-allocating APIs, serialization constraints, and optional Unity.Collections native containers; explain when to use each option, correct usage, benefits, drawbacks, compatibility, scalability, readability, and verification requirements."
+description: "Documentation-grounded guidance for choosing, implementing, reviewing, and optimizing C# collections and data-query techniques in Unity 2022.3.62f2. Use for arrays, lists, dictionaries, sets, queues, stacks, sorted and concurrent containers, read-only views, spans, memory views, array or collection pools, loops, LINQ, ZLinq ValueEnumerable and zero-allocation query work, iterators, cached indexes, reusable buffers, Unity hierarchy queries and non-allocating APIs, serialization constraints, and optional Unity.Collections native containers."
 ---
 # Unity C# Collections and Queries
 
@@ -10,11 +10,12 @@ Provide technical evidence for collection and query decisions in projects target
 
 1. Treat Unity 2022.3 documentation as authoritative for Unity behavior.
 2. Treat the installed package version in `Packages/packages-lock.json` as authoritative for package APIs.
-3. Treat Microsoft Learn as authoritative for C# and .NET collection/LINQ semantics supported by Unity's selected API Compatibility Level.
-4. Do not use current Unity 6 documentation to justify a Unity 2022.3 API unless the same API is verified in the 2022.3 documentation.
-5. Open official documentation before making a version-sensitive claim when network tools are available.
-6. If official sources conflict, prefer the source closest to the actual runtime: exact package API, Unity 2022.3 manual/API, then Microsoft documentation for the compatible .NET profile.
-7. Distinguish documented behavior, measured project behavior, and engineering inference.
+3. Treat the installed `ZLinq` NuGet package, installed `com.cysharp.zlinq` package, and their matching tagged source as authoritative for ZLinq behavior.
+4. Treat Microsoft Learn as authoritative for C# and .NET collection/LINQ semantics supported by Unity's selected API Compatibility Level.
+5. Do not use current Unity 6 documentation to justify a Unity 2022.3 API unless the same API is verified in the 2022.3 documentation.
+6. Open official documentation before making a version-sensitive claim when network tools are available.
+7. If official sources conflict, prefer the source closest to the actual runtime: exact installed package API, Unity 2022.3 manual/API, then Microsoft documentation for the compatible .NET profile.
+8. Distinguish documented behavior, measured project behavior, and engineering inference.
 
 Read [references/source-of-truth.md](references/source-of-truth.md) whenever compatibility or API behavior affects the answer.
 Read [references/research-summary.md](references/research-summary.md) for the concise multi-source synthesis behind the decision rules.
@@ -25,7 +26,7 @@ Before recommending code:
 
 1. Read `ProjectSettings/ProjectVersion.txt` and confirm `2022.3.62f2` or report the mismatch.
 2. Read `ProjectSettings/ProjectSettings.asset` for API Compatibility Level and scripting backend when relevant.
-3. Read `Packages/manifest.json` and `Packages/packages-lock.json` before recommending optional packages or package APIs.
+3. Read `Packages/manifest.json` and `Packages/packages-lock.json` before recommending optional packages or package APIs. When ZLinq is relevant, also locate the active `NuGet.config`, `packages.config`, installed `ZLinq.dll`, and `com.cysharp.zlinq` version; do not infer installation from a `using` statement.
 4. Locate the query and its callers. Identify whether it runs in editor tooling, initialization, loading, event-driven code, a repeated runtime path, a job, or a custom thread.
 5. Estimate collection size, call frequency, lifetime, mutation rate, and result reuse.
 6. Define required semantics: order, uniqueness, duplicate policy, null policy, failure behavior, determinism, thread access, ownership, and serialization.
@@ -35,6 +36,7 @@ Before recommending code:
 
 - Read [references/managed-collections.md](references/managed-collections.md) to choose managed containers, read-only boundaries, range/memory views, and rented buffers.
 - Read [references/query-techniques.md](references/query-techniques.md) to compare loops, LINQ, materialization, iterators, sorting, grouping, and cached indexes.
+- Read [references/zlinq.md](references/zlinq.md) when ZLinq, `ValueEnumerable`, `AsValueEnumerable`, Unity hierarchy queries, or allocation-sensitive LINQ-like code is relevant.
 - Read [references/unity-integration.md](references/unity-integration.md) for Unity serialization, managed allocations, pooling, non-allocating APIs, and profiling.
 - Read [references/native-collections.md](references/native-collections.md) only when Jobs, Burst, native memory, or `Unity.Collections` is relevant.
 
@@ -48,6 +50,7 @@ For each realistic option, evaluate:
 - **Benefits**: readability, lookup behavior, allocation control, reuse, or parallel compatibility.
 - **Drawbacks**: hidden execution, memory overhead, resizing, invalidation, disposal, synchronization, debugging, or migration cost.
 - **Unity compatibility**: language version, API profile, serialization, package availability, Mono/IL2CPP, Jobs/Burst, and platform limitations.
+- **Query implementation**: compare standard LINQ, ZLinq, and explicit loops only when each is installed/compatible and meaningfully fits the same requirement; do not introduce a dependency to shorten one query.
 - **Scale dimension**: item count, query frequency, mutation frequency, concurrent readers/writers, content volume, or number of systems sharing the data.
 - **Future GDD impact**: new filters, rankings, stable ordering, deterministic replay/networking, designer-authored content, multiple indexes, save compatibility, and live content updates.
 - **Verification**: tests, Profiler evidence, GC allocation checks, target-device measurements, and boundary scenarios.

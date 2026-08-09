@@ -1,5 +1,15 @@
 # Sources
 
+## Official UPM packages
+
+- [VContainer official repository](https://github.com/hadashiA/VContainer): tagged Git package source and release verification.
+- [Cinemachine 3.1 manual](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/index.html): official package concepts and current 3.1 documentation stream.
+- [Install and upgrade Cinemachine](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/InstallationAndUpgrade.html): Package Manager installation and upgrade guidance.
+- [Upgrade from Cinemachine 2](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineUpgradeFrom2.html): breaking migration scope that setup must not perform automatically.
+- [Unity Package Manager Client API](https://docs.unity3d.com/ScriptReference/PackageManager.Client.html): live registry search, package inspection, and installation.
+
+Use the live Unity Registry compatible-version list rather than a hard-coded online Cinemachine version. The installed package documentation remains authoritative for its exact major and minor API.
+
 ## VContainer
 
 - [Official VContainer repository](https://github.com/hadashiA/VContainer): authoritative Git source and releases.

@@ -50,6 +50,7 @@ Select from the available role-prefixed skills by responsibility:
 - UI and localization: `dev-unity-ui-controller-binding`, `dev-unity-ui-hierarchy-architecture`, `dev-unity-locale-manager`.
 - Runtime systems: `dev-unity-object-pooling`, `dev-unity-async-coroutines-unitask`, `dev-unity-assets-addressables`.
 - Performance and data: `dev-unity-performance-profiling`, `dev-unity-jobs-burst-native-collections`, `dev-unity-csharp-collections-queries`.
+- Camera systems and presentation: `dev-unity-cinemachine`.
 - Code quality: `dev-unity-clean-code-principles`, `dev-ponytail`.
 - Inspector, tweening, and feedback: `dev-unity-odin-inspector`, `dev-unity-dotween-pro`, `dev-unity-feel`.
 - Character IK and procedural animation: `dev-unity-final-ik`, `dev-unity-legs-animator`, `dev-unity-spine-animator`, `dev-unity-tail-animator`.
@@ -57,6 +58,8 @@ Select from the available role-prefixed skills by responsibility:
 - Runtime optimization and collider authoring: `dev-unity-optimizers`, `dev-unity-technie-collider-creator`.
 
 Load a package skill only when that package is installed and the task actually uses it. Confirm the installed version or registered fingerprint before relying on online documentation. When several animation packages affect the same character, define bone ownership and update order before editing; do not let Legs, Spine, Tail, Final IK, Retarget Pro, DOTween, or Feel silently compete for the same transforms or lifecycle.
+
+For allocation-sensitive LINQ-like code, route through `dev-unity-csharp-collections-queries`; use ZLinq guidance only when both the core NuGet package and matching ZLinq.Unity package are installed. For camera work, route through `dev-unity-cinemachine` and inspect the installed Cinemachine major before choosing 2.x or 3.x APIs.
 
 The project-generated `beads` skill is optional. If `.agents/skills/beads/SKILL.md` exists, read it only when durable task tracking is useful. If it is absent, continue without installing or initializing Beads.
 

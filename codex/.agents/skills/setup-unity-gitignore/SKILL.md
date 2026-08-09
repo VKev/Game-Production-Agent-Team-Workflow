@@ -5,7 +5,7 @@ description: Add, verify, or repair a Unity project .gitignore from bundled offi
 
 # Unity Gitignore Setup
 
-Use [assets/Unity.gitignore](assets/Unity.gitignore) as the Unity baseline and [assets/AI.gitignore](assets/AI.gitignore) for project-local AI and Markdown exclusions. The Unity asset is a downloaded copy of GitHub's official community template; see [references/sources.md](references/sources.md) when refreshing or auditing its provenance.
+Use [assets/Unity.gitignore](assets/Unity.gitignore) as the Unity baseline plus generated NuGetForUnity payload policy, and [assets/AI.gitignore](assets/AI.gitignore) for project-local AI and Markdown exclusions. The Unity asset starts from GitHub's official community template and carries two documented project-specific NuGetForUnity rules; see [references/sources.md](references/sources.md) when refreshing or auditing its provenance.
 
 ## Workflow
 
@@ -16,9 +16,10 @@ Use [assets/Unity.gitignore](assets/Unity.gitignore) as the Unity baseline and [
    - If `.gitignore` does not exist, create it by combining `assets/Unity.gitignore` and `assets/AI.gitignore`, with one blank line between them.
    - If `.gitignore` exists but is incomplete or ineffective, preserve all existing content and append only the required patterns that are missing or overridden.
 4. Treat a later negation such as `!/.codex/` as an incorrect setup. Append the required ignore pattern after that negation so the final effective result matches the bundled templates.
-5. Do not remove, reorder, reformat, or replace existing rules. Keep unrelated user rules exactly as authored.
-6. Do not untrack files automatically. Report any already-tracked file that now matches an ignore rule; `.gitignore` affects only untracked files.
-7. Run this workflow before `bd init` or any other agent initializer that may create or stage generated integration files.
+5. Keep `Packages/nuget-packages/NuGet.config` and every `packages.config` visible to Git. If an existing broad rule ignores either declaration, append only the narrow parent/file negations required to expose them while keeping `InstalledPackages/` and generated `package.json` ignored.
+6. Do not remove, reorder, reformat, or replace existing rules. Keep unrelated user rules exactly as authored.
+7. Do not untrack files automatically. Report any already-tracked file that now matches an ignore rule; `.gitignore` affects only untracked files.
+8. Run this workflow before `bd init` or any other agent initializer that may create or stage generated integration files.
 
 ## Required checks
 
@@ -43,10 +44,19 @@ Use `git check-ignore --no-index -v` from the repository root. At minimum, confi
 - `.agent-temp/probe.txt`
 - `.art-temp/probe.txt`
 - `.vscode/settings.json`
+- `Packages/nuget-packages/InstalledPackages/__codex_gitignore_probe__.dll`
+- `Packages/nuget-packages/package.json`
 - `README.md`
 - `Assets/README.md.meta`
 
 Also compare the active, non-comment patterns in both bundled assets with the target file. Accept an existing equivalent rule when the effective check proves the same path is ignored; do not add cosmetic duplicates.
+
+Also require both declaration probes to remain visible to Git:
+
+- `Packages/nuget-packages/NuGet.config`
+- `Packages/nuget-packages/packages.config`
+
+Run `git check-ignore --no-index -v` for each declaration and require no matching ignore rule. If either is ignored, setup is incorrect until a narrow effective negation exposes it. Do not create the declaration merely to test ignore behavior.
 
 Finish with `git diff --check` and report whether `.gitignore` was created, repaired, or already correct.
 
@@ -56,4 +66,5 @@ Finish with `git diff --check` and report whether `.gitignore` was created, repa
 - Never overwrite an existing `.gitignore` wholesale.
 - Never modify global Git excludes.
 - Keep `*.md` and `*.md.meta`: this package intentionally ignores all Markdown files, including README, design documents, generated agent instructions, and Unity `.meta` files for Markdown assets.
+- Ignore only NuGetForUnity's downloaded/generated payloads. Do not ignore its restore declarations (`NuGet.config` and `packages.config`).
 - Ignoring another AI tool's local folder does not authorize installing or configuring that tool.

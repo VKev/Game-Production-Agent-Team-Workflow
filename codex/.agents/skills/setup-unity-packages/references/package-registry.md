@@ -17,13 +17,14 @@ This registry is an allowlist and a snapshot of user-provided archives. A mirror
 | Tail Animator V2 | `TailAnimator.unitypackage` | Internal readme: `2.0.7.4.1`; source label `2.0.7.4 (19 Jun 2026)` | `A14EF1C7121DC7D79A01C474DFA55F237F7AC44D5FAE7A4145339731154C3A92` | `Assets/FImpossible Creations/Plugins - Animating/Tail Animator/` |
 | Technie Collider Creator 2 | `TechnieColliderCreator.unitypackage` | Source label `1.3.1`; archive has no comparable text marker | `AE68A99BA0E06328291A0E1BE12EF504249F7DBB23328553F4B9873A2A5DBD84` | `Assets/Technie/PhysicsCreator/` |
 
-## Official UPM package
+## Official UPM packages
 
 | Product | Package ID | Approved source | Version policy |
 |---|---|---|---|
 | VContainer | `jp.hadashikick.vcontainer` | `https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#<stable-tag>` | Resolve the latest non-draft, non-prerelease GitHub release and verify its tag plus tagged `package.json` before install. The verified snapshot on 2026-08-09 was `1.19.0`; do not hard-code that snapshot as permanently latest. |
+| Cinemachine | `com.unity.cinemachine` | Unity Registry through `UnityEditor.PackageManager.Client` | If missing, install the highest released stable version in the live registry's compatible-version list for the current Editor. If already installed from the Unity Registry, preserve the installed major and update only within that major. Never auto-migrate Cinemachine 2.x to 3.x. |
 
-Recognize the official OpenUPM package as an acceptable existing source when it resolves the same verified stable version. Do not automatically replace an embedded package, local path, fork, dirty Git source, or newer installed version.
+Recognize the official OpenUPM VContainer package as an acceptable existing source when it resolves the same verified stable version. Do not automatically replace an embedded package, local path, fork, dirty Git source, or newer installed version. Cinemachine's approved source is the Unity Registry; a Git, local, embedded, or forked Cinemachine package is ambiguous.
 
 ## Identity markers
 

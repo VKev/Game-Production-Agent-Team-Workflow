@@ -1,0 +1,4 @@
+interface:
+  display_name: "Setup Unity ZLinq"
+  short_description: "Install NuGetForUnity and ZLinq safely"
+  default_prompt: "Use $setup-unity-zlinq to install or repair ZLinq in this Unity project."

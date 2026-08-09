@@ -7,6 +7,7 @@
 - [foreach loops](#foreach-loops)
 - [Single-pass explicit queries](#single-pass-explicit-queries)
 - [LINQ](#linq)
+- [ZLinq](#zlinq)
 - [Materialization](#materialization)
 - [Terminal operators](#terminal-operators)
 - [Ordering, grouping, joins, and set operations](#ordering-grouping-joins-and-set-operations)
@@ -176,6 +177,23 @@ GunDefinition[] unlocked = guns
 ### Do not ban or mandate LINQ
 
 Ask whether it improves this exact code. A one-time readable query may be preferable to a verbose manual loop. A per-agent query repeated every frame may justify an explicit loop, cached index, or changed algorithm. Confirm with profiling when performance matters.
+
+## ZLinq
+
+When the project has a verified matching installation of core `ZLinq` and `com.cysharp.zlinq`, ZLinq can preserve a LINQ-like pipeline while using struct-based `ValueEnumerable` iteration to reduce intermediate query allocations.
+
+```csharp
+using ZLinq;
+
+int aliveCount = enemies
+    .AsValueEnumerable()
+    .Where(static enemy => enemy != null && enemy.IsAlive)
+    .Count();
+```
+
+Use it when profiling identifies repeated managed LINQ allocations or when an allocation-sensitive query remains clearer as a pipeline than as a manual loop. Do not migrate cold code automatically, do not assume a chain is faster from syntax alone, and remember that materializers still allocate their result. `ValueEnumerable` is not generally interchangeable with `IEnumerable<T>`; API boundaries may require an explicit loop or materialization.
+
+Read [zlinq.md](zlinq.md) for installation checks, Unity-specific sources, limitations, DropInGenerator policy, and verification.
 
 ## Materialization
 

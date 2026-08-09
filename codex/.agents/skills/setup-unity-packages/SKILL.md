@@ -1,6 +1,6 @@
 ---
 name: setup-unity-packages
-description: Inspect, update, install, import, repair, and verify the approved Unity asset and UPM packages used by this portable Codex package. Use during setup-agents bootstrap when VContainer or any registered commercial or custom Unity package is missing, stale, incomplete, or conflicts with an installed build.
+description: Inspect, update, install, import, repair, and verify the approved Unity asset and UPM packages used by this portable Codex package. Use during setup-agents bootstrap when VContainer, Cinemachine, or any registered commercial or custom Unity package is missing, stale, incomplete, or conflicts with an installed build.
 ---
 
 # Unity Asset Package Setup
@@ -58,8 +58,10 @@ Use the same live Unity instance and Unity Package Manager; never edit `Packages
 
 - VContainer is an approved first-class UPM package, not a bundled asset archive. Run `scripts/check_vcontainer_release.ps1` and require `Status=verified-stable`. The script resolves `releases/latest`, rejects drafts/prereleases/non-numeric tags, confirms the tag in official Git, and requires the tagged `VContainer/Assets/VContainer/package.json` to declare both `jp.hadashikick.vcontainer` and the identical version. If the script is unavailable, perform those same checks without weakening them. Do not trust an API tag alone.
 - Inspect the installed package through `UnityEditor.PackageManager.Client.List`. If absent, or older and already sourced from the official repository/OpenUPM, install or update it through `Client.Add` using the official tagged Git URL `https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#<tag>`. Wait for Package Manager resolution, domain reload, and compilation. If the same version is already installed from the official repository or OpenUPM, skip mutation. Treat a newer version, embedded/local package, fork, dirty Git source, downgrade, or unresolved dependency conflict as `ambiguous`; do not replace it automatically.
+- Cinemachine is an approved first-class Unity Registry package. Query the live registry with `UnityEditor.PackageManager.Client.Search("com.unity.cinemachine")` and inspect `versions.compatible`; reject prerelease versions and sort stable semantic versions numerically, never lexically. For a missing package, install the highest released stable version compatible with the project's current Unity Editor as `com.unity.cinemachine@<exact-version>`. For an existing healthy Unity Registry package, preserve its major generation and update only to the highest compatible stable version in that same major. Never auto-upgrade Cinemachine 2.x to 3.x: that is a breaking code and serialized-component migration requiring an explicit user task. Treat an unparsable version, local/embed source, fork, newer installed version, incompatible Editor, unknown source, or unresolved major-version conflict as `ambiguous`.
+- Perform Cinemachine search/add requests one at a time. Wait for Package Manager resolution, domain reload, and compilation, then verify package ID, exact resolved version, Unity Registry source, `CinemachineBrain`, and the generation-appropriate camera assembly/type (`CinemachineVirtualCamera` for 2.x or `Unity.Cinemachine.CinemachineCamera` for 3.x). Never edit the manifest or lock file to simulate installation.
 - Technie Collider Creator 2 requires compatible `com.unity.burst` `>= 1.8.0` and `com.unity.collections` `>= 2.5.7` because its runtime and editor asmdefs reference `Unity.Burst` and `Unity.Collections`. If absent or too old, install the latest version compatible with the project's Unity Editor through `UnityEditor.PackageManager.Client.Add`, one request at a time, then wait for resolution, reload, and compilation.
-- Feel integrations are conditional through asmdef version defines. Do not install Cinemachine, render-pipeline, Post Processing, VFX Graph, Input System, or TextMesh Pro solely for Feel; activate only integrations already needed by the project.
+- Feel integrations are conditional through asmdef version defines. Cinemachine is installed by its independent first-class rule above; do not let Feel force a Cinemachine major migration. Do not install a render pipeline, Post Processing, VFX Graph, Input System, or TextMesh Pro solely for Feel; activate only integrations already needed by the project.
 - Optimizers' Progressive Culling dependencies (`mathematics`, `jobs`, `collections`, and `burst`) are optional. Do not install them unless the project explicitly enables that feature.
 
 ### 5. Classify installed state
@@ -102,6 +104,7 @@ Refresh, wait through reload, and check again. If it still reports required, lea
 For every package:
 
 - For VContainer, verify `jp.hadashikick.vcontainer`, its resolved stable version, official source/revision, assembly availability, package resolution, and compilation.
+- For Cinemachine, verify `com.unity.cinemachine`, the selected compatible stable version, Unity Registry source, preserved major-generation policy, generation-appropriate assemblies/types, package resolution, domain reload, and compilation.
 - Verify the installed version/fingerprint, required markers, and narrow import root.
 - Verify required assemblies and scripts compile in the actual project, with no new package-attributable console error.
 - For FImpossible, verify package-specific versions plus the shared-helper baseline.

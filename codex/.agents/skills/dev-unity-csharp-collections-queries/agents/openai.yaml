@@ -1,7 +1,7 @@
 interface:
   display_name: Unity C# Collections & Queries
-  short_description: Docs-grounded collection and LINQ choices for Unity 2022.3
-  default_prompt: Use $dev-unity-csharp-collections-queries to review this Unity collection or query code. Compare valid options using Unity 2022.3 and Microsoft documentation, including correctness, allocations, serialization, scalability, future GDD impact, and verification.
+  short_description: Docs-grounded collection, LINQ, and ZLinq choices
+  default_prompt: Use $dev-unity-csharp-collections-queries to review this Unity collection or query code. Compare valid loops, LINQ, ZLinq, cached-index, and native-container options using the installed Unity and package versions, including correctness, allocations, serialization, scalability, future GDD impact, and verification.
   icon_small: assets/icon.svg
   icon_large: assets/icon.svg
 policy:
