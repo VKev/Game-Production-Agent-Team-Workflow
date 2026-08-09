@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity MCP Setup"
+  short_description: "Install Unity MCP, dependencies, and its Codex skill"
+  default_prompt: "Use $setup-unity-mcp to install MCP for Unity and its current official dependencies, sync its runtime guidance as dev-unity-mcp, and configure only Codex."

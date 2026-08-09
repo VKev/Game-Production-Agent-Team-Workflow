@@ -1,5 +1,0 @@
-interface:
-  display_name: "Unity Project Context"
-  short_description: "Maintain hierarchical Unity AGENTS.md project maps"
-policy:
-  allow_implicit_invocation: true

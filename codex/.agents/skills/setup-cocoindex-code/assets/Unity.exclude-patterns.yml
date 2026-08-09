@@ -1,0 +1,37 @@
+# Merge these entries into the project's existing exclude_patterns list.
+# Keep CocoIndex Code defaults and all user-authored settings.
+exclude_patterns:
+  # Unity root-generated state and build output
+  - "Library/**"
+  - "Temp/**"
+  - "Obj/**"
+  - "Logs/**"
+  - "Build/**"
+  - "Builds/**"
+  - "UserSettings/**"
+  - "MemoryCaptures/**"
+  - "Recordings/**"
+  - "ServerData/**"
+  - "ExportedObj/**"
+
+  # Unity-generated content inside Assets
+  - "Assets/Addressables_Temp*"
+  - "Assets/StreamingAssets/aa*"
+  - "Assets/Unity.VisualScripting.Generated/**"
+  - "Assets/Plugins/Editor/JetBrains*"
+  - "Assets/SceneDependencyCache*"
+
+  # Serialized Unity assets and generated IDE/project files
+  - "**/*.meta"
+  - "**/*.unity"
+  - "**/*.prefab"
+  - "**/*.asset"
+  - "**/*.mat"
+  - "**/*.anim"
+  - "**/*.controller"
+  - "**/*.playable"
+  - "**/*.csproj"
+  - "**/*.unityproj"
+  - "**/*.sln"
+  - "**/*.slnx"
+  - "**/*.DotSettings.user"

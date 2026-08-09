@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Locale Manager"
+  short_description: "Manage languages and localized Unity UI"
+  default_prompt: "Use $dev-unity-locale-manager to implement runtime language selection, translation lookup, fallback behavior, and localized Unity UI refresh."
+policy:
+  allow_implicit_invocation: true

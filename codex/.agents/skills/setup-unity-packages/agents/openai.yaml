@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity Asset Package Setup"
+  short_description: "Update and import Unity packages safely"
+  default_prompt: "Use $setup-unity-packages to check, import, and verify the registered Unity asset packages for this project."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feel"
+  short_description: "Build game feedback with Feel"
+  default_prompt: "Use $dev-unity-feel to help with this Unity task."

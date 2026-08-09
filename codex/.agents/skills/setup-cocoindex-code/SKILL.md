@@ -1,0 +1,83 @@
+---
+name: setup-cocoindex-code
+description: Check, install, configure, index, and verify Unity-focused CocoIndex Code semantic search for Codex using a validated Voyage model preference chain and project exclusions. Use when preparing a copied Codex agent package, when `ccc`, its Codex MCP entry, selected embedding model, Unity exclusion policy, or project index is missing or stale, when Voyage is overloaded or rejects a preferred model, or when setup must request a Voyage API key and defer safely if none is provided.
+---
+
+# CocoIndex Code Project Setup
+
+Set up the `cocoindex-code` CLI and MCP wrapper built on the CocoIndex engine. Read [references/sources.md](references/sources.md) before changing installation, embedding, secret, initialization, or MCP behavior.
+
+## Required configuration
+
+- CLI package: slim `cocoindex-code`, installed as a uv tool.
+- CLI command: `ccc`.
+- Codex MCP server: `ccc mcp`, registered as `cocoindex-code`.
+- Embedding provider: LiteLLM with Voyage.
+- Preferred model order: `voyage/voyage-code-4`, `voyage/voyage-code-4-large`, `voyage/voyage-4`, `voyage/voyage-4-large`, `voyage/voyage-code-3`, `voyage/voyage-context-4`, then `voyage/voyage-3-large`.
+- Selection rule: keep a healthy configured candidate; for a new or failed setup, select the first candidate in that order that passes both CocoIndex Code model checks.
+- Project exclusion policy: merge [assets/Unity.exclude-patterns.yml](assets/Unity.exclude-patterns.yml) into `.cocoindex_code/settings.yml` without replacing CocoIndex defaults or user-authored patterns.
+- Secret: `VOYAGE_API_KEY`, stored only in the official user-level `~/.cocoindex_code/global_settings.yml` `envs` map when the user authorizes setup.
+
+Treat `ccc init` and both `ccc doctor` model checks as mandatory compatibility gates. A model name in this preference list is a candidate, not proof that Voyage's current text-embedding endpoint or CocoIndex Code supports it. Read [references/sources.md](references/sources.md) for the current public model and endpoint distinctions before changing the list.
+
+## Workflow
+
+1. Resolve the exact project root and inspect the current state without exposing secrets:
+   - `ccc version` and `uv tool list`.
+   - Presence and structure, but never the value, of `VOYAGE_API_KEY` in the current environment or `~/.cocoindex_code/global_settings.yml`.
+   - The configured provider and model.
+   - `<project-root>/.cocoindex_code/settings.yml`, including its include patterns, Unity exclusions, language overrides, chunkers, and file-size policy; then `ccc status` and `ccc doctor` when existing configuration is runnable.
+   - The Codex MCP entry for `cocoindex-code`.
+2. If the CLI, credential, project index, Unity exclusion policy, diagnostics, MCP entry, and a currently configured candidate are healthy, keep that model, skip setup, and do not probe higher-priority candidates or ask for the key again. Stable idempotence takes priority over opportunistic model churn.
+3. If setup or repair is required, ask once before installing or changing CocoIndex Code:
+
+   `CocoIndex Code needs a Voyage API key. It will be stored in the user-level ~/.cocoindex_code/global_settings.yml, never in this project. Provide VOYAGE_API_KEY, confirm reuse of the existing saved key, or reply "skip" to defer CocoIndex setup.`
+
+   If a different user-global embedding model already exists, disclose that setup will select from the approved preference chain and other CocoIndex Code projects may require re-indexing.
+4. If the user provides no key, gives an empty value, or chooses `skip`, make no CocoIndex installation, configuration, MCP, index, or secret changes. Continue the other setup components and report CocoIndex as deferred, not failed.
+5. Handle the accepted secret without disclosure:
+   - Never echo, log, quote, summarize, hash, or include it in a command argument, report, project file, Codex TOML, Git diff, or temporary project file.
+   - Put it only in the current process environment while running setup.
+   - Persist it only in the official user-level CocoIndex Code settings so `ccc mcp` can use it after Codex restarts.
+   - Back up an existing settings file outside the project before modifying it; treat that backup as secret-bearing.
+6. Require a working `uv` command. When orchestrated by `setup-agents`, run this skill after `setup-serena`, which owns uv installation. If uv is still unavailable, follow only that skill's official uv installation procedure before continuing.
+7. Resolve `ccc` before invoking it:
+   - If `ccc version` succeeds and `cocoindex-code` appears in `uv tool list`, skip installation.
+   - If missing, run `uv tool install cocoindex-code` once. Use the slim cloud-provider package; do not install the approximately 1 GB local-embedding extra.
+   - If the uv tool is registered but `ccc` is absent from PATH, resolve `uv tool dir --bin`, add only that directory to the current process PATH, and retry once instead of reinstalling.
+8. Before project initialization, require `.cocoindex_code/` and Unity-generated roots to be effectively ignored and absent from `git ls-files`. CocoIndex Code's current matcher also honors nested `.gitignore` files, but do not rely on that alone: the project settings must carry the explicit Unity exclusion policy. Record `HEAD` and the staged-path list; stop if the index is non-empty.
+9. From the exact project root, set `VOYAGE_API_KEY` only in the current process and initialize with the first preferred candidate:
+
+   `ccc init --litellm-model voyage/voyage-code-4`
+
+   Do not use `-f` to bypass parent-root ambiguity. Stop if `ccc` resolves another project root.
+10. Parse `.cocoindex_code/settings.yml`, then merge every entry from [assets/Unity.exclude-patterns.yml](assets/Unity.exclude-patterns.yml) into its `exclude_patterns` list:
+   - Preserve CocoIndex Code defaults, user-authored exclusions, `include_patterns`, `language_overrides`, `chunkers`, `max_file_size`, comments when the editor supports them, and every unrelated key. Append only missing exact entries; never replace the list wholesale.
+   - Stop on duplicate top-level keys, YAML anchors or merge keys affecting the edited list, a non-list `exclude_patterns`, or another structurally ambiguous file. Back up an existing settings file before editing and restore it if validation fails.
+   - Keep source and dependency metadata matchable: do not exclude `Assets/**/*.cs`, C# under embedded `Packages/`, `Packages/manifest.json`, `Packages/packages-lock.json`, tests, shaders, or project documentation merely because they live in a Unity project.
+   - Exclude Unity cache/build roots, generated content, serialized scene/asset formats, and generated IDE/project files according to the asset. Do not add broad `Assets/**`, `Packages/**`, `Tests/**`, `Editor/**`, `Plugins/**`, or `ThirdParty/**` exclusions.
+11. Merge the accepted key into the user-level `envs` map without changing unrelated YAML. Treat the embedding configuration as correct only when it selects LiteLLM and one approved candidate. Preserve or add Voyage's asymmetric retrieval parameters when supported: document input for indexing and query input for searches. Set `min_interval_ms` to at least `300` for a new Voyage configuration, or preserve a higher existing value, to reduce avoidable rate-limit pressure. Stop on duplicate or structurally ambiguous YAML keys instead of rewriting the file wholesale.
+12. Select and validate the model before indexing:
+   - Run `ccc doctor` from the project root. Require global settings, daemon, indexing-model, query-model, and project file-matching checks to pass.
+   - On an authenticated model-not-found, unsupported-endpoint, HTTP 429, provider overload, or retryable HTTP 5xx result, classify only the failure category, never reproduce a secret-bearing response body. For a transient load failure, honor `Retry-After` up to 60 seconds or make one bounded retry after confirming `min_interval_ms >= 300`.
+   - If the retry still fails, update only the backed-up user-level model field to the next candidate in the declared order and run `ccc doctor` again. Never run more than one initial check and one load retry per candidate.
+   - Stop instead of falling back on HTTP 401/403, billing or hard-quota failure, invalid credentials, malformed settings, DNS/TLS failure, project-root ambiguity, or an unclassified error. Another model cannot safely repair those conditions.
+   - Record each attempted candidate and a sanitized result. The first candidate that passes both indexing and query checks becomes the selected model; report that selection explicitly. If none pass, restore pre-existing user settings, remove only settings created by this attempt after resolving exact paths, leave the CLI installed, and report CocoIndex as deferred.
+13. Run `ccc doctor`, then `ccc index` to build or incrementally update the project index. Require the doctor file-matching check to pass after the Unity exclusions are merged. Allow a bounded ten-minute initial-index budget, surface progress at least once per minute, and treat a timeout as incomplete. If persistent provider load occurs during indexing, apply the same candidate order only when the preflight snapshot proves that no index existed before this setup run; remove or reset only the generated index owned by the current attempt before switching models. Never reset or invalidate a pre-existing index automatically. Verify with `ccc status` and one narrow semantic query. Inspect its result locally and report only pass/fail; do not reproduce source snippets in the setup report.
+14. Resolve the active Codex home from `CODEX_HOME`, falling back to `~/.codex`, and back up its configuration outside the project. Treat the MCP integration as correct only when `cocoindex-code` launches `ccc` with the single argument `mcp`:
+   - If missing and the Codex CLI works, run `codex mcp add cocoindex-code -- ccc mcp` once.
+   - If the Codex CLI cannot launch, merge only the equivalent documented MCP entry into the active TOML.
+   - If an entry exists but is stale, repair only that entry and preserve unrelated servers.
+15. Verify `ccc version`, redacted global settings structure, the explicitly reported selected candidate, the complete Unity exclusion set, successful `ccc doctor`, healthy `ccc status`, the Codex MCP command, `.cocoindex_code/` ignore/untracked behavior, unchanged Claude configuration, unchanged `HEAD`, and an empty staged-path list. Report exclusion entries added or preserved, confirm that representative `Assets` and embedded `Packages` source remains eligible, and state that Codex must restart before the MCP tool is available.
+
+## Boundaries
+
+- Configure Codex only. Never install CocoIndex Code's Claude/Grok plugin, run `npx skills add`, or configure another client.
+- Never store `VOYAGE_API_KEY` in the repository, `.env`, Codex config, shell history, response text, logs, or generated agent files.
+- Never print the user-level settings file after it contains a secret.
+- Never select a model outside the declared preference chain, reorder candidates, or hide a fallback from the report.
+- Never assume that `voyage-code-4`, `voyage-code-4-large`, or `voyage-context-4` works through CocoIndex Code without live doctor verification.
+- Never weaken the Unity exclusions, index Unity-generated directories through a negation, or exclude the entire `Assets`, `Packages`, test, editor-source, plugin-source, or third-party-source trees.
+- Never run `ccc reset`, delete a pre-existing index, or replace global settings automatically. Reset generated state only when the preflight snapshot proves the current failed setup attempt created it and a fallback requires a clean index.
+- Never run `git add`, `git commit`, `git push`, `git rm --cached`, or another command that changes Git history or the index.
+- Do not claim CocoIndex is ready until the credential, model, doctor, index, MCP, secret-location, and Git checks all pass.

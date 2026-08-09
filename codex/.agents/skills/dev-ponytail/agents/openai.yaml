@@ -1,0 +1,6 @@
+interface:
+  display_name: "Ponytail"
+  short_description: "Choose the simplest working coding solution"
+  default_prompt: "Use $dev-ponytail to solve this coding task with the smallest correct change."
+policy:
+  allow_implicit_invocation: true

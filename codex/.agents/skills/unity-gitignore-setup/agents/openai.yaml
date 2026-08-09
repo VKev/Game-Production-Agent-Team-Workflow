@@ -1,4 +1,0 @@
-interface:
-  display_name: "Set Up Unity Gitignore"
-  short_description: "Add Unity and AI ignore rules safely"
-  default_prompt: "Use $unity-gitignore-setup to safely add or repair this Unity project's .gitignore."

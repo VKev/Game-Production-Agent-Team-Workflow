@@ -1,0 +1,4 @@
+interface:
+  display_name: "Odin Inspector"
+  short_description: "Design Unity inspectors and serialization"
+  default_prompt: "Use $dev-unity-odin-inspector to help with this Unity task."

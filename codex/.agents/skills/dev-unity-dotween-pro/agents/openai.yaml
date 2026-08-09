@@ -1,0 +1,4 @@
+interface:
+  display_name: "DOTween Pro"
+  short_description: "Build and control DOTween animations"
+  default_prompt: "Use $dev-unity-dotween-pro to help with this Unity task."

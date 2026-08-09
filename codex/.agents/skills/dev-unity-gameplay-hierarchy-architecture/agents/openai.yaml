@@ -1,0 +1,11 @@
+interface:
+  display_name: "Unity Gameplay Hierarchy Architecture"
+  short_description: "Design and audit scalable non-UI Unity hierarchies"
+  default_prompt: "Use $dev-unity-gameplay-hierarchy-architecture to review or design this Unity gameplay hierarchy. Explain ownership, lifetime, dependencies, performance implications, benefits, and provide a migration-ready hierarchy without numeric naming prefixes."
+policy:
+  allow_implicit_invocation: true
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up CocoIndex Code"
+  short_description: "Configure focused Unity semantic code search"
+  default_prompt: "Use $setup-cocoindex-code to configure Unity-focused CocoIndex Code for this project when a Voyage API key is available."
