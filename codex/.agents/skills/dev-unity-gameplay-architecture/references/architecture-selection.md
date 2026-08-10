@@ -135,7 +135,7 @@ Follow in order. Multiple answers may combine into one feature architecture.
 ### P. Does the selected architecture require a new folder boundary?
 
 - **No:** place files in the existing owning folder and keep the feature flat.
-- **Yes:** read `folder-structures.md`, create the minimum current folders, record their purpose, and update affected `AGENTS.md` files.
+- **Yes:** read `folder-structures.md`, create the minimum current folders, record their purpose, and refresh affected managed maps through `dev-unity-project-context`.
 - Do not create a folder simply because an architecture diagram contains a named layer.
 
 ## 4. Comparison matrix
@@ -170,7 +170,7 @@ Use these rules:
 6. Separate runtime, Editor, tests, configuration, and infrastructure only where those categories exist now.
 7. Do not create empty future folders.
 8. Preserve `.meta` files and GUIDs when moving files.
-9. Update relevant `AGENTS.md` files with `dev-unity-project-context`.
+9. Refresh relevant managed maps with `dev-unity-project-context`; never edit generated rows manually.
 10. Verify namespace, assembly, serialized-reference, prefab, and scene compatibility after moves.
 
 Read `folder-structures.md` for architecture-specific layouts and migration rules.
@@ -208,7 +208,7 @@ Selected folder strategy:
 Target folders and purpose:
 Files created or moved:
 Assembly and namespace impact:
-AGENTS.md updates required:
+Managed context refresh required:
 Rejected alternatives and reasons:
 GDD-supported extension seams:
 Verification plan:

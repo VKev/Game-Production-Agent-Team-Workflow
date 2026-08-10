@@ -1,6 +1,6 @@
 ---
 name: dev-unity-gameplay-architecture
-description: Select, design, organize, implement, review, and refactor Unity gameplay architecture and folder/module structures without forcing a single pattern. Use for feature boundaries, file placement, dependency direction, ownership and lifetimes, MonoBehaviour versus plain C# decisions, ScriptableObject data architecture, event-driven communication, state machines, Strategy, Factory, Command, MVC/MVP, services, dependency injection, feature modules, assembly definitions, testability, extensibility, and architecture-related performance tradeoffs. Trigger when a Unity task asks how systems or project files should be structured or connected, or when gameplay code is becoming coupled, monolithic, scattered, hard to navigate, hard to test, or difficult to extend.
+description: Select, design, organize, implement, review, and refactor Unity gameplay architecture and folder/module structures without forcing a single pattern. Use for feature boundaries, dependency direction, ownership and lifetimes, MonoBehaviour versus plain C# decisions, ScriptableObject data and runtime architecture, ScriptableVariables, event channels, typed event buses, message brokers, static event registries, event dispatch policies, runtime sets, finite or hierarchical state machines, transition sequencing, Strategy, Factory, Command, MVC/MVP, services, dependency injection, feature modules, assembly definitions, testability, extensibility, and architecture-related performance tradeoffs. Trigger when Unity systems or files must be structured or connected, or gameplay code is coupled, monolithic, scattered, difficult to test, or difficult to extend.
 ---
 
 # Unity Gameplay Architecture
@@ -24,7 +24,11 @@ Choose the smallest architecture and folder structure that satisfy the current t
 
 3. **Select an architecture and folder structure deliberately.**
    - Read `references/architecture-selection.md`.
+   - Read `references/state-machines-and-transition-sequencing.md` for finite or hierarchical state machines, active-path invariants, lowest-common-ancestor transitions, queued transitions, or asynchronous transition activities.
+   - Read `references/scriptable-object-runtime-architecture.md` for ScriptableVariables, event channels, runtime sets, mutable ScriptableObject state, reset behavior, or asset-based runtime wiring.
+   - Read `references/event-bus-and-message-routing.md` for typed event buses, static event registries, message brokers, dispatch mutation, ordering, reentrancy, exception policy, assembly discovery, or stripping concerns.
    - Read `references/folder-structures.md` when creating, moving, grouping, or reorganizing scripts, assets, tests, Editor code, or assemblies.
+   - Use `dev-unity-assembly-definitions` when the task materially designs, migrates, configures, or diagnoses `.asmdef` or `.asmref` boundaries; keep this skill responsible for the broader feature architecture.
    - Compare only candidates that solve the actual problem.
    - Prefer direct composition, feature ownership, and narrow responsibilities before adding layers, interfaces, buses, factories, services, frameworks, or deep folder trees.
    - Preserve the existing project-owned root and closest suitable feature layout.
@@ -43,7 +47,7 @@ Choose the smallest architecture and folder structure that satisfy the current t
    Assembly boundaries, if any:
    Alternatives rejected:
    Extension seams intentionally left:
-   AGENTS.md updates required:
+   Managed context refresh required:
    Verification plan:
    ```
 
@@ -54,7 +58,7 @@ Choose the smallest architecture and folder structure that satisfy the current t
    - Preserve public APIs, serialized data, Unity asset GUIDs, `.meta` files, namespaces, and assembly references when practical.
    - Do not implement speculative future features or create empty placeholder folders.
    - Add an abstraction only when it protects a real variation, dependency, ownership, platform, test, or GDD-supported boundary.
-   - Use `dev-unity-project-context` to update affected root and local `AGENTS.md` tables of contents after folder or important-file changes.
+   - Use `dev-unity-project-context` to refresh affected managed maps after folder or important-file changes. Never edit generated `AGENTS.md` rows or tables of contents manually.
 
 6. **Verify and refine.**
    - Read `references/verification.md`.
@@ -69,9 +73,11 @@ Choose the smallest architecture and folder structure that satisfy the current t
 - Prefer a **thin MonoBehaviour shell with plain C# logic** when rules or simulation benefit from isolation and tests.
 - Prefer **feature-oriented modules** when a feature has multiple cooperating responsibilities and a clear public boundary.
 - Prefer **ScriptableObject-driven data** for shared designer-authored configuration, catalogs, and intentional asset-based communication; do not use it automatically for transient runtime or save state.
-- Prefer **events or Observer** for one-to-many notifications; prefer direct calls for owned, local, one-to-one collaboration.
+- Treat ScriptableVariables, event channels, and runtime sets as intentional shared runtime architecture with explicit mutation, reset, registration, ordering, and debugging policies; read `references/scriptable-object-runtime-architecture.md` before implementing them.
+- Prefer **events or Observer** for one-to-many notifications; prefer direct calls for owned, local, one-to-one collaboration. Introduce a bus only when its scope, lifetime, dispatch contract, and debugging value are explicit; read `references/event-bus-and-message-routing.md` first.
 - Prefer **MVP** for nontrivial Unity UI that must be separated from gameplay logic; keep simple UI simple.
 - Prefer a small enum or switch for a few stable states; introduce **State** objects when state behavior and transitions are independently complex or expected to grow.
+- Introduce a hierarchical state machine only when parent states own meaningful shared behavior or transition policy; read `references/state-machines-and-transition-sequencing.md` before implementing hierarchy or asynchronous transition phases.
 - Prefer **Strategy** for interchangeable algorithms behind one stable contract.
 - Prefer **Factory** when creation varies or setup must be centralized; do not wrap trivial constructors or `Instantiate` calls without benefit.
 - Prefer **Command** for queued, delayed, replayable, undoable, or schedulable actions.
@@ -109,6 +115,7 @@ Always:
 - Separate authoring configuration from mutable runtime state and persistent save data.
 - Let owners create, initialize, disable, cancel, release, and destroy what they own.
 - Make event subscription and unsubscription symmetric and lifetime-safe.
+- Define event mutation, ordering, reentrancy, exception, and thread behavior when communication is centrally dispatched.
 - Keep dependency direction explicit and avoid circular feature references.
 - Follow the project Unity version and installed package APIs, not examples from a newer version.
 
@@ -138,7 +145,7 @@ Before finalizing, confirm:
 - Communication is traceable and not more indirect than necessary.
 - The folder tree reflects feature ownership and real boundaries rather than arbitrary taxonomy.
 - Runtime, Editor, test, asset, and assembly boundaries are valid where present.
-- Files are easy to locate from the root and local `AGENTS.md` tables of contents.
+- Files are easy to locate from the generated root and local context maps.
 - The architecture supports the current feature first.
 - Future support is an extension path, not preimplemented behavior or empty scaffolding.
 - The implementation can be tested and debugged at the appropriate boundary.
@@ -149,7 +156,9 @@ Before finalizing, confirm:
 
 Use other repository skills when implementation details leave this skill's scope:
 
-- `dev-unity-project-context` for project navigation, folder documentation, and `AGENTS.md` maintenance.
+- `dev-unity-project-context` for project navigation, verified summaries, and managed map refreshes.
+- `dev-unity-assembly-definitions` for detailed assembly graphs, incremental `Assembly-CSharp` migration, `.asmref` ownership, Editor/test assemblies, and exact Assembly Definition property semantics.
+- `dev-unity-save-load-persistence` for save-state ownership, stable IDs, schema migrations, local file integrity, recovery, and cloud synchronization.
 - `dev-unity-csharp-collections-queries` for collection and query choices.
 - `dev-unity-ui-controller-binding` for the specific `UIView`, plain-C# `UIController`, `DataContext`, `IBindable`, and child-context `BindList` screen pattern.
 - `dev-unity-locale-manager` for application-level language ownership, translation-table adapters, fallback behavior, and lifecycle-safe localized UI refresh.
@@ -157,6 +166,7 @@ Use other repository skills when implementation details leave this skill's scope
 - `dev-unity-async-coroutines-unitask` for asynchronous sequencing and cancellation.
 - `dev-unity-assets-addressables` for asset-loading ownership and handles.
 - `dev-unity-performance-profiling` for measurement and optimization verification.
+- `dev-unity-player-loop-systems` for low-level PlayerLoop hooks, centrally ticked systems, and pure C# timer schedulers.
 - `dev-unity-jobs-burst-native-collections` for parallel/data-oriented execution.
 
 ## Reference loading guide
@@ -164,6 +174,9 @@ Use other repository skills when implementation details leave this skill's scope
 - Read `references/architecture-selection.md` for the decision tree and comparison matrix.
 - Read `references/folder-structures.md` for architecture-aligned folder layouts, file placement, `.asmdef` boundaries, tests, Editor code, and safe file moves.
 - Read `references/pattern-catalog.md` for detailed architecture and pattern choices.
+- Read `references/state-machines-and-transition-sequencing.md` for FSM/HSM lifecycle, transition-path, sequencing, cancellation, and verification rules.
+- Read `references/scriptable-object-runtime-architecture.md` for ScriptableVariable, event-channel, runtime-set, reset, and asset/runtime-state rules.
+- Read `references/event-bus-and-message-routing.md` for communication selection, bus scope, dispatch semantics, lifecycle, reflection/stripping, diagnostics, and tests.
 - Read `references/unity-boundaries.md` for Unity-specific ownership, lifecycle, serialization, scenes, prefabs, and assemblies.
 - Read `references/examples.md` when a concrete feature resembles one of the examples.
 - Read `references/verification.md` before completing an implementation, folder reorganization, or refactor.

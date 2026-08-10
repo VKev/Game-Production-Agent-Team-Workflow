@@ -21,8 +21,8 @@ Classify a missing layer independently. Treat a fork, local/embed source, dirty 
 
 When orchestrated by `setup-agents`:
 
-- **Editor-closed preparation:** require the exact target project to be closed. Perform only workflow sections 1–3: inspect state, verify the coherent release set, and preserve or create the allowed NuGet configuration. Do not launch Unity or batch mode, call Package Manager, install NuGetForUnity/ZLinq/ZLinq.Unity, refresh assets, compile, or test. Report all Unity-owned layers as `pending (editor-ready)`.
-- **Live pass:** use the one already-open target Editor. Execute sections 4–6 in their strict dependency order. Wait for package operations, Unity compilation, and domain reload only when they block the next layer. Do not run Unity Test Runner or the `AsValueEnumerable()` probe after each layer; contribute that probe and broad compilation evidence to the orchestrator's consolidated final pass.
+- **Editor-closed preparation:** require the exact target project to be closed. Inspect state, verify the coherent release set, preserve or create the allowed NuGet configuration, and contribute the exact verified NuGetForUnity tagged Git dependency to the orchestrator's single manifest merge. The orchestrator's later hidden stabilization pass must resolve and compile NuGetForUnity before interactive Unity opens. Do not install core ZLinq, declare ZLinq.Unity, import assets, or run tests. ZLinq.Unity deliberately remains out of the Phase-A manifest because it must not compile before core `ZLinq.dll` exists.
+- **Live pass:** use the one already-open target Editor. Verify the pre-resolved NuGetForUnity layer, then execute sections 5–6 in strict order: install core ZLinq first and only then add ZLinq.Unity. Wait for asset refresh, Unity compilation, and domain reload only when they block the next layer. Do not run Unity Test Runner or the `AsValueEnumerable()` probe after each layer; contribute that probe and broad compilation evidence to the orchestrator's consolidated final pass.
 
 On resume, preserve a correct preparation result and continue from the first missing live layer.
 
@@ -52,14 +52,16 @@ If these sources disagree or are unavailable, report `release verification pendi
 - If no NuGetForUnity configuration exists, create `Packages/nuget-packages/` and copy `assets/NuGet.config` there byte-for-byte before NuGetForUnity is loaded. This selects `InPackagesFolder`, keeps declarations separate from downloaded payloads, and uses only NuGet.org.
 - Never copy the template over an existing file, add credentials, move an existing configuration, ignore `packages.config`, or delete an installed package directory as repair.
 
-### 4. Install NuGetForUnity first
+### 4. Resolve NuGetForUnity first
 
-Use the live Unity Editor and `UnityEditor.PackageManager.Client`; never edit Unity's manifest or lock file directly.
+Use only the exact tagged URL returned by the source checker:
 
-1. Inspect the installed package through `Client.List`.
-2. If absent, install the verified tagged URL returned by the checker: `https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity#<tag>`.
-3. If older and sourced from the official repository or matching OpenUPM package, update to that verified URL. If already correct, skip mutation.
-4. Wait for Package Manager resolution, domain reload, and the Unity-controlled compilation needed before the next layer. Verify package ID, version, official source/revision, `NuGetForUnity` editor assembly, and public installer API before proceeding; this is a dependency gate, not a separate broad test pass.
+`https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity#<tag>`
+
+1. During `setup-agents` Phase A, contribute that URL under `com.github-glitchenzo.nugetforunity` to the single validated manifest merge. Do not write the lock file. The orchestrator's owned hidden Unity pass resolves it with the rest of the UPM graph.
+2. During the orchestrated live pass, inspect the resolved package and require the checkpointed package ID, version, official source/revision, `NuGetForUnity` editor assembly, and public installer API. If it is missing or stale, report Phase A incomplete; do not update it in the user-opened Editor.
+3. When this skill runs standalone, inspect with `Client.List`; if absent or an older recognized official/OpenUPM install, add the verified tagged URL through `Client.Add`, wait for resolution/domain reload/compilation, then perform the same verification. If already correct, skip mutation.
+4. Treat this as a dependency gate, not a separate broad test pass. Never claim that the manifest declaration alone is installed; require the resolved package/assembly evidence.
 
 ### 5. Install ZLinq from NuGet second
 
@@ -93,8 +95,8 @@ Report each layer as `skipped`, `created`, `repaired`, `pending`, or `blocked`, 
 ## Boundaries
 
 - Never reverse the installation order: NuGetForUnity, then core ZLinq, then ZLinq.Unity.
-- Never edit `Packages/manifest.json`, `Packages/packages-lock.json`, or `packages.config` manually to claim an install.
+- Never edit `Packages/packages-lock.json` or `packages.config` manually to claim an install. During `setup-agents`, the only permitted manifest contribution from this skill is the exact checker-verified NuGetForUnity tagged Git dependency merged by the orchestrator in Phase A; never predeclare ZLinq.Unity.
 - Never overwrite NuGet configuration, persist credentials, use prereleases, downgrade a newer installation, or silently replace a fork/local package.
 - Never install DropInGenerator, Unity Collections, or another optional package solely because ZLinq supports it.
-- During `setup-agents`, never launch Unity or batch mode in preparation, open a second Editor in the live pass, or run the deferred compile probe before all Unity package operations finish.
+- During `setup-agents`, do not launch a skill-local Unity process in preparation; only the orchestrator's owned hidden stabilization may run after the complete manifest merge. Never open a second Editor, update NuGetForUnity in the live pass, or run the deferred compile probe before all Unity package operations finish.
 - Never stage, commit, push, or modify another AI client during project setup.

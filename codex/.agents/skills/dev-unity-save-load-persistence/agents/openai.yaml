@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Save and Load Persistence"
+  short_description: "Build safe, versioned Unity save and load systems"
+  default_prompt: "Use $dev-unity-save-load-persistence to design or review a safe, versioned Unity save and load system."
+policy:
+  allow_implicit_invocation: true

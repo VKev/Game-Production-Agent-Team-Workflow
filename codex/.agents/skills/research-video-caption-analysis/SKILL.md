@@ -1,11 +1,11 @@
 ---
 name: research-video-caption-analysis
-description: Analyze YouTube tutorials and other videos without Whisper, GPU, or external transcription fallbacks. Use when asked to summarize, inspect, or extract implementation guidance from a video URL or local video; for YouTube, require uploaded or auto-generated captions and tell the user then stop when captions are unavailable or cannot be verified.
+description: Analyze YouTube tutorials and other videos with caption-first, selectively frame-assisted evidence and no Whisper, GPU, or external transcription fallback. Use when asked to summarize, inspect, or extract implementation guidance from a video URL or local video; for YouTube, require uploaded or auto-generated captions, use frames only when the question or caption leaves a visual fact unresolved, and tell the user then stop when captions are unavailable or cannot be verified.
 ---
 
 # Caption-Gated Video Analysis
 
-Use captions as the textual evidence and the restricted video-analyzer MCP tools only for targeted visual evidence. Read [references/tool-safety.md](references/tool-safety.md) before the first MCP call in a task.
+Use captions first, then retrieve the minimum visual evidence needed for claims that captions cannot establish. Do not call a frame tool merely because it is available, and do not answer a visual-dependent question from captions alone. Read [references/tool-safety.md](references/tool-safety.md) before the first MCP call in a task.
 
 ## Hard YouTube gate
 
@@ -28,14 +28,19 @@ After either stop result, do not call any video MCP tool, do not download the vi
 ## Analysis workflow after a successful gate
 
 1. Read the VTT captions and identify the passages and timestamps relevant to the user's question.
-2. Answer from captions alone when the question is about spoken instructions and the transcript is sufficient.
-3. When visual evidence is necessary, use the smallest safe MCP call:
+2. Classify the evidence need before any MCP call:
+   - `speech-sufficient`: the requested facts are explicitly stated in the captions and do not depend on what appears or changes on screen. Use zero frame calls.
+   - `visual-dependent`: the user asks about appearance, layout, UI state, scene contents, demonstrated code/settings, gestures, animation, timing, before/after state, or another fact that must be seen. Captions such as “as you can see,” “this value,” “here,” or “it now looks like this” also leave a visual fact unresolved. Retrieve frames.
+   - `mixed`: answer spoken facts from captions and retrieve frames only for the visual-dependent claims. Do not sample frames for the caption-supported claims.
+3. For each visual-dependent claim, use the smallest safe MCP call and stop retrieving when the claim is supported:
    - `get_frame_at` for one known timestamp.
    - `get_frame_burst` for a short motion, animation, or rapidly changing interval.
-   - `get_frames` only for a broad visual overview when targeted timestamps are insufficient.
+   - `get_frames` only when relevant timestamps cannot be narrowed from captions or the user explicitly needs a broad visual overview across the video.
    - `get_metadata` only after the caption gate and only when metadata materially helps.
-4. Correlate caption timestamps with retrieved frames. Distinguish what the speaker says, what the frames show, and what is your inference.
+4. Correlate each retrieved frame with the relevant caption timestamp. Distinguish what the speaker says, what the frame shows, and what is your inference. Never claim to have visually verified a detail when no frame was retrieved for it.
 5. Report caption type and language when it affects confidence. Auto-generated captions can mishear package, API, and symbol names; verify technical identifiers against official documentation or project code before relying on them.
+
+If a required frame tool is unavailable or frame extraction fails, report that the visual-dependent portion could not be verified. Answer only the caption-supported portion, clearly scoped as such; never silently substitute a caption-only guess for missing visual evidence.
 
 ## Other video sources
 
@@ -49,3 +54,4 @@ After either stop result, do not call any video MCP tool, do not download the vi
 - Never run `npx mcp-video-analyzer ... analyze` or install the upstream multi-client video skill.
 - Never install or invoke Whisper, faster-whisper, whisper-ctranslate2, Hugging Face speech recognition, PyTorch, CUDA, OpenAI transcription, TwelveLabs, or another audio-to-text service.
 - Never continue a YouTube analysis after captions are absent or unverifiable, even if frame tools are available.
+- Never call all safe tools by default. Tool availability is not a checklist: use zero frame calls when captions suffice and only the minimum relevant frame call when visual evidence is required.

@@ -7,8 +7,12 @@
 - [Install and upgrade Cinemachine](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/InstallationAndUpgrade.html): Package Manager installation and upgrade guidance.
 - [Upgrade from Cinemachine 2](https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineUpgradeFrom2.html): breaking migration scope that setup must not perform automatically.
 - [Unity Package Manager Client API](https://docs.unity3d.com/ScriptReference/PackageManager.Client.html): live registry search, package inspection, and installation.
+- [Unity project dependency manifest](https://docs.unity3d.com/ja/2022.3/Manual/upm-dependencies.html): `Packages/manifest.json` is the project's direct dependency declaration; Unity resolves it into the lock file.
+- [Unity Git dependencies](https://docs.unity3d.com/ja/2022.3/Manual/upm-git.html): supported Git URL, revision, and `?path=` syntax for immutable tagged/commit package declarations.
+- [Burst 1.8 manual](https://docs.unity3d.com/ja/Packages/com.unity.burst%401.8/manual/index.html): changing or updating the Burst package requires closing and restarting the Editor. Therefore setup consumes this boundary in an editor-closed process before interactive handoff.
+- [Burst 1.8 changelog](https://docs.unity3d.com/ja/Packages/com.unity.burst%401.8/changelog/CHANGELOG.html): official package revision history used with registry metadata when diagnosing native-package changes.
 
-Use the live Unity Registry compatible-version list rather than a hard-coded online Cinemachine version. The installed package documentation remains authoritative for its exact major and minor API.
+During standalone live setup, use Unity's compatible-version list rather than a hard-coded online Cinemachine version. During `setup-agents`, query official package metadata and the exact installed Editor catalog with `scripts/resolve_unity_registry_packages.ps1`; it applies the full Unity patch floor before the Editor is opened. The installed package documentation remains authoritative for its exact major and minor API.
 
 ## VContainer
 
@@ -25,6 +29,8 @@ Use the live Unity Registry compatible-version list rather than a hard-coded onl
 - [Unity Package Manager `Client.AddAndRemove`](https://docs.unity3d.com/2023.1/Documentation/ScriptReference/PackageManager.Client.AddAndRemove.html): batches compatible package-graph additions/removals in one request and is available in the Unity 2022.3 documentation stream.
 - [Unity `AssetDatabase.StartAssetEditing`](https://docs.unity3d.com/2022.3/Documentation/ScriptReference/AssetDatabase.StartAssetEditing.html): queues asset imports until `StopAssetEditing`; therefore it must not wrap `.unitypackage` import calls.
 - [Coplay MCP for Unity `execute_code`](https://github.com/CoplayDev/unity-mcp/blob/main/website/docs/reference/tools/scripting_ext/execute_code.md): live Editor route used for import, dependency requests, and post-import verification.
+
+`scripts/stabilize_unity_package_graph.ps1` is intentionally narrower than a general batch-mode setup: it reuses a hash-validated successful checkpoint when possible; otherwise it starts the exact matching Editor hidden with `-batchmode -quit`, allows package resolution and compilation, scans for blocking package/Burst/compiler failures, and runs at most one clean verification re-entry when the lock/native graph changed or native restart evidence appeared. It never imports `.unitypackage` archives or runs tests.
 
 ## Package identity and current-version checks
 

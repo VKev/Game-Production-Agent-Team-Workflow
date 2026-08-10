@@ -1,6 +1,6 @@
 ---
 name: dev-unity-clean-code-principles
-description: Version-aware clean-code guidance for Unity C# that balances KISS, YAGNI, DRY, SOLID, readability, maintainability, correctness, and measured performance. Use when designing, implementing, reviewing, simplifying, or refactoring Unity scripts; naming types and members; reducing duplication, nesting, coupling, side effects, or over-abstraction; deciding whether an interface, pattern, helper, service, inheritance hierarchy, or optimization is justified; or performing a post-implementation cleanup. Preserve existing project conventions and behavior, respect Unity lifecycle and serialization constraints, and verify changes through compilation, tests, focused playtesting, and profiling when relevant.
+description: Version-aware clean-code guidance for Unity C# that balances KISS, YAGNI, DRY, SOLID, readability, maintainability, correctness, and measured performance. Use when designing, implementing, reviewing, simplifying, or refactoring Unity scripts; reducing coupling, side effects, or over-abstraction; deciding whether an interface, pattern, helper, service, inheritance hierarchy, CRTP or self-typed generic, generic processor pipeline, staged fluent builder, generic variance, or optimization is justified; or performing post-implementation cleanup. Preserve project conventions and behavior, respect Unity lifecycle and serialization, and verify through compilation, tests, focused playtesting, and profiling when relevant.
 ---
 
 # Unity Clean Code Principles
@@ -37,6 +37,7 @@ Produce the simplest Unity C# design that fully satisfies the current requiremen
    - Apply DRY only to duplicated knowledge, not merely similar-looking code.
    - Apply SOLID only where it reduces a real change, ownership, substitution, consumer, or dependency problem.
    - Prefer composition over inheritance unless a stable substitutable relationship genuinely exists.
+   - Read `references/type-safe-generics-and-pipelines.md` before adding CRTP, self-typed generic bases, composable processor chains, stage-specific fluent APIs, or claimed delegate-based hot-path optimization.
 
 5. **Implement or refactor in small coherent steps.**
    - Keep each change understandable and reversible.
@@ -100,6 +101,7 @@ Use [unity-specific-guidance.md](references/unity-specific-guidance.md) before c
 - Read [readability-and-style.md](references/readability-and-style.md) for naming, methods, conditions, comments, visibility, and formatting.
 - Read [code-smells-and-refactoring.md](references/code-smells-and-refactoring.md) before broad cleanup or behavior-preserving refactoring.
 - Read [examples.md](references/examples.md) when choosing between direct code and an abstraction.
+- Read [type-safe-generics-and-pipelines.md](references/type-safe-generics-and-pipelines.md) when evaluating CRTP, generic variance, processor composition, fluent staged builders, or a pipeline performance claim.
 - Read [review-and-verification.md](references/review-and-verification.md) before finalizing a review or refactor.
 - Read [sources.md](references/sources.md) when validating version-sensitive Unity guidance against primary documentation.
 

@@ -1,4 +1,4 @@
 interface:
   display_name: "Better Context Setup"
-  short_description: "Install and initialize Unity project maps"
-  default_prompt: "Use $setup-better-context to install and initialize Better Context Unity for this repository."
+  short_description: "Install and verify Unity context maps"
+  default_prompt: "Use $setup-better-context to install VKev Better Context Unity, verify Roslyn and Unity runtime capabilities, configure vendor exclusions, and generate safe project maps."

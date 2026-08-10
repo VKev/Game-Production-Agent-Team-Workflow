@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Scene Management"
+  short_description: "Build safe additive Unity scene transitions"
+  default_prompt: "Use $dev-unity-scene-management to design or review a robust Unity scene-loading and transition system."
+policy:
+  allow_implicit_invocation: true

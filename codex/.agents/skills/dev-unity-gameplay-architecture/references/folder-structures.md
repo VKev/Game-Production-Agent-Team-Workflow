@@ -47,7 +47,7 @@ A good folder structure should answer:
 7. Materialize only folders needed by files created or moved in the current task.
 8. Add or change `.asmdef` files only when a stable dependency, compile, Editor/runtime, platform, package, or test boundary justifies them.
 9. Keep namespaces aligned with established project conventions; do not mechanically mirror every folder level.
-10. Use `dev-unity-project-context` to update the applicable `AGENTS.md` table of contents after creating, moving, renaming, or deleting folders.
+10. Use `dev-unity-project-context` to refresh the applicable managed maps after creating, moving, renaming, or deleting folders; never edit generated rows manually.
 
 ## 3. Shared folder and assembly rules
 
@@ -105,6 +105,8 @@ A feature may own code and assets together:
 Alternatively, an existing project may separate all code from all art/assets. Follow that convention unless there is a concrete reason to change it.
 
 ### Use `.asmdef` intentionally
+
+For detailed graph design, incremental migration, `.asmref` ownership, Editor/test boundaries, and exact Inspector settings, use `dev-unity-assembly-definitions`. This section remains the folder-architecture overview.
 
 Introduce an assembly definition when it creates a useful boundary, such as:
 
@@ -603,7 +605,7 @@ When changing an existing project structure:
 - Let Unity reimport and compile before continuing.
 - Verify prefabs, scenes, ScriptableObject assets, and tests after moves.
 - Avoid combining a broad folder migration with unrelated feature implementation.
-- Update root and local `AGENTS.md` tables of contents through `dev-unity-project-context`.
+- Refresh root and local managed maps through `dev-unity-project-context`; do not hand-edit generated tables of contents.
 
 Record the selected layout in the architecture decision:
 
@@ -614,5 +616,5 @@ Files/folders created now:
 Optional folders intentionally deferred:
 Assembly boundaries:
 Dependency direction:
-AGENTS.md updates required:
+Managed context refresh required:
 ```

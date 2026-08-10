@@ -1,6 +1,6 @@
 ---
 name: setup-video-analyzer
-description: Install or repair the official mcp-video-analyzer prerequisites and register a caption-gated, no-Whisper tool subset for Codex only. Use when bootstrapping the copied agent package, when Node.js, yt-dlp, or the video-analyzer MCP entry is missing or stale, or when transcription-capable video tools must be removed from Codex exposure.
+description: Install or repair the official mcp-video-analyzer prerequisites and register a caption-first, selectively frame-assisted, no-Whisper tool subset for Codex only. Use when bootstrapping the copied agent package, when Node.js, yt-dlp, or the video-analyzer MCP entry is missing or stale, when runtime routing must avoid both caption-only visual guesses and unconditional frame extraction, or when transcription-capable video tools must be removed from Codex exposure.
 ---
 
 # Video Analyzer Setup
@@ -32,7 +32,7 @@ The allowlist is authoritative. The empty process-local environment overrides pr
 
 1. Resolve the exact project root, active Codex home (`CODEX_HOME`, otherwise `~/.codex`), and active Codex `config.toml`. Record whether `HEAD` exists, its SHA, and the staged-path list. Stop if the index is already non-empty.
 2. Record hashes for the known Claude configuration paths already checked by the orchestrator. This skill must not recursively inspect, configure, or clean another client.
-3. Verify that the copied runtime skill exists at `<project-root>/.agents/skills/research-video-caption-analysis/SKILL.md` and that its caption-gate script passes `node --check`. If either is missing or invalid, report the runtime policy as blocked; do not substitute the upstream multi-client skill installer.
+3. Verify that the copied runtime skill exists at `<project-root>/.agents/skills/research-video-caption-analysis/SKILL.md` and that its caption-gate script passes `node --check`. Also require its evidence router to express all three cases: caption-sufficient questions use zero frame calls, visual-dependent questions use the smallest timestamp-targeted frame call, and mixed questions retrieve frames only for unresolved visual claims. If the skill or any rule is missing, or the script is invalid, report the runtime policy as blocked; do not substitute the upstream multi-client skill installer.
 4. Resolve `node`, `npm`, and `npx` before use. Treat Node.js as healthy only when its parsed major version is at least 18 and both npm and npx start successfully.
 5. When Node.js is missing or below 18, install one supported LTS build once:
    - On Windows, require `winget`, then run `winget install --id OpenJS.NodeJS.LTS --exact --source winget --accept-package-agreements --accept-source-agreements`.
@@ -58,13 +58,14 @@ The allowlist is authoritative. The empty process-local environment overrides pr
 
 After Codex restarts, require exactly these four exposed server tools: `get_metadata`, `get_frames`, `get_frame_at`, and `get_frame_burst`. If a transcript-capable tool appears, treat the configuration as unsafe and repair it before video work.
 
-Use `research-video-caption-analysis` for runtime behavior. A YouTube request must pass that skill's native-caption gate before any MCP call. Missing or unverifiable captions are a stop condition, not permission to fall back to audio transcription or frame-only analysis.
+Use `research-video-caption-analysis` for runtime behavior. A YouTube request must pass that skill's native-caption gate before any MCP call. After the gate, caption-sufficient work must make no frame call; visual-dependent work must retrieve the smallest relevant frame set; mixed work must retrieve frames only for its visual claims. Missing or unverifiable captions are a stop condition, not permission to fall back to audio transcription or frame-only analysis.
 
 ## Boundaries
 
 - Configure Codex only. Never run `npx skills add`, a Claude plugin command, or another broad client installer.
 - Never install or enable Whisper, faster-whisper, whisper-ctranslate2, Transformers speech recognition, PyTorch, CUDA, OpenAI transcription, TwelveLabs, or another speech-to-text fallback.
 - Never expose `analyze_video`, `analyze_videos`, `get_transcript`, or `analyze_moment` under this policy.
+- Never turn the four-tool allowlist into an automatic call sequence. It defines what may be called; the runtime evidence router decides whether any frame call is needed.
 - Never store cookies, API keys, signed URLs, or secret-derived data in the repository or Codex config.
 - Never overwrite the full Codex configuration, modify product code, stage files, commit, push, or rewrite Git history.
 - Never report live-ready from package/version/config checks alone.

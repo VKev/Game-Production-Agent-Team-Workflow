@@ -1,6 +1,6 @@
 interface:
   display_name: "Unity Project Context"
-  short_description: "Route Unity context, retrieval, editing, and maps"
-  default_prompt: "Use $dev-unity-project-context to navigate this Unity project, retrieve the relevant source without duplicate searches, route edits safely, and refresh managed maps when needed."
+  short_description: "Navigate maps with graph and semantic fallback"
+  default_prompt: "Use $dev-unity-project-context to treat AGENTS.md as lossy orientation, never infer absence from a map miss, fall back through CodeGraph and CocoIndex, and refresh managed maps after edits."
 policy:
   allow_implicit_invocation: true

@@ -29,7 +29,7 @@ After implementation:
 - Resolve compile and syntax errors.
 - Inspect Console errors and warnings introduced by the change.
 - Check assembly references, runtime/Editor separation, namespaces, serialized fields, and missing script/reference risks.
-- If files moved, verify Unity `.meta` files, GUIDs, prefabs/scenes, Addressables or Resources paths, and local `AGENTS.md` navigation remain correct.
+- If files moved, verify Unity `.meta` files, GUIDs, prefabs/scenes, Addressables or Resources paths, and regenerated local context navigation remain correct.
 - Verify no accidental public API or serialized-field migration was introduced.
 
 Do not claim successful compilation without actually running the available compile/check workflow.
@@ -112,7 +112,7 @@ Report concisely:
 ```text
 Architecture selected:
 Folder/assembly structure selected:
-AGENTS.md/table-of-contents updates:
+Managed context refresh:
 Implementation completed:
 Compile/Console result:
 Tests run and result:

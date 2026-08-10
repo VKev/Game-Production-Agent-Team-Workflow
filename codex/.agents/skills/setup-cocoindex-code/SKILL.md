@@ -1,6 +1,6 @@
 ---
 name: setup-cocoindex-code
-description: Check, install, configure, index, and verify Unity-focused CocoIndex Code semantic search for Codex using a validated Voyage model preference chain and project exclusions. Use when preparing a copied Codex agent package, when `ccc`, its Codex MCP entry, selected embedding model, Unity exclusion policy, or project index is missing or stale, when Voyage is overloaded or rejects a preferred model, or when setup must request a Voyage API key and defer safely if none is provided.
+description: Check, install, configure, index, and verify Unity-focused CocoIndex Code semantic search for Codex only after the user explicitly provides a non-empty Voyage API key for the current setup run. Use when preparing a copied Codex agent package, when `ccc`, its Codex MCP entry, selected embedding model, Unity exclusion policy, or project index is missing or stale, or when Voyage is overloaded or rejects a preferred model. Defer without inspecting or changing CocoIndex when the current-run credential gate is not satisfied.
 ---
 
 # CocoIndex Code Project Setup
@@ -16,25 +16,26 @@ Set up the `cocoindex-code` CLI and MCP wrapper built on the CocoIndex engine. R
 - Preferred model order: `voyage/voyage-code-4`, `voyage/voyage-code-4-large`, `voyage/voyage-4`, `voyage/voyage-4-large`, `voyage/voyage-code-3`, `voyage/voyage-context-4`, then `voyage/voyage-3-large`.
 - Selection rule: keep a healthy configured candidate; for a new or failed setup, select the first candidate in that order that passes both CocoIndex Code model checks.
 - Project exclusion policy: merge [assets/Unity.exclude-patterns.yml](assets/Unity.exclude-patterns.yml) into `.cocoindex_code/settings.yml` without replacing CocoIndex defaults or user-authored patterns.
-- Secret: `VOYAGE_API_KEY`, stored only in the official user-level `~/.cocoindex_code/global_settings.yml` `envs` map when the user authorizes setup.
+- Secret: a non-empty `VOYAGE_API_KEY` explicitly supplied by the user for the current setup run, stored only in the official user-level `~/.cocoindex_code/global_settings.yml` `envs` map after the gate is satisfied.
 
 Treat `ccc init` and both `ccc doctor` model checks as mandatory compatibility gates. A model name in this preference list is a candidate, not proof that Voyage's current text-embedding endpoint or CocoIndex Code supports it. Read [references/sources.md](references/sources.md) for the current public model and endpoint distinctions before changing the list.
 
 ## Workflow
 
-1. Resolve the exact project root and inspect the current state without exposing secrets:
+1. Apply the credential gate before any CocoIndex inspection or command:
+   - If the current setup interaction already contains a non-empty key explicitly provided by the user, accept it without asking again.
+   - Otherwise ask once: `CocoIndex Code requires a Voyage API key. Provide a non-empty VOYAGE_API_KEY for this setup run, or reply "skip" to leave CocoIndex untouched.`
+   - Accept only a non-empty key explicitly provided by the user for the current run.
+   - Do not search the process environment or user-level settings for a reusable key, and do not offer reuse of a previously saved key. Discovery is not current-run authorization.
+   - If the response is absent, empty, or `skip`, stop this skill immediately. Do not invoke `uv`, `ccc`, or `codex mcp`; do not inspect CocoIndex settings or status; do not install the CLI; do not create or modify `.cocoindex_code/`; do not change user-level settings, MCP configuration, or indexes. Report `deferred: Voyage API key not provided for this run` and reveal nothing about whether a saved key exists.
+2. After accepting the key, resolve the exact project root and inspect the current state without exposing secrets:
    - `ccc version` and `uv tool list`.
-   - Presence and structure, but never the value, of `VOYAGE_API_KEY` in the current environment or `~/.cocoindex_code/global_settings.yml`.
+   - Structure, but never the value, of the user-level CocoIndex settings required to persist the newly accepted key.
    - The configured provider and model.
    - `<project-root>/.cocoindex_code/settings.yml`, including its include patterns, Unity exclusions, language overrides, chunkers, and file-size policy; then `ccc status` and `ccc doctor` when existing configuration is runnable.
    - The Codex MCP entry for `cocoindex-code`.
-2. If the CLI, credential, project index, Unity exclusion policy, diagnostics, MCP entry, and a currently configured candidate are healthy, keep that model, skip setup, and do not probe higher-priority candidates or ask for the key again. Stable idempotence takes priority over opportunistic model churn.
-3. If setup or repair is required, ask once before installing or changing CocoIndex Code:
-
-   `CocoIndex Code needs a Voyage API key. It will be stored in the user-level ~/.cocoindex_code/global_settings.yml, never in this project. Provide VOYAGE_API_KEY, confirm reuse of the existing saved key, or reply "skip" to defer CocoIndex setup.`
-
-   If a different user-global embedding model already exists, disclose that setup will select from the approved preference chain and other CocoIndex Code projects may require re-indexing.
-4. If the user provides no key, gives an empty value, or chooses `skip`, make no CocoIndex installation, configuration, MCP, index, or secret changes. Continue the other setup components and report CocoIndex as deferred, not failed.
+3. If the CLI, credential, project index, Unity exclusion policy, diagnostics, MCP entry, and a currently configured candidate are healthy, persist the accepted key only if required, keep that model, skip other mutations, and do not probe higher-priority candidates. Stable idempotence takes priority over opportunistic model churn.
+4. If setup or repair is required and a different user-global embedding model already exists, disclose that setup will select from the approved preference chain and other CocoIndex Code projects may require re-indexing. Do not reveal the existing credential state.
 5. Handle the accepted secret without disclosure:
    - Never echo, log, quote, summarize, hash, or include it in a command argument, report, project file, Codex TOML, Git diff, or temporary project file.
    - Put it only in the current process environment while running setup.
@@ -72,6 +73,7 @@ Treat `ccc init` and both `ccc doctor` model checks as mandatory compatibility g
 
 ## Boundaries
 
+- Never begin CocoIndex discovery, installation, configuration, MCP registration, diagnostics, or indexing before the current-run credential gate succeeds. A key found in the environment or user-level settings does not satisfy the gate.
 - Configure Codex only. Never install CocoIndex Code's Claude/Grok plugin, run `npx skills add`, or configure another client.
 - Never store `VOYAGE_API_KEY` in the repository, `.env`, Codex config, shell history, response text, logs, or generated agent files.
 - Never print the user-level settings file after it contains a secret.

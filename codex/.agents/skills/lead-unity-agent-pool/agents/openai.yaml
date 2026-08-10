@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Tech Lead Pool"
+  short_description: "Plan Beads and reuse Unity worker agents"
+  default_prompt: "Use $lead-unity-agent-pool to divide this Unity goal into dependency-safe Beads and manage a reusable pool of Unity Developer workers."
+policy:
+  allow_implicit_invocation: true

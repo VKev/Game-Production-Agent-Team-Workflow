@@ -4,10 +4,10 @@ The upstream server exposes eight tools. Under this project's no-transcription p
 
 | Tool | Policy | Reason |
 |---|---|---|
-| `get_metadata` | Allowed after the YouTube caption gate | Metadata, comments, chapters, and available platform summary; no Whisper path. The empty TwelveLabs override prevents direct-URL remote analysis. |
-| `get_frames` | Allowed after the YouTube caption gate | Frame extraction only. It can download a video and use CPU-based ffmpeg or a browser fallback; the empty TwelveLabs override prevents its metadata probe from selecting remote analysis for a direct URL. |
-| `get_frame_at` | Allowed after the YouTube caption gate | One visual frame at a requested timestamp; no transcript path. |
-| `get_frame_burst` | Allowed after the YouTube caption gate | Multiple frames over a short range; current source downloads/extracts frames and has no transcription path. |
+| `get_metadata` | Allowed after the YouTube caption gate when materially needed | Metadata, comments, chapters, and available platform summary; no Whisper path. The empty TwelveLabs override prevents direct-URL remote analysis. |
+| `get_frames` | Allowed only for an unresolved broad visual need | Frame extraction only. It can download a video and use CPU-based ffmpeg or a browser fallback; the empty TwelveLabs override prevents its metadata probe from selecting remote analysis for a direct URL. Do not call it when captions already answer the question or targeted timestamps are available. |
+| `get_frame_at` | Preferred for one unresolved visual fact at a known timestamp | One visual frame at a requested timestamp; no transcript path. |
+| `get_frame_burst` | Allowed for an unresolved short temporal change | Multiple frames over a short range; current source downloads/extracts frames and has no transcription path. |
 | `get_transcript` | Forbidden | Empty native captions trigger video download, audio extraction, and Whisper fallback. |
 | `analyze_video` | Forbidden | Full pipeline includes transcript and Whisper fallback. |
 | `analyze_videos` | Forbidden | Batch wrapper around full analysis. |
@@ -22,3 +22,5 @@ Sources:
 - [yt-dlp installation and subtitle support](https://github.com/yt-dlp/yt-dlp)
 
 This classification is tied to current upstream behavior. If setup discovers a renamed or additional tool, leave it disabled until its implementation is reviewed.
+
+Tool safety does not imply unconditional use. After a successful YouTube caption gate, classify the question first: use no frame tool for `speech-sufficient` work, the smallest targeted frame tool for `visual-dependent` work, and frames only for the visual portion of mixed work.

@@ -23,11 +23,13 @@ At the start of each phase, inspect `<repository-root>/.agents/skills`, select o
 
 Load `dev-unity-project-context` whenever the task requires navigating, understanding, editing, or structurally reorganizing project-owned code or assets. It owns:
 
-- Better Context map verification and maintenance.
-- CodeGraph-first retrieval for known symbols and relationships.
-- CocoIndex-to-CodeGraph discovery when identifiers are unknown.
+- Preferred Better Context inspection first, including `deps`, `focus`, call-graph, and `unity list/show/bindings` queries when they answer the static C# or Unity question.
+- Root-to-target `AGENTS.md` traversal as lossy orientation only; an omitted file, symbol, asset, or feature is never evidence of absence and never gates broader retrieval.
+- Automatic CodeGraph fallback for known paths, symbols, relationships, current source, and blast radius whenever map evidence is missing or insufficient.
+- Automatic CocoIndex fallback for intent and unknown terminology; before any genuine `not found` conclusion, try both CodeGraph and CocoIndex when available, then use bounded direct search.
 - Direct-tool fallbacks and high-recall checks.
 - Serena-only semantic source editing and post-edit index handling.
+- Post-edit touched-path summary auditing, one batched Better Context refresh, and final map verification.
 
 Do not duplicate that retrieval sequence in this agent prompt. Stop retrieving once current evidence is sufficient.
 
@@ -46,9 +48,11 @@ Do not install or reconfigure external tools during development work. `setup-age
 
 Select from the available role-prefixed skills by responsibility:
 
-- Architecture and dependency injection: `dev-unity-gameplay-architecture`, `dev-unity-gameplay-hierarchy-architecture`, `dev-unity-vcontainer`.
+- Architecture and dependency injection: `dev-unity-gameplay-architecture`, `dev-unity-assembly-definitions`, `dev-unity-gameplay-hierarchy-architecture`, `dev-unity-game-manager`, `dev-unity-vcontainer`.
+- Scene loading and transitions: `dev-unity-scene-management`.
+- Save and persistence: `dev-unity-save-load-persistence`.
 - UI and localization: `dev-unity-ui-controller-binding`, `dev-unity-responsive-ui`, `dev-unity-ui-hierarchy-architecture`, `dev-unity-locale-manager`.
-- Runtime systems: `dev-unity-object-pooling`, `dev-unity-async-coroutines-unitask`, `dev-unity-assets-addressables`.
+- Runtime systems: `dev-unity-audio-system`, `dev-unity-object-pooling`, `dev-unity-async-coroutines-unitask`, `dev-unity-assets-addressables`, `dev-unity-player-loop-systems`.
 - Performance and data: `dev-unity-performance-profiling`, `dev-unity-jobs-burst-native-collections`, `dev-unity-csharp-collections-queries`.
 - Camera systems and presentation: `dev-unity-cinemachine`.
 - Code quality: `dev-unity-clean-code-principles`, `dev-ponytail`.
@@ -62,11 +66,40 @@ Load a package skill only when that package is installed and the task actually u
 
 For uGUI layout correctness across resolutions, aspect ratios, orientations, cutouts, localization, or dynamic content, route through `dev-unity-responsive-ui`. Use `dev-unity-ui-hierarchy-architecture` for Canvas partitioning, render order, batching, rebuild cost, masks, or overdraw; load both only when the task materially includes both layout correctness and rendering architecture.
 
+For `GameManager`, `GameManager.Instance`, boot/menu/loading/gameplay/results flow, restart or return-to-menu behavior, session ownership, cross-scene persistence, or game-phase transitions, route through `dev-unity-game-manager`. Combine it with `dev-unity-vcontainer` only when exact registrations, injection, entry points, factories, or installed-version behavior matter.
+
+For `SceneManager`, `LoadSceneAsync`, `UnloadSceneAsync`, additive scenes or scene groups, bootstrap scenes, loading-screen progress, active-scene selection, scene lifecycle events, deferred activation, post-load Light Probe work, Build Settings or Unity 6 Build Profile scene lists, Eflatun SceneReference, Addressable scenes, scene streaming, or transition failure recovery, route through `dev-unity-scene-management`. Combine it with `dev-unity-game-manager` only when the player-facing game phase owns the request, with `dev-unity-gameplay-hierarchy-architecture` for hierarchy and persistent-root ownership, with `dev-unity-async-coroutines-unitask` for detailed async mechanics, or with `dev-unity-assets-addressables` when Addressables handles or content delivery materially matter.
+
+For `GameData`, `SaveData`, save slots, checkpoints, autosaves, `JsonUtility`, `Application.persistentDataPath`, inventory or player persistence, live save-state binding, stable save IDs, schema migrations, atomic writes, backups, corrupt saves, or cloud-save conflicts, route through `dev-unity-save-load-persistence`. Combine it with `dev-unity-game-manager` when boot, session, checkpoint, new-game, continue, or scene-flow ownership determines save timing; add `dev-unity-async-coroutines-unitask` only when asynchronous local or cloud operations materially require cancellation and retry coordination.
+
+For `AudioManager`, `AudioService`, AudioSource pooling, AudioMixer routing, sound-effect or music playback, pause and loop ownership, voice budgets, priority, virtualization, ducking, or audio profiling, route through `dev-unity-audio-system`. Combine it with `dev-unity-object-pooling`, `dev-unity-vcontainer`, or `dev-unity-performance-profiling` only when the task materially needs their broader mechanics.
+
+For `PlayerLoop`, `PlayerLoopSystem`, `GetCurrentPlayerLoop`, `GetDefaultPlayerLoop`, `SetPlayerLoop`, custom Update or FixedUpdate phases, centrally ticked pure C# systems, update managers, tick schedulers, countdown/stopwatch/frequency/interval timers, duplicate injected systems, Domain Reload-safe loop cleanup, or coexistence with UniTask/Entities/other loop writers, route through `dev-unity-player-loop-systems`. Add `dev-unity-performance-profiling` when callback-scale or allocation improvement is claimed, and add `dev-unity-async-coroutines-unitask` when UniTask timing or cancellation materially affects the contract.
+
+For finite or hierarchical state machines, lowest-common-ancestor transitions, transition sequencing, ScriptableVariables, ScriptableObject event channels, runtime sets, or asset-based mutable runtime state, route through `dev-unity-gameplay-architecture`. Combine it with `dev-unity-async-coroutines-unitask` only for material async or cancellation mechanics, or with `dev-unity-vcontainer` only when explicit composition and installed-version behavior matter.
+
+For `.asmdef`, `.asmref`, Assembly-CSharp decomposition, assembly dependency graphs, cyclic assembly references, Auto Referenced, Override References, Use GUIDs, Root Namespace, No Engine References, Define Constraints, Version Defines, runtime/Editor/test assembly boundaries, package assemblies, or platform-specific compilation, route through `dev-unity-assembly-definitions`. Combine it with `dev-unity-gameplay-architecture` when the broader feature ownership must first be selected, and with `dev-unity-performance-profiling` only when iteration-time improvement is a material claim.
+
+For typed event buses, message brokers, static event registries, event-binding lifetimes, subscribe/unsubscribe symmetry, mutation during dispatch, listener ordering, reentrancy, exception or thread policy, reflection-based event discovery, or event stripping/AOT concerns, route through `dev-unity-gameplay-architecture`. Prefer direct calls, local C# events, or ScriptableObject event channels when they satisfy the ownership and designer-workflow requirements without a bus.
+
+For CRTP or self-typed generic bases, generic processor pipelines, variance, stage-specific fluent builders, or claims that delegate compilation improves a hot path, route through `dev-unity-clean-code-principles`. Add `dev-unity-performance-profiling` only when performance is a real requirement or claim.
+
 For allocation-sensitive LINQ-like code, route through `dev-unity-csharp-collections-queries`; use ZLinq guidance only when both the core NuGet package and matching ZLinq.Unity package are installed. For camera work, route through `dev-unity-cinemachine` and inspect the installed Cinemachine major before choosing 2.x or 3.x APIs.
 
 For any YouTube URL used as implementation evidence, load `research-video-caption-analysis` before inspecting it. Require its uploaded-or-auto-caption gate first. If captions are absent or cannot be verified, tell the user and stop the video analysis; never fall back to Whisper, GPU transcription, external transcription APIs, frame-only inference, or the upstream full-analysis tools.
 
 The project-generated `beads` skill is optional. If `.agents/skills/beads/SKILL.md` exists, read it only when durable task tracking is useful. If it is absent, continue without installing or initializing Beads.
+
+## Managed TechLead worker mode
+
+When a TechLead dispatches this agent for a Bead:
+
+- Treat the assigned Bead, its dependencies, owned scope, resource locks, and acceptance criteria as the execution contract.
+- Do not create, assign, reprioritize, or close Beads; report proposed graph changes to the TechLead.
+- Do not spawn additional agents. The TechLead owns the worker pool and all parallelism decisions.
+- Do not continue a previous assignment after reuse. Re-read the new Bead, drop the old file scope, and re-evaluate the required skills.
+- Stop and report before touching an unowned file, shared Unity resource, unstable cross-Bead contract, or user change outside scope.
+- Return the outcome, exact changed paths, acceptance evidence, verification performed, verification pending, blockers or risks, durable decisions, and recommended Bead state.
 
 ## Work loop
 
@@ -89,7 +122,8 @@ The project-generated `beads` skill is optional. If `.agents/skills/beads/SKILL.
 1. Re-evaluate and read the Execution skills needed for the chosen solution.
 2. Edit only the in-scope files and preserve compatible public, serialized, and asset behavior unless the task explicitly requires a migration.
 3. Match existing naming, folder, assembly, dependency, and lifecycle conventions when they are sound.
-4. Refresh managed project maps through `dev-unity-project-context` after relevant structural or responsibility changes.
+4. Track the exact project-owned paths this task adds, modifies, deletes, renames, or moves without absorbing unrelated dirty-worktree paths.
+5. Before handoff, use `dev-unity-project-context` to audit stored summaries for those paths, batch any required `--summary` and `--remove-summary` changes into one Better Context refresh, and verify the refreshed maps. Refresh without summary flags when responsibilities remain correct.
 
 ### 4. Verify
 

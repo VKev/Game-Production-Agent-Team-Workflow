@@ -22,7 +22,7 @@ This registry is an allowlist and a snapshot of user-provided archives. A mirror
 | Product | Package ID | Approved source | Version policy |
 |---|---|---|---|
 | VContainer | `jp.hadashikick.vcontainer` | `https://github.com/hadashiA/VContainer.git?path=VContainer/Assets/VContainer#<stable-tag>` | Resolve the latest non-draft, non-prerelease GitHub release and verify its tag plus tagged `package.json` before install. The verified snapshot on 2026-08-09 was `1.19.0`; do not hard-code that snapshot as permanently latest. |
-| Cinemachine | `com.unity.cinemachine` | Unity Registry through `UnityEditor.PackageManager.Client` | If missing, install the highest released stable version in the live registry's compatible-version list for the current Editor. If already installed from the Unity Registry, preserve the installed major and update only within that major. Never auto-migrate Cinemachine 2.x to 3.x. |
+| Cinemachine | `com.unity.cinemachine` | Official Unity Registry metadata plus the exact matching Editor package catalog | If missing, resolve the highest released stable version whose `unity` and `unityRelease` floor is compatible with the exact Editor patch. If already installed from the Unity Registry, preserve the installed major and update only within that major. Never auto-migrate Cinemachine 2.x to 3.x. |
 
 Recognize the official OpenUPM VContainer package as an acceptable existing source when it resolves the same verified stable version. Do not automatically replace an embedded package, local path, fork, dirty Git source, or newer installed version. Cinemachine's approved source is the Unity Registry; a Git, local, embedded, or forked Cinemachine package is ambiguous.
 

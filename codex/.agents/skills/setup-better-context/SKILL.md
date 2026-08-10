@@ -1,6 +1,6 @@
 ---
 name: setup-better-context
-description: Check, install, repair, initialize, and verify VKev/Better-Context for project-local hierarchical AGENTS.md maps. Use when preparing a copied Codex agent package, when better-context-unity is missing or was installed from another source, when its optional summary flags are unavailable, or when a Unity project needs fresh navigation maps.
+description: Check, install, repair, initialize, and verify VKev/Better-Context 1.5+ for Roslyn-backed C# intelligence, Unity runtime and FBX model queries, and project-local hierarchical AGENTS.md maps. Use when preparing a copied Codex agent package, when better-context-unity is missing, stale, installed from another source, lacks required Unity/FBX/summary/call-graph capabilities, or when a Unity project needs fresh navigation maps.
 ---
 
 # Better Context Project Setup
@@ -10,7 +10,9 @@ Install the custom Better Context Unity CLI from the user's Git repository and c
 ## Required state
 
 - Package and command: `better-context-unity`.
+- Minimum compatible version: `1.5.0`.
 - Approved source: `git+https://github.com/VKev/Better-Context.git@main`.
+- C# analyzer prerequisite: .NET SDK 8 or newer for Roslyn symbol resolution.
 - Project cache: `.better-context/`.
 - Project scan policy: `.ctxignore`.
 - Optional summary store: `.ctx-summaries.json`.
@@ -26,12 +28,14 @@ Install the custom Better Context Unity CLI from the user's Git repository and c
    - If installation succeeds but the current process cannot resolve uv, add only the installer-reported directory to the current process PATH and retry once.
 4. Inspect the installed tool without modifying it:
    - Resolve `better-context-unity` first.
-   - When it resolves, run `better-context-unity --version` and `better-context-unity agents --help`.
+   - When it resolves, run `better-context-unity --version`, top-level `--help`, `agents --help`, `unity --help`, and `graph --help`.
    - Run `uv tool list --show-version-specifiers` and require the `better-context-unity` tool to reference `github.com/VKev/Better-Context`.
-   - Treat the installation as correct only when the command works, the Git source is correct, and `agents --help` exposes both `--summary` and `--remove-summary`.
+   - Require version `1.5.0` or newer, `agents --help` to expose `--summary` and `--remove-summary`, `unity --help` to expose `list`, `show`, and `bindings`, and `graph --help` to expose dependency and call graph kinds.
+   - Resolve `dotnet --version` and require an SDK major version of at least 8 before accepting Roslyn-backed C# analysis. A missing or older SDK leaves C# dependency/call verification incomplete even when the Python CLI works.
+   - Treat the installation as correct only when the command, minimum version, Git source, summary flags, Unity queries, call-graph option, and .NET prerequisite all pass.
 5. Install or repair only when required:
    - Missing: `uv tool install "git+https://github.com/VKev/Better-Context.git@main"`.
-   - Wrong source, broken command, or missing summary capabilities: `uv tool install --force --refresh "git+https://github.com/VKev/Better-Context.git@main"`.
+   - Wrong source, old version, broken command, or missing summary, Unity, or call-graph capabilities: `uv tool install --force --refresh "git+https://github.com/VKev/Better-Context.git@main"`.
    - Do not reinstall or contact the network when the existing installation already passes every check.
 6. Resolve the CLI again. If uv installed it but the command is not on PATH, resolve `uv tool dir --bin`, add only that directory to the current process PATH, and retry once. Stop if the command still cannot run.
 7. Merge this managed vendor block into root `.ctxignore`, preserving every user-authored pattern and placing the block after any negation that would re-include these exact roots:
@@ -57,7 +61,14 @@ Install the custom Better Context Unity CLI from the user's Git repository and c
    - When orchestrated by `setup-agents` and live Unity package imports are still pending, configure the ignore policy but defer a missing first map or stale refresh until the single post-import refresh. Preserve an already healthy map.
    - Otherwise, if maps are missing or verification reports stale state, run `better-context-unity --root <project-root> agents` once with no summaries.
    - Allow a bounded ten-minute budget for the first Unity scan and report progress at least once per minute. A timeout is incomplete setup, not success.
-10. Verify the command, version, exact Git source, summary flags, `.ctxignore` behavior, fresh project state when generation was due, root managed marker, absence of managed vendor maps, unchanged `HEAD`, and empty staged-path list. Better Context is a local CLI and needs no MCP registration or Codex restart.
+10. Validate the generated state without changing project source:
+    - Run `better-context-unity --root <project-root> verify`, `better-context-unity --root <project-root> unity list --limit 1 --format json`, and `better-context-unity --root <project-root> graph --kind call --format json`. An empty Unity asset list or call graph is valid only when the project genuinely has no matching evidence; command/schema failure is not.
+    - Parse `.better-context/manifest.json`. Require its generator to report the accepted CLI version and its Unity runtime section to record parsed, unsupported, and error coverage instead of inventing data for unsupported serialization.
+    - When project-owned C# files exist, require Roslyn analysis evidence such as `analysis_engine: roslyn`; fallback-only symbol inventory is incomplete setup because C# dependency and call edges are deliberately omitted.
+    - When a project-owned `.fbx` exists, run `unity list --kind model`, select one exact project-relative result, and require `unity show <path>` to expose parsed FBX structure and/or Unity `ModelImporter` facts. A path-only map row is not proof of FBX analysis.
+    - Require zero C# dependency edges to `.meta`, zero graph targets ending in `.meta`, and structured Unity edges to carry Unity/GUID evidence rather than free-text type-name matches.
+    - Follow only child-map links emitted by a parent `AGENTS.md`. Do not fail setup merely because a raw art folder, collapsed runtime tree, vendor boundary, or generated boundary has no child map.
+11. Verify the command, minimum version, exact Git source, Roslyn/runtime capabilities, summary flags, `.ctxignore` behavior, fresh project state when generation was due, root managed marker, absence of managed vendor maps, unchanged `HEAD`, and empty staged-path list. Better Context is a local CLI and needs no MCP registration or Codex restart.
 
 ## Runtime handoff
 
@@ -68,6 +79,7 @@ After setup, `dev-unity-project-context` owns map verification, navigation, refr
 - Install only from `VKev/Better-Context` with the exact Git requirement above. Do not substitute PyPI, the upstream repository, a mirror, or an editable checkout.
 - Do not install uv again when a working uv is already available.
 - Do not add summaries during project setup. Summary authoring is an optional runtime decision after source verification.
+- Do not treat `verify` alone as proof that Roslyn, dependency correctness, Unity runtime parsing, compilation, or tests succeeded; it establishes only saved-context freshness.
 - Keep each summary stable, factual, project-relative, and at most 240 characters. Never include secrets, transient task notes, speculative behavior, full method lists, or detailed call flows.
 - Do not summarize every file or folder. Leave the map structural when a summary adds no durable navigation value.
 - Never overwrite handwritten `AGENTS.md` content, edit content inside the managed block manually, or run `clean` automatically.

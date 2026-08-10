@@ -2,6 +2,17 @@
 
 This skill synthesizes the following primary sources. Treat the project's Unity version and installed packages as the final compatibility authority.
 
+## Contents
+
+- [Unity architecture and separation](#unity-architecture-and-separation)
+- [Unity design patterns](#unity-design-patterns)
+- [Modules and testing](#modules-and-testing)
+- [C# language boundaries](#c-language-boundaries)
+- [Event-bus runtime and discovery safeguards](#event-bus-runtime-and-discovery-safeguards)
+- [Video-derived event-bus case study](#video-derived-event-bus-case-study)
+- [Synthesis notes](#synthesis-notes)
+- [Folder-structure synthesis](#folder-structure-synthesis)
+
 ## Unity architecture and separation
 
 ### How to architect code as your project scales
@@ -120,6 +131,67 @@ URL: https://learn.microsoft.com/en-us/dotnet/csharp/events-overview
 URL: https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/events/
 
 Use for publisher/subscriber semantics, multiple listeners, and event-driven communication. Retain explicit lifecycle management in Unity.
+
+## Event-bus runtime and discovery safeguards
+
+### ScriptableObject event channels
+
+URL: https://unity.com/how-to/scriptableobjects-event-channels-game-code
+
+Use for comparing Inspector-visible event-channel assets with static C# events and code-owned buses. Treat the pattern as optional and keep asset lifetime, reset, and debugging behavior explicit.
+
+### Domain Reload
+
+URL: https://docs.unity3d.com/Manual/domain-reloading.html
+
+Use for static-field and static-event reset requirements when Domain Reload is disabled.
+
+### Managed code stripping
+
+URL: https://docs.unity3d.com/Manual/ManagedCodeStripping.html
+
+Use for reflection-only event types and methods, `Preserve`, and `link.xml` decisions. Verify the target scripting backend and stripping level.
+
+### Runtime initialization
+
+URL: https://docs.unity3d.com/ScriptReference/RuntimeInitializeOnLoadMethodAttribute.html
+
+Use for startup phase ordering, nondeterministic ordering within one phase, and `AlwaysLinkAssembly` guidance for package or precompiled assemblies.
+
+### Assembly definitions
+
+URL: https://docs.unity3d.com/Manual/assembly-definitions-intro.html
+
+Use to avoid discovery code that recognizes only predefined `Assembly-CSharp` assemblies.
+
+### Assembly.GetTypes
+
+URL: https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assembly.gettypes
+
+Use for `ReflectionTypeLoadException`, partial type results, and loader-exception handling.
+
+### HashSet enumeration
+
+URL: https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.hashset-1.enumerator.system-collections-ienumerator-reset
+
+Use for the rule that adding or removing elements invalidates an active enumerator.
+
+### C# structs and boxing
+
+URLs:
+
+- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/structs
+- https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/types/conversions
+
+Use to reject the claim that struct event payloads are universally stack allocated or allocation free. Boxing to `object` or an implemented interface allocates.
+
+## Video-derived event-bus case study
+
+- Video, “Learn to Build an Advanced Event Bus | Unity Architecture”: https://www.youtube.com/watch?v=4_DTAnigmaQ
+- Upload-era source revision: https://github.com/adammyhre/Unity-Event-Bus/commit/c7d2748ea6a2e18c114f86aa18ccba4ab8d046ff
+- Later mutation-safety snapshot fix: https://github.com/adammyhre/Unity-Event-Bus/commit/024ff8429b128788be50beee2b07c85caab52748
+
+Use the tutorial as a compact case study for typed generic buses, binding identity, lifecycle registration, and Domain Reload cleanup. The later creator fix confirms that live-collection mutation during dispatch was a real defect. Retain the broader safeguards in `event-bus-and-message-routing.md` rather than copying the tutorial implementation verbatim.
 
 ## Synthesis notes
 
