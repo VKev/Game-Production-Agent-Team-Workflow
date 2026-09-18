@@ -1,0 +1,6 @@
+interface:
+  display_name: "Tech Lead Agent Pool"
+  short_description: "Plan Beads and reuse engine worker agents (Unity or Cocos)"
+  default_prompt: "Use $lead-agent-pool to divide this game-project goal into dependency-safe Beads and manage a reusable pool of engine developer workers."
+policy:
+  allow_implicit_invocation: true

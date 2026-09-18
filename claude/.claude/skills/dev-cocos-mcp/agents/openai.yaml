@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: mcp"
+  short_description: "Cocos Creator 3.8 guidance for mcp"
+  default_prompt: "Use $dev-cocos-mcp for this Cocos Creator task."

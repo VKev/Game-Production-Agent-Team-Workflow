@@ -1,0 +1,37 @@
+# Cocos Creator 3.x — regenerable state.
+# Every entry below is rebuilt by the editor from `assets/` plus the `.meta` files.
+# Comments must be on their own line: a trailing comment after a pattern is matched
+# literally and silently ignores nothing.
+
+/library/
+/temp/
+/local/
+/build/
+/profiles/
+
+# Native (Android/iOS) build output inside a native project
+/native/**/build/
+/native/**/.gradle/
+/native/**/.cxx/
+/native/**/.externalNativeBuild/
+/native/**/local.properties
+
+# Editor extensions are committed; their installed dependencies are not
+extensions/*/node_modules/
+
+# Node tooling
+node_modules/
+*.log
+
+# These are AUTHORED and must stay tracked. The negations are listed for the same
+# reason the ignores are: each one has cost a project real, silent damage.
+#
+# *.meta          - holds the asset uuid. A missing .meta makes Cocos mint a new uuid,
+#                   which breaks every scene and prefab reference without an error.
+# /settings/      - shared project configuration (start scene, bundle/build config).
+# /build-templates/ - source injected into builds; not the same as /build/.
+# package-lock.json - pinned tooling, intentionally committed.
+!*.meta
+!/settings/
+!/build-templates/
+!package-lock.json

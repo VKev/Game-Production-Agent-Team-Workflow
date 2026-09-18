@@ -1,19 +1,19 @@
 # Claude Code project bundle
 
-Copy this folder's contents into a Unity project root and Claude Code has the
+Copy this folder's contents into a Unity or Cocos Creator project root and Claude Code has the
 same agents, skills, MCP servers, hooks, and policies the `codex/` bundle gives
 Codex.
 
 ```bash
 # from the repository that holds this bundle
-cp -rf claude/. /path/to/UnityProject/
+cp -rf claude/. /path/to/GameProject/
 ```
 
 On Windows PowerShell:
 
 ```powershell
-Copy-Item -Recurse -Force .\claude\* -Destination D:\path\to\UnityProject\
-Copy-Item -Force .\claude\.mcp.json -Destination D:\path\to\UnityProject\
+Copy-Item -Recurse -Force .\claude\* -Destination D:\path\to\GameProject\
+Copy-Item -Force .\claude\.mcp.json -Destination D:\path\to\GameProject\
 ```
 
 Then open the project in Claude Code and ask the `setup-agents` agent to run.
@@ -23,11 +23,20 @@ It installs and verifies every tool and reports one state per component.
 
 | Path | Purpose |
 |---|---|
-| `.claude/agents/*.md` | `setup-agents`, `tech-lead`, `unity-developer`. Generated from `codex/.codex/agents/*.toml`, so both clients run the same logic. |
-| `.claude/skills/**` | The shared skill library (`dev-unity-*`, `setup-*`, `threejs-*`, …), generated from `codex/.agents/skills/**`. |
+| `.claude/agents/*.md` | `setup-agents`, `tech-lead`, `unity-developer`, `cocos-developer`. Generated from `codex/.codex/agents/*.toml`, so both clients run the same logic. |
+| `.claude/skills/**` | The shared skill library (`dev-unity-*`, `dev-cocos-*`, `setup-*`, `threejs-*`, …), generated from `codex/.agents/skills/**`. |
 | `.claude/settings.json` | MCP enable list, permission policy (approval gates plus the video-analyzer deny list), and Serena's hooks. Beads' `SessionStart` hook and CodeGraph's `UserPromptSubmit` hook are deliberately absent: their own installers write them during setup, so shipping them here would create duplicates. |
-| `.mcp.json` | Project MCP servers: `serena`, `codegraph`, `cocoindex-code`, `blender`, `video-analyzer`. `unity_mcp` is added by setup once the relay path is resolved. |
+| `.mcp.json` | Project MCP servers: `serena`, `codegraph`, `cocoindex-code`, `blender`, `video-analyzer`. The engine server is added by setup once its address is known — `unity_mcp` (resolved relay path) or `funplay_cocos` (the port the Cocos editor extension reports). |
 | `CLAUDE.md` | Starter project instructions. Setup appends marker-managed blocks (Beads, Serena, Better Context) to it. |
+
+## Which engine
+
+The bundle covers Unity 6000.3.21f1 and Cocos Creator 3.8. `setup-agents` detects
+the engine from the project markers and runs only that engine's phases: Unity gets
+the Assistant/Unity MCP relay, UPM packages, ZLinq and the asset packages; Cocos
+gets the `funplay-cocos-mcp` editor extension and its gate policy. Everything else
+— Beads, Serena, Better Context, CodeGraph, CocoIndex, Blender, video analyzer — is
+the same for both.
 
 ## Before it all works
 
@@ -43,6 +52,10 @@ cannot invent:
   Unity restart, and an approval in **Project Settings > AI > Pending
   Connections**. `setup-unity-mcp` runs `scripts/upsert_claude_unity_mcp.ps1`
   to write the entry with the resolved relay path.
+- **Cocos MCP** needs the `funplay-cocos-mcp` extension installed in the project
+  and **Cocos Creator open** — the MCP server is embedded in the editor, so nothing
+  live works while it is closed. The port is per project; setup reads it from
+  `funplay-cocos-mcp.config.json` rather than assuming `8765`.
 - **Blender MCP** needs the Blender add-on from `https://lab.blender.org/`
   installed and enabled by you, and `BLENDER_MCP_PORT` in `.mcp.json` must match
   the add-on's port (the default is `9876`).

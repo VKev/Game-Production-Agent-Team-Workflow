@@ -1,0 +1,37 @@
+# Merge these entries into the project's existing exclude_patterns list.
+# Keep CocoIndex Code defaults and all user-authored settings.
+exclude_patterns:
+  # Cocos Creator regenerated state and build output. The editor rebuilds all of
+  # these from `assets/` plus the `.meta` files.
+  - "library/**"
+  - "temp/**"
+  - "build/**"
+  - "local/**"
+  - "profiles/**"
+
+  # Native build output inside a native project
+  - "native/**/build/**"
+  - "native/**/.gradle/**"
+  - "native/**/.cxx/**"
+
+  # Vendored editor-extension dependencies (the extensions themselves stay eligible)
+  - "extensions/*/node_modules/**"
+  - "node_modules/**"
+
+  # Serialized asset identity. `.meta` files carry uuids, not searchable meaning;
+  # Better Context resolves them structurally instead.
+  - "**/*.meta"
+
+  # Large serialized scene/prefab payloads. Structure comes from Better Context's
+  # Cocos analyzer; semantic search over raw JSON returns noise.
+  - "assets/**/*.scene"
+  - "assets/**/*.prefab"
+  - "assets/**/*.anim"
+
+# Keep eligible (do NOT exclude):
+#   assets/**/*.ts            project TypeScript, the main search surface
+#   assets/resources/**/*.json  authored data tables
+#   extensions/**/*.{ts,js}   project-local editor tooling
+#   tools/**                  project scripts and checkers
+#   build-templates/**        authored files injected into builds
+#   settings/**               shared project configuration

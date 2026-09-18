@@ -26,7 +26,7 @@ The installed `ccc` release has no client installer subcommand, so both registra
 - Embedding provider: LiteLLM with Voyage.
 - Preferred model order: `voyage/voyage-code-4`, `voyage/voyage-code-4-large`, `voyage/voyage-4`, `voyage/voyage-4-large`, `voyage/voyage-code-3`, `voyage/voyage-context-4`, then `voyage/voyage-3-large`.
 - Selection rule: keep a healthy configured candidate; for a new or failed setup, select the first candidate in that order that passes both CocoIndex Code model checks.
-- Project exclusion policy: merge [assets/Unity.exclude-patterns.yml](assets/Unity.exclude-patterns.yml) into `.cocoindex_code/settings.yml` without replacing CocoIndex defaults or user-authored patterns.
+- Project exclusion policy: merge the engine's exclusion asset into `.cocoindex_code/settings.yml` without replacing CocoIndex defaults or user-authored patterns — [assets/Unity.exclude-patterns.yml](assets/Unity.exclude-patterns.yml) for a Unity project, [assets/Cocos.exclude-patterns.yml](assets/Cocos.exclude-patterns.yml) for a Cocos Creator project. Detect the kind the same way `setup-agents` does, and never merge both.
 - Secret: a non-empty `VOYAGE_API_KEY` explicitly supplied by the user for the current setup run, stored only in the official user-level `~/.cocoindex_code/global_settings.yml` `envs` map after the gate is satisfied.
 
 Treat `ccc init` and both `ccc doctor` model checks as mandatory compatibility gates. A model name in this preference list is a candidate, not proof that Voyage's current text-embedding endpoint or CocoIndex Code supports it. Read [references/sources.md](references/sources.md) for the current public model and endpoint distinctions before changing the list.

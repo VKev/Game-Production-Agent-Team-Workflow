@@ -10,7 +10,7 @@ Install the custom Better Context Unity CLI from the user's Git repository and c
 ## Required state
 
 - Package and command: `better-context-unity`.
-- Minimum compatible version: `1.7.0` (the release that added multi-client `map_files` / `--map-file`).
+- Minimum compatible version: `1.8.0` (the release that added the Cocos Creator project kind; `1.7.0` added multi-client `map_files` / `--map-file`).
 - Approved source: `git+https://github.com/VKev/Better-Context.git@main`.
 - Companion package: `com.vkev.better-context.editor`, installed from the same repository with `?path=/unity-package/com.vkev.better-context.editor` and pinned to the accepted release tag or exact commit.
 - C# analyzer prerequisite: .NET SDK 8 or newer for Roslyn symbol resolution.
@@ -43,7 +43,7 @@ One scan writes every selected file, so the clients cannot drift apart. Never ru
    - Resolve `better-context-unity` first.
    - When it resolves, run `better-context-unity --version`, top-level `--help`, `agents --help`, `editor --help`, `unity --help`, and `graph --help`.
    - Run `uv tool list --show-version-specifiers` and require the `better-context-unity` tool to reference `github.com/VKev/Better-Context`.
-   - Require version `1.7.0` or newer, `agents --help` to expose `--summary`, `--remove-summary`, and `--map-file` (with `AGENTS.md` and `CLAUDE.md` as its accepted values), `editor --help` to expose `install`, `status`, and `sync`, `unity --help` to expose `list`, `show`, `components`, and `bindings`, and `graph --help` to expose dependency and call graph kinds.
+   - Require version `1.8.0` or newer, a `cocos` subcommand exposing `list`, `show`, and `components`, `agents --help` to expose `--summary`, `--remove-summary`, and `--map-file` (with `AGENTS.md` and `CLAUDE.md` as its accepted values), `editor --help` to expose `install`, `status`, and `sync`, `unity --help` to expose `list`, `show`, `components`, and `bindings`, and `graph --help` to expose dependency and call graph kinds.
    - Resolve `dotnet --version` and require an SDK major version of at least 8 before accepting Roslyn-backed C# analysis. A missing or older SDK leaves C# dependency/call verification incomplete even when the Python CLI works.
    - Treat the installation as correct only when the command, minimum version, Git source, summary flags, `--map-file` support, Editor bridge commands, Unity queries, call-graph option, and .NET prerequisite all pass.
 5. Install or repair the CLI only when required:

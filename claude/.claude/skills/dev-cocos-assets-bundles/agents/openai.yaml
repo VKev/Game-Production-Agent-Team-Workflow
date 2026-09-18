@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: assets bundles"
+  short_description: "Cocos Creator 3.8 guidance for assets bundles"
+  default_prompt: "Use $dev-cocos-assets-bundles for this Cocos Creator task."

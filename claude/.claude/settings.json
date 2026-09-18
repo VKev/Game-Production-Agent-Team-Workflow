@@ -5,7 +5,8 @@
     "cocoindex-code",
     "blender",
     "video-analyzer",
-    "unity_mcp"
+    "unity_mcp",
+    "funplay_cocos"
   ],
   "permissions": {
     "allow": [
@@ -20,6 +21,7 @@
       "mcp__serena__list_memories",
       "mcp__serena__read_memory",
       "mcp__unity_mcp__*",
+      "mcp__funplay_cocos__*",
       "mcp__blender__*",
       "mcp__video-analyzer__get_metadata",
       "mcp__video-analyzer__get_frames",
@@ -28,10 +30,20 @@
     ],
     "ask": [
       "mcp__unity_mcp__Unity_ManageEditor",
+      "mcp__funplay_cocos__execute_javascript",
+      "mcp__funplay_cocos__execute_scene_script",
+      "mcp__funplay_cocos__execute_editor_script",
       "mcp__blender__execute_blender_code",
       "mcp__blender__execute_blender_code_for_cli"
     ],
     "deny": [
+      "mcp__funplay_cocos__simulate_mouse_click",
+      "mcp__funplay_cocos__simulate_mouse_drag",
+      "mcp__funplay_cocos__simulate_key_press",
+      "mcp__funplay_cocos__simulate_key_combo",
+      "mcp__funplay_cocos__simulate_preview_input",
+      "mcp__funplay_cocos__simulate_button_click",
+      "mcp__funplay_cocos__capture_desktop_screenshot",
       "mcp__video-analyzer__analyze_video",
       "mcp__video-analyzer__analyze_videos",
       "mcp__video-analyzer__get_transcript",

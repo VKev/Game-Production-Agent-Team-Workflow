@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: build minigame"
+  short_description: "Cocos Creator 3.8 guidance for build minigame"
+  default_prompt: "Use $dev-cocos-build-minigame for this Cocos Creator task."

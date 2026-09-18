@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos Setup Preflight"
+  short_description: "Classify a Cocos Creator project before setup mutates anything"
+  default_prompt: "Use $setup-cocos-project-preflight to inspect this Cocos Creator project and report the recommended setup phase."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: ui layout"
+  short_description: "Cocos Creator 3.8 guidance for ui layout"
+  default_prompt: "Use $dev-cocos-ui-layout for this Cocos Creator task."

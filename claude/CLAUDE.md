@@ -10,6 +10,18 @@ when both were copied. Both clients are configured to the same tool set, and
 both read the same Beads workspace, the same CodeGraph index, and the same
 Better Context scan. `AGENTS.md` is the Codex-facing twin of this file.
 
+## Engine
+
+This bundle serves two engines, and `setup-agents` detects which one this project is:
+
+- **Unity** — `Assets/` + `ProjectSettings/ProjectVersion.txt` (6000.3.21f1).
+- **Cocos Creator** — `assets/` + `package.json` with `creator.version` (3.8).
+
+Use the matching agent profile (`unity-developer` or `cocos-developer`) and the
+matching skills (`dev-unity-*` / `setup-unity-*`, or `dev-cocos-*` / `setup-cocos-*`).
+Beads, Serena, Better Context, CodeGraph, CocoIndex, Blender, and the video analyzer
+are engine-neutral.
+
 ## Unity Play Mode guard
 
 - Never run Better Context scans, Editor sync, verification, map generation, or
@@ -48,17 +60,20 @@ once; it merges into `.claude/settings.json` and this file.
 
 ## Approval-gated tools
 
-`mcp__unity_mcp__Unity_ManageEditor`, `mcp__blender__execute_blender_code`, and
-`mcp__blender__execute_blender_code_for_cli` are deliberately gated in
-`.claude/settings.json`. Ask before each call and keep it minimal. The
+`mcp__unity_mcp__Unity_ManageEditor`, the three Cocos execution tools
+(`mcp__funplay_cocos__execute_javascript`, `…__execute_scene_script`,
+`…__execute_editor_script`), and both Blender code tools are deliberately gated in
+`.claude/settings.json`. Ask before each call and keep it minimal. The Cocos
+desktop input-simulation tools and `capture_desktop_screenshot` are denied outright:
+this project set does not automate a desktop. The
 `video-analyzer` transcript tools are denied by policy: captions or frames only,
 never audio transcription.
 
 ## Project-local agents and skills
 
-- `.claude/agents/` — `setup-agents`, `tech-lead`, and `unity-developer`
-  profiles, generated from the Codex profiles so both clients behave the same.
-  Dispatch them with the `Task` tool.
+- `.claude/agents/` — `setup-agents`, `tech-lead`, `unity-developer`, and
+  `cocos-developer` profiles, generated from the Codex profiles so both clients
+  behave the same. Dispatch them with the `Task` tool.
 - `.claude/skills/` — the shared skill library. Skills are optional reference
   material: consult the ones that actually apply, not all of them. The vendored
   `.unitypackage` archives live only in `.agents/skills/setup-unity-packages/assets/`.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: testing verification"
+  short_description: "Cocos Creator 3.8 guidance for testing verification"
+  default_prompt: "Use $dev-cocos-testing-verification for this Cocos Creator task."

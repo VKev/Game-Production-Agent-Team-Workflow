@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: performance"
+  short_description: "Cocos Creator 3.8 guidance for performance"
+  default_prompt: "Use $dev-cocos-performance for this Cocos Creator task."

@@ -45,7 +45,7 @@ class ProjectSettingsPolicyTests(unittest.TestCase):
         self.assertNotIn("official Unity MCP **Enable All** control", setup_skill)
         self.assertIn("final pass is authoritative", setup_skill)
         self.assertIn("Then submit the checked-in MCP registry exporter", setup_agent)
-        self.assertIn("Only after step 18 leaves no temporary source", setup_agent)
+        self.assertIn("Only after step 19 leaves no temporary source", setup_agent)
         self.assertIn("Only the second result is final", live_export)
         self.assertIn("operate UI through Computer Use", setup_agent)
 

@@ -37,6 +37,7 @@ PROFILES = {
     "setup_agents.toml": ("setup-agents.md", "Read, Grep, Glob, Bash, WebFetch, Task"),
     "tech_lead.toml": ("tech-lead.md", "Read, Grep, Glob, Bash, Task"),
     "unity_developer.toml": ("unity-developer.md", None),  # None => all tools
+    "cocos_developer.toml": ("cocos-developer.md", None),
 }
 
 # Ordered, purely mechanical rewrites applied to the generated body. Anything
@@ -130,6 +131,25 @@ def sync_skills(check: bool) -> list[str]:
     return differences
 
 
+def check_shared_assets() -> list[str]:
+    """Assets duplicated across engine skills must stay byte-identical."""
+    problems: list[str] = []
+    shared = [
+        (
+            CODEX_SKILLS / "setup-unity-gitignore" / "assets" / "AI.gitignore",
+            CODEX_SKILLS / "setup-cocos-gitignore" / "assets" / "AI.gitignore",
+        )
+    ]
+    for left, right in shared:
+        if not left.exists() or not right.exists():
+            problems.append(f"missing shared asset: {left} / {right}")
+        elif left.read_bytes() != right.read_bytes():
+            problems.append(
+                f"shared asset differs: {left.relative_to(REPO)} vs {right.relative_to(REPO)}"
+            )
+    return problems
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -155,6 +175,7 @@ def main() -> int:
         target.write_text(rendered, encoding="utf-8")
         print(f"[agents] wrote {target.relative_to(REPO)} ({len(rendered)} chars)")
 
+    problems.extend(check_shared_assets())
     skill_problems = sync_skills(args.check)
     problems.extend(skill_problems)
     if not args.check:

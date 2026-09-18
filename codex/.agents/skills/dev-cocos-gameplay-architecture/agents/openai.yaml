@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: gameplay architecture"
+  short_description: "Cocos Creator 3.8 guidance for gameplay architecture"
+  default_prompt: "Use $dev-cocos-gameplay-architecture for this Cocos Creator task."

@@ -49,7 +49,11 @@ The CLI's known targets are `claude`, `cursor`, `codex`, `opencode`, `hermes`, `
    Pass `--no-permissions` only when the user explicitly does not want the auto-allow list; record that choice in the report.
 10. Add `codegraph` to `enabledMcpjsonServers` in `.claude/settings.json` so a copied project bundle works without a manual approval prompt. Confirm the user-level Claude files recorded in step 2 are still byte-identical: a project-local install must never reach `~/.claude.json`.
 11. If the Claude installer fails but the CLI works, merge the equivalent `.mcp.json` entry by hand from `codegraph install --print-config claude` (adjusting only the file it targets, never its command or arguments) and report the fallback. Do not hand-write the hook or the managed block; report them as pending instead.
-12. Parse or create root `codegraph.json`, preserving every unrelated key, then merge these exact gitignore-style entries into its `exclude` array:
+12. Parse or create root `codegraph.json`, preserving every unrelated key, then merge the exact gitignore-style entries for this project's engine into its `exclude` array.
+
+    For a **Cocos Creator** project the entries are `library/`, `temp/`, `build/`, `local/`, `profiles/`, `node_modules/`, `extensions/*/node_modules/`, and `native/**/build/`. Keep `assets/**/*.ts`, `extensions/**` (the extension sources themselves), `tools/**`, and `build-templates/**` indexable; never broaden the list to `assets/` or `extensions/`.
+
+    For a **Unity** project the entries are:
 
     `.agent-temp/`, `Assets/Plugins/Demigiant/`, `Assets/Plugins/Sirenix/`, `Assets/Plugins/RootMotion/`, `Assets/Plugins/Feel/`, `Assets/Plugins/FImpossible Creations/`, `Assets/Plugins/KINEMATION/`, `Assets/Plugins/Technie/`, `Assets/Plugins/Roslyn/`, and `Packages/nuget-packages/InstalledPackages/`.
 
@@ -70,6 +74,7 @@ After setup, `dev-unity-project-context` owns CodeGraph, CocoIndex Code, direct-
 ## Boundaries
 
 - Configure only the client bundles detected in the client scope. Never configure, modify, or remove Cursor, Gemini, opencode, Hermes, Kiro, Antigravity, or another client.
+- Never mix the two engines' exclusion lists. A Unity list in a Cocos project leaves `library/` and `temp/` indexed, which is tens of thousands of generated files.
 - Never run bare `codegraph install`; always pass the explicit target and location documented above.
 - Never install Claude Code globally (`--target=claude --location=global`) from a project bundle; it would write `~/.claude.json` and leak this project's tooling into every other repository.
 - Never run `codegraph uninstall`, `codegraph uninit`, or delete `.codegraph/` automatically.

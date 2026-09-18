@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: scene prefab"
+  short_description: "Cocos Creator 3.8 guidance for scene prefab"
+  default_prompt: "Use $dev-cocos-scene-prefab for this Cocos Creator task."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: brandi di"
+  short_description: "Cocos Creator 3.8 guidance for brandi di"
+  default_prompt: "Use $dev-cocos-brandi-di for this Cocos Creator task."

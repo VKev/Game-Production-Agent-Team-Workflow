@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: project context"
+  short_description: "Cocos Creator 3.8 guidance for project context"
+  default_prompt: "Use $dev-cocos-project-context for this Cocos Creator task."

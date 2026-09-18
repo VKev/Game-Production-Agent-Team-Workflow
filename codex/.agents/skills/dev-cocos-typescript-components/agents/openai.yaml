@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cocos: typescript components"
+  short_description: "Cocos Creator 3.8 guidance for typescript components"
+  default_prompt: "Use $dev-cocos-typescript-components for this Cocos Creator task."

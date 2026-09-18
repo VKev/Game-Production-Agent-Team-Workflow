@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Cocos MCP"
+  short_description: "Install and register funplay-cocos-mcp for every client bundle"
+  default_prompt: "Use $setup-cocos-mcp to install the Cocos MCP extension and register it for the client bundles in this repository."

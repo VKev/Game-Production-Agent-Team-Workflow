@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Cocos Gitignore"
+  short_description: "Create or repair a Cocos Creator .gitignore without losing authored files"
+  default_prompt: "Use $setup-cocos-gitignore to verify and repair this Cocos project's .gitignore."
