@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Composite Pattern"
+  short_description: "Model Unity part-whole trees without surprises"
+  default_prompt: "Use $dev-unity-composite-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true

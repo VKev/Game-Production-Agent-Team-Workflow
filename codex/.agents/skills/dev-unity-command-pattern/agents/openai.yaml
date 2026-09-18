@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Command Pattern"
+  short_description: "Queue replay and undo Unity actions safely"
+  default_prompt: "Use $dev-unity-command-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true

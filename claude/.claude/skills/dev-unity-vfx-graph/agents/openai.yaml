@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity VFX Graph"
+  short_description: "Author and debug Unity 6.3 visual effects."
+  default_prompt: "Use $dev-unity-vfx-graph to implement or diagnose this VFX Graph task."

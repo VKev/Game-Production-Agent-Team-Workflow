@@ -1,0 +1,4 @@
+interface:
+  display_name: "Final IK"
+  short_description: "Implement character IK with Final IK"
+  default_prompt: "Use $dev-unity-final-ik to help with this Unity task."

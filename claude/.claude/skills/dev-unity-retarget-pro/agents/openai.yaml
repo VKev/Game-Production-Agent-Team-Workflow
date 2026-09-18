@@ -1,0 +1,4 @@
+interface:
+  display_name: "Retarget Pro"
+  short_description: "Retarget and bake character animation"
+  default_prompt: "Use $dev-unity-retarget-pro to help with this Unity task."

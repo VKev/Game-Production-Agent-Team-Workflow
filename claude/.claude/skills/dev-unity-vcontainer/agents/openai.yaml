@@ -1,0 +1,4 @@
+interface:
+  display_name: "VContainer"
+  short_description: "Design Unity systems with VContainer DI"
+  default_prompt: "Use $dev-unity-vcontainer to design or review this Unity dependency-injection workflow."

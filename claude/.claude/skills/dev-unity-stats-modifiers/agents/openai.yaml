@@ -1,0 +1,7 @@
+interface:
+  display_name: "Unity Stats and Modifiers"
+  short_description: "Build deterministic Unity stat pipelines"
+  default_prompt: "Use $dev-unity-stats-modifiers to compare stat-system models and design deterministic stacking, lifetime, and removal behavior."
+
+policy:
+  allow_implicit_invocation: true

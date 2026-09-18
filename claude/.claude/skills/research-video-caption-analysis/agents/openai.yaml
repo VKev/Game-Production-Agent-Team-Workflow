@@ -1,0 +1,6 @@
+interface:
+  display_name: "Caption-Gated Video Analysis"
+  short_description: "Analyze captions with targeted frames only when needed"
+  default_prompt: "Use $research-video-caption-analysis to analyze captions first, retrieve only the frames needed for unresolved visual claims, and stop when YouTube captions are unavailable."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Iterator Pattern"
+  short_description: "Traverse Unity data without leaking storage"
+  default_prompt: "Use $dev-unity-iterator-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true

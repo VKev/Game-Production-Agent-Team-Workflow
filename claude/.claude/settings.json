@@ -1,0 +1,60 @@
+{
+  "enabledMcpjsonServers": [
+    "serena",
+    "codegraph",
+    "cocoindex-code",
+    "blender",
+    "video-analyzer",
+    "unity_mcp"
+  ],
+  "permissions": {
+    "allow": [
+      "mcp__cocoindex-code__*",
+      "mcp__serena__find_symbol",
+      "mcp__serena__find_declaration",
+      "mcp__serena__find_implementations",
+      "mcp__serena__find_referencing_symbols",
+      "mcp__serena__get_symbols_overview",
+      "mcp__serena__get_diagnostics_for_file",
+      "mcp__serena__initial_instructions",
+      "mcp__serena__list_memories",
+      "mcp__serena__read_memory",
+      "mcp__unity_mcp__*",
+      "mcp__blender__*",
+      "mcp__video-analyzer__get_metadata",
+      "mcp__video-analyzer__get_frames",
+      "mcp__video-analyzer__get_frame_at",
+      "mcp__video-analyzer__get_frame_burst"
+    ],
+    "ask": [
+      "mcp__unity_mcp__Unity_ManageEditor",
+      "mcp__blender__execute_blender_code",
+      "mcp__blender__execute_blender_code_for_cli"
+    ],
+    "deny": [
+      "mcp__video-analyzer__analyze_video",
+      "mcp__video-analyzer__analyze_videos",
+      "mcp__video-analyzer__get_transcript",
+      "mcp__video-analyzer__analyze_moment"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [{ "type": "command", "command": "serena-hooks activate --client=claude-code" }]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "serena-hooks remind --client=claude-code" }]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [{ "type": "command", "command": "serena-hooks cleanup --client=claude-code" }]
+      }
+    ]
+  }
+}

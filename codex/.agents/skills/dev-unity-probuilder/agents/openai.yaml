@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity ProBuilder"
+  short_description: "Create and edit geometry safely with ProBuilder."
+  default_prompt: "Use $dev-unity-probuilder to plan or implement this ProBuilder geometry task."

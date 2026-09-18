@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity Setup Preflight"
+  short_description: "Classify safe resumable Unity setup state"
+  default_prompt: "Use $setup-unity-project-preflight to inspect and classify this Unity setup before any mutation."

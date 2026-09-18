@@ -13,3 +13,26 @@
 - uv installer behavior: https://docs.astral.sh/uv/reference/installer/
 
 Use the packaged PyPI tool command documented by Serena: `uv tool install -p 3.13 serena-agent`. Do not substitute an outdated Git checkout, marketplace package, or guessed `uv install serena` command. Serena's current `serena setup codex` implementation registers only the MCP server through `codex mcp add`; configure its recommended Codex hooks separately and preserve unrelated user hooks.
+
+
+## Verified client values (checked 2026-09-18, serena-agent 1.6.1)
+
+Serena ships one built-in context file per client under
+`serena/resources/config/contexts/`. The installed release contains
+`agent.yml`, `antigravity.yml`, `chatgpt.yml`, `claude-code.yml`,
+`codebuddy.yml`, `codex.yml`, `copilot-cli.yml`, `desktop-app.yml`, `ide.yml`,
+`jb-ai-assistant.yml`, `jb-copilot-plugin.yml`, `junie.yml`,
+`oaicompat-agent.yml`, and `vscode.yml`. There is no `ide-assistant` context:
+
+- Codex -> `--context=codex`
+- Claude Code -> `--context=claude-code`
+
+`serena-hooks <command> --help` reports the accepted client values as
+`claude-code`, `codebuddy`, `vscode`, and `codex` (default `claude-code`).
+`--client=claude` is not valid. Available hook commands are `activate`
+(session start), `remind` (PreToolUse), `auto-approve` (PreToolUse, permissive
+modes only), and `cleanup` (session end).
+
+Claude Code has no `serena setup claude` equivalent in this release, so its
+project `.mcp.json` entry and `.claude/settings.json` hooks are written
+explicitly, mirroring the Codex registration.

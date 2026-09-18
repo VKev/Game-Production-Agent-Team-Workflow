@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tail Animator"
+  short_description: "Configure procedural chain animation"
+  default_prompt: "Use $dev-unity-tail-animator to help with this Unity task."

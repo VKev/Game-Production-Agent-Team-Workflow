@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Audio System"
+  short_description: "Design robust pooled Unity runtime audio systems"
+  default_prompt: "Use $dev-unity-audio-system to design or review a production-ready Unity runtime audio system."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,428 @@
+{
+  "format": 1,
+  "package": {
+    "id": "com.unity.ai.assistant",
+    "version": "2.17.0-pre.1",
+    "unity": "6000.0",
+    "unityRelease": "60f1",
+    "verified_distribution": {
+      "verified_at_utc": "2026-08-12",
+      "registry": "https://packages.unity.com/com.unity.ai.assistant",
+      "package_id": "com.unity.ai.assistant",
+      "version": "2.17.0-pre.1",
+      "unity": "6000.0",
+      "unityRelease": "60f1",
+      "tarball": "https://download.packages.unity.com/com.unity.ai.assistant/-/com.unity.ai.assistant-2.17.0-pre.1.tgz",
+      "sha1": "284c75a8d2080993c83bc6e8d917a442b39762cc",
+      "archive_sha1_verified": true
+    }
+  },
+  "name_policy": {
+    "replace": {
+      ".": "_"
+    },
+    "max_length": 42,
+    "hash_suffix": "_ + stable 8-hex"
+  },
+  "uri_contract": {
+    "project": [
+      "unity://path/Assets/...",
+      "file://...",
+      "Assets/..."
+    ],
+    "special": [
+      "unity://spec/script-edits",
+      "spec/script-edits",
+      "script-edits",
+      "unity://widget/asset_preview"
+    ],
+    "security": "URL decode, normalize, and reject traversal outside the project root"
+  },
+  "official_source_tools": [
+    {
+      "source_name": "Unity.ApplyTextEdits",
+      "exposed_name": "Unity_ApplyTextEdits",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ApplyTextEdits.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.CreateScript",
+      "exposed_name": "Unity_CreateScript",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/CreateScript.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.DeleteScript",
+      "exposed_name": "Unity_DeleteScript",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/DeleteScript.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.FindInFile",
+      "exposed_name": "Unity_FindInFile",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ResourceTools.cs",
+      "groups_from_source": [
+        "core",
+        "resources"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.GetSha",
+      "exposed_name": "Unity_GetSha",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/GetSHA.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ImportExternalModel",
+      "exposed_name": "Unity_ImportExternalModel",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ImportExternalModel.cs",
+      "groups_from_source": [
+        "core",
+        "assets"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ListResources",
+      "exposed_name": "Unity_ListResources",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ResourceTools.cs",
+      "groups_from_source": [
+        "core",
+        "resources"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageAsset",
+      "exposed_name": "Unity_ManageAsset",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageAsset.cs",
+      "groups_from_source": [
+        "core",
+        "assets"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageEditor",
+      "exposed_name": "Unity_ManageEditor",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageEditor.cs",
+      "groups_from_source": [
+        "core",
+        "editor"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageGameObject",
+      "exposed_name": "Unity_ManageGameObject",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageGameObject.cs",
+      "groups_from_source": [
+        "core",
+        "scene"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageMenuItem",
+      "exposed_name": "Unity_ManageMenuItem",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageMenuItem.cs",
+      "groups_from_source": [
+        "core",
+        "editor"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageScene",
+      "exposed_name": "Unity_ManageScene",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageScene.cs",
+      "groups_from_source": [
+        "core",
+        "scene"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageScript",
+      "exposed_name": "Unity_ManageScript",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageScript.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageScript_capabilities",
+      "exposed_name": "Unity_ManageScript_capabilities",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageScriptCapabilities.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ManageShader",
+      "exposed_name": "Unity_ManageShader",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ManageShader.cs",
+      "groups_from_source": [
+        "assets",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetBottomUpSampleTimeSummary",
+      "exposed_name": "Unity_Profiler_GetBottomUpSampleT_55cc1e4e",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetCounterSummary",
+      "exposed_name": "Unity_Profiler_GetCounterSummary",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/CounterTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetCounterTable",
+      "exposed_name": "Unity_Profiler_GetCounterTable",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/CounterTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetFrameGcAllocationsSummary",
+      "exposed_name": "Unity_Profiler_GetFrameGcAllocati_a7eb5b61",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetFrameRangeGcAllocationsSummary",
+      "exposed_name": "Unity_Profiler_GetFrameRangeGcAll_90f409da",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetFrameRangeTopTimeSummary",
+      "exposed_name": "Unity_Profiler_GetFrameRangeTopTimeSummary",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetFrameSelfTimeSamplesSummary",
+      "exposed_name": "Unity_Profiler_GetFrameSelfTimeSa_e44ee448",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetFrameTopTimeSamplesSummary",
+      "exposed_name": "Unity_Profiler_GetFrameTopTimeSam_ccc85b2d",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetOverallGcAllocationsSummary",
+      "exposed_name": "Unity_Profiler_GetOverallGcAlloca_ac50c101",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetRelatedSamplesTimeSummary",
+      "exposed_name": "Unity_Profiler_GetRelatedSamplesT_a6086ba0",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetSampleGcAllocationSummary",
+      "exposed_name": "Unity_Profiler_GetSampleGcAllocat_4a279ae5",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetSampleGcAllocationSummaryByMarkerPath",
+      "exposed_name": "Unity_Profiler_GetSampleGcAllocat_89f626bb",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetSampleTimeSummaryByMarkerPath",
+      "exposed_name": "Unity_Profiler_GetSampleTimeSumma_a680062a",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.Profiler.GetSampleTimeSummary",
+      "exposed_name": "Unity_Profiler_GetSampleTimeSummary",
+      "kind": "assistant-adapted",
+      "source": "Editor/Assistant/Integrations/Profiler/ProfilingSummaryTools.cs",
+      "groups_from_source": [],
+      "enabled_by_default_from_source": false,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ReadConsole",
+      "exposed_name": "Unity_ReadConsole",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ReadConsole.cs",
+      "groups_from_source": [
+        "debug",
+        "editor"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ReadResource",
+      "exposed_name": "Unity_ReadResource",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ResourceTools.cs",
+      "groups_from_source": [
+        "core",
+        "resources"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.RunCommand",
+      "exposed_name": "Unity_RunCommand",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/RunCommand.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ScriptApplyEdits",
+      "exposed_name": "Unity_ScriptApplyEdits",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ScriptApplyEdits.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    },
+    {
+      "source_name": "Unity.ValidateScript",
+      "exposed_name": "Unity_ValidateScript",
+      "kind": "mcp-native",
+      "source": "Modules/Unity.AI.MCP.Editor/Tools/ValidateScript.cs",
+      "groups_from_source": [
+        "core",
+        "scripting"
+      ],
+      "enabled_by_default_from_source": true,
+      "schema_authority": "live-registry"
+    }
+  ],
+  "counts": {
+    "mcp_native": 20,
+    "assistant_adapted": 14,
+    "official_total": 34,
+    "live_total": 0,
+    "client_total": 0
+  },
+  "live_registry": [],
+  "client_tools": [],
+  "capabilities": null,
+  "source_contract": {
+    "status": "complete",
+    "minimum_native": 20,
+    "minimum_adapted": 10
+  },
+  "verification": {
+    "status": "pending-live-registry",
+    "exact": false
+  }
+}

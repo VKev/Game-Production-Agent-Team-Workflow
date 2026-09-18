@@ -1,0 +1,7 @@
+interface:
+  display_name: "Unity Builder Pattern"
+  short_description: "Choose Unity builders and reject bad fits"
+  default_prompt: "Use $dev-unity-builder-pattern to choose the simplest Unity construction approach, including rejecting a builder when another pattern fits better."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Decorator Pattern"
+  short_description: "Compose runtime behavior without subclass sprawl"
+  default_prompt: "Use $dev-unity-decorator-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true

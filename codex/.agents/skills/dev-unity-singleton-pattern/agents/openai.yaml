@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Singleton Pattern"
+  short_description: "Control Unity global access and lifetime safely"
+  default_prompt: "Use $dev-unity-singleton-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true

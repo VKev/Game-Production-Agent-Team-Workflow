@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Facade Pattern"
+  short_description: "Expose small Unity subsystem entry points"
+  default_prompt: "Use $dev-unity-facade-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true

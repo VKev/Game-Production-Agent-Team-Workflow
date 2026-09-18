@@ -1,0 +1,7 @@
+interface:
+  display_name: "Unity Strategy Pattern"
+  short_description: "Choose interchangeable Unity behaviors wisely"
+  default_prompt: "Use $dev-unity-strategy-pattern to compare Strategy with relevant alternatives and design the simplest Unity behavior-selection approach."
+
+policy:
+  allow_implicit_invocation: true

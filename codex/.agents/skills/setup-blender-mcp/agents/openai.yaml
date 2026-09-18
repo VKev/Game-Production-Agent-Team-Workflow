@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Blender MCP"
+  short_description: "Install and register the official Blender MCP server for every client bundle"
+  default_prompt: "Use $setup-blender-mcp to install the official Blender MCP server and register it for the client bundles in this repository."

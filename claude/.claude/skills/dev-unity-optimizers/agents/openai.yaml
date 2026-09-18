@@ -1,0 +1,4 @@
+interface:
+  display_name: "Optimizers"
+  short_description: "Configure camera-aware runtime optimization"
+  default_prompt: "Use $dev-unity-optimizers to help with this Unity task."

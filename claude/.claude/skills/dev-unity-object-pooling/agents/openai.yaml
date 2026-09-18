@@ -1,0 +1,5 @@
+interface:
+  display_name: "Unity Object Pooling"
+  short_description: "Choose, implement, reset, size, and verify Unity object pools."
+policy:
+  allow_implicit_invocation: true

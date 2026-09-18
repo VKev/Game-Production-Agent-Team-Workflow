@@ -1,0 +1,4 @@
+interface:
+  display_name: "Cinemachine"
+  short_description: "Design and debug Unity camera systems"
+  default_prompt: "Use $dev-unity-cinemachine to design or debug this Unity camera workflow."

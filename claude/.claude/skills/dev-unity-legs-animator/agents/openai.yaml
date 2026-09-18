@@ -1,0 +1,4 @@
+interface:
+  display_name: "Legs Animator"
+  short_description: "Configure procedural leg animation"
+  default_prompt: "Use $dev-unity-legs-animator to help with this Unity task."

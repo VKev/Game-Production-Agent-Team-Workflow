@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Assembly Definitions"
+  short_description: "Design safe Unity asmdef and asmref boundaries"
+  default_prompt: "Use $dev-unity-assembly-definitions to design, migrate, or review Unity assembly definitions and references safely."
+policy:
+  allow_implicit_invocation: true

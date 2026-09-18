@@ -1,0 +1,11 @@
+interface:
+  display_name: Unity Clean Code Principles
+  short_description: Balance KISS, DRY, SOLID, readability, and performance in Unity C#
+  default_prompt: Use $dev-unity-clean-code-principles to review or implement this Unity C# code using project conventions and version-aware guidance. Prefer the simplest complete design, apply KISS, YAGNI, DRY, and SOLID only where they solve a concrete problem, preserve behavior and serialized data during refactoring, and verify compilation, tests, playtesting, and any performance claim.
+policy:
+  allow_implicit_invocation: true
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas

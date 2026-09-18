@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity Game Manager"
+  short_description: "Design scoped Unity game flow with VContainer"
+  default_prompt: "Use $dev-unity-game-manager to design or refactor a scoped Unity game-flow coordinator with VContainer."

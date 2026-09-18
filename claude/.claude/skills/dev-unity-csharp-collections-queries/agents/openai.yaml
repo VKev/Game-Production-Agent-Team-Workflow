@@ -1,0 +1,13 @@
+interface:
+  display_name: Unity C# Collections & Queries
+  short_description: Docs-grounded collection, LINQ, and ZLinq choices
+  default_prompt: Use $dev-unity-csharp-collections-queries to review this Unity collection or query code. Compare valid loops, LINQ, ZLinq, cached-index, and native-container options using the installed Unity and package versions, including correctness, allocations, serialization, scalability, future GDD impact, and verification.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  allow_implicit_invocation: true
+  products:
+    - chatgpt
+    - codex
+    - api
+    - atlas

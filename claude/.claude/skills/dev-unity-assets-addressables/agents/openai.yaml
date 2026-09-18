@@ -1,0 +1,5 @@
+interface:
+  display_name: "Unity Assets and Addressables"
+  short_description: "Choose and implement version-aware Unity Addressables workflows."
+policy:
+  allow_implicit_invocation: true

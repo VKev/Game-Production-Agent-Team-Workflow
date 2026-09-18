@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Serena"
+  short_description: "Install Serena and configure its Codex integration"
+  default_prompt: "Use $setup-serena to install uv and Serena when missing, initialize Serena, aggregate Windows dashboard trays, and configure Codex."

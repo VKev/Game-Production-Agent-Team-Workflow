@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Factory Method Pattern"
+  short_description: "Create Unity variants behind stable contracts"
+  default_prompt: "Use $dev-unity-factory-method-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,23 @@
+{
+  "verified_at_utc": "2026-08-12",
+  "registry": "https://packages.unity.com/com.unity.ai.assistant",
+  "package_id": "com.unity.ai.assistant",
+  "version": "2.17.0-pre.1",
+  "unity": "6000.0",
+  "unityRelease": "60f1",
+  "tarball": "https://download.packages.unity.com/com.unity.ai.assistant/-/com.unity.ai.assistant-2.17.0-pre.1.tgz",
+  "sha1": "284c75a8d2080993c83bc6e8d917a442b39762cc",
+  "archive_sha1_verified": true,
+  "project_settings_ai_surface": {
+    "assistant": "preserve",
+    "assistant_mcp_extensions": "preserve",
+    "gateway": "preserve",
+    "ui": "preserve",
+    "unity_mcp_server": "configure",
+    "public_enable_all_control": false,
+    "per_tool_checkboxes": true,
+    "internal_enable_all_method": true,
+    "run_command_enabled_by_default": true,
+    "connection_caps_not_entitlement_gated": true
+  }
+}

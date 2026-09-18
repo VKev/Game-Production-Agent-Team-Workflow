@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity glTFast"
+  short_description: "Import and load glTF assets safely with glTFast."
+  default_prompt: "Use $dev-unity-gltfast to implement this glTFast import or runtime-loading task."

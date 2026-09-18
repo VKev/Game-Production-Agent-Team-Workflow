@@ -1,0 +1,4 @@
+interface:
+  display_name: "Technie Collider Creator"
+  short_description: "Author efficient generated Unity colliders"
+  default_prompt: "Use $dev-unity-technie-collider-creator to help with this Unity task."

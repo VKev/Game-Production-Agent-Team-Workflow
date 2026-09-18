@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "serena": {
+      "command": "serena",
+      "args": ["start-mcp-server", "--project-from-cwd", "--context=claude-code"]
+    },
+    "codegraph": {
+      "type": "stdio",
+      "command": "codegraph",
+      "args": ["serve", "--mcp"]
+    },
+    "cocoindex-code": {
+      "command": "ccc",
+      "args": ["mcp"]
+    },
+    "blender": {
+      "command": "blender-mcp",
+      "env": {
+        "BLENDER_MCP_PORT": "9876"
+      }
+    },
+    "video-analyzer": {
+      "command": "npx",
+      "args": ["-y", "mcp-video-analyzer@latest"],
+      "env": {
+        "TWELVELABS_API_KEY": "",
+        "OPENAI_API_KEY": "",
+        "WHISPER_HF_MODEL": ""
+      }
+    }
+  }
+}

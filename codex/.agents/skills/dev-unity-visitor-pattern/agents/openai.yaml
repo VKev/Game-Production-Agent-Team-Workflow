@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Visitor Pattern"
+  short_description: "Choose and implement type-safe Unity Visitors"
+  default_prompt: "Use $dev-unity-visitor-pattern to compare Visitor with simpler alternatives and implement the justified Unity design."
+policy:
+  allow_implicit_invocation: true

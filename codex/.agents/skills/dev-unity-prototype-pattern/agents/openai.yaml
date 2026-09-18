@@ -1,0 +1,6 @@
+interface:
+  display_name: "Unity Prototype Pattern"
+  short_description: "Clone configured Unity prototypes deliberately"
+  default_prompt: "Use $dev-unity-prototype-pattern to compare its tradeoffs with simpler Unity alternatives, then design or review the justified solution."
+policy:
+  allow_implicit_invocation: true
