@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mirror Browser Game"
+  short_description: "Mirror one browser game to a runnable offline copy"
+  default_prompt: "Use $research-browser-game-mirror for this task."

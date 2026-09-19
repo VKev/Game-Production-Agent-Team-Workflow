@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Game Toolchain"
+  short_description: "Install python3 and the optional oxipng for the game fetch/port skills"
+  default_prompt: "Use $setup-game-toolchain to check and install the python3 and oxipng prerequisites."

@@ -27,6 +27,7 @@ It installs and verifies every tool and reports one state per component.
 | `.claude/skills/**` | The shared skill library (`dev-unity-*`, `dev-cocos-*`, `setup-*`, `threejs-*`, …), generated from `codex/.agents/skills/**`. |
 | `.claude/settings.json` | MCP enable list, permission policy (approval gates plus the video-analyzer deny list), and Serena's hooks. Beads' `SessionStart` hook and CodeGraph's `UserPromptSubmit` hook are deliberately absent: their own installers write them during setup, so shipping them here would create duplicates. |
 | `.mcp.json` | Project MCP servers: `serena`, `codegraph`, `cocoindex-code`, `blender`, `video-analyzer`. The engine server is added by setup once its address is known — `unity_mcp` (resolved relay path) or `funplay_cocos` (the port the Cocos editor extension reports). |
+| `.claude/commands/*.md` | Project slash commands for the browser-game fetch and Cocos port pipeline, generated from `codex/.codex/prompts/*.md`. |
 | `CLAUDE.md` | Starter project instructions. Setup appends marker-managed blocks (Beads, Serena, Better Context) to it. |
 
 ## Which engine

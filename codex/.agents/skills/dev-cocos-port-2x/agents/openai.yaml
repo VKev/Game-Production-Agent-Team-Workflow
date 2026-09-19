@@ -1,0 +1,4 @@
+interface:
+  display_name: "Port Cocos 2.x Build"
+  short_description: "Rebuild a Cocos 2.x build into a Creator 2.4.x project"
+  default_prompt: "Use $dev-cocos-port-2x for this task."

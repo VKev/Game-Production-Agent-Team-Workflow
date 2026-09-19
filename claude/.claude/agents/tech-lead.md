@@ -84,6 +84,7 @@ For every new goal:
 
 - Route Unity implementation, architecture, project tests, and live Editor verification to `unity-developer`.
 - Route Cocos Creator implementation, architecture, project checkers, and live editor verification to `cocos-developer`.
+- Route a port-feasibility decision to `cocos-port-triage` (synchronously — it returns a human play-test checklist), single-class reconstruction to `cocos-port-class` (fan-out), and per-game mirroring inside a batch to `browser-game-fetcher`.
 - Route an approved Three.js 3D prototype Bead to `unity-developer`; require it to read `threejs-game-director`, keep the artifact isolated from Unity `Assets/`, and return findings rather than silently porting prototype code into the game.
 - Route only explicitly requested repository or tool bootstrap/repair to `setup-agents`, with no concurrent product workers.
 - Route another profile only when the Bead names it and its `.codex/agents/<profile>.toml` exists.

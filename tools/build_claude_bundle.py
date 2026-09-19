@@ -4,6 +4,7 @@ Single source of truth:
 
     codex/.codex/agents/*.toml      -> claude/.claude/agents/*.md
     codex/.agents/skills/**         -> claude/.claude/skills/**   (text only)
+    codex/.codex/prompts/*.md       -> claude/.claude/commands/*.md
 
 The static files in `claude/` (`.mcp.json`, `.claude/settings.json`, `CLAUDE.md`,
 `README.md`) are hand-maintained and never touched by this script.
@@ -28,16 +29,34 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 CODEX_AGENTS = REPO / "codex" / ".codex" / "agents"
 CODEX_SKILLS = REPO / "codex" / ".agents" / "skills"
+CODEX_PROMPTS = REPO / "codex" / ".codex" / "prompts"
 CLAUDE_AGENTS = REPO / "claude" / ".claude" / "agents"
 CLAUDE_SKILLS = REPO / "claude" / ".claude" / "skills"
+CLAUDE_COMMANDS = REPO / "claude" / ".claude" / "commands"
 PREAMBLES = REPO / "tools" / "claude-preambles"
 
-# Codex profile -> (Claude file name, Task-tool allowlist for the frontmatter)
+# Codex profile -> (Claude file name, Task-tool allowlist, suggested model).
+# `None` tools means "all tools"; `None` model leaves the client default.
 PROFILES = {
-    "setup_agents.toml": ("setup-agents.md", "Read, Grep, Glob, Bash, WebFetch, Task"),
-    "tech_lead.toml": ("tech-lead.md", "Read, Grep, Glob, Bash, Task"),
-    "unity_developer.toml": ("unity-developer.md", None),  # None => all tools
-    "cocos_developer.toml": ("cocos-developer.md", None),
+    "setup_agents.toml": ("setup-agents.md", "Read, Grep, Glob, Bash, WebFetch, Task", None),
+    "tech_lead.toml": ("tech-lead.md", "Read, Grep, Glob, Bash, Task", None),
+    "unity_developer.toml": ("unity-developer.md", None, None),  # None => all tools
+    "cocos_developer.toml": ("cocos-developer.md", None, None),
+    "browser_game_fetcher.toml": (
+        "browser-game-fetcher.md",
+        "Read, Write, Edit, Grep, Glob, Bash",
+        "sonnet",
+    ),
+    "cocos_port_triage.toml": (
+        "cocos-port-triage.md",
+        "Read, Write, Edit, Grep, Glob, Bash",
+        "opus",
+    ),
+    "cocos_port_class.toml": (
+        "cocos-port-class.md",
+        "Read, Write, Edit, Grep, Glob, Bash",
+        "opus",
+    ),
 }
 
 # Ordered, purely mechanical rewrites applied to the generated body. Anything
@@ -74,7 +93,7 @@ bundle into a project and need the asset-package step, copy
 """
 
 
-def build_agent(source: Path, target: Path, tools: str | None) -> str:
+def build_agent(source: Path, target: Path, tools: str | None, model: str | None = None) -> str:
     data = tomllib.loads(source.read_text(encoding="utf-8"))
     body = data["developer_instructions"].strip("\n")
     for old, new in REWRITES:
@@ -90,6 +109,8 @@ def build_agent(source: Path, target: Path, tools: str | None) -> str:
     ]
     if tools:
         frontmatter.append(f"tools: {tools}")
+    if model:
+        frontmatter.append(f"model: {model}")
     frontmatter.append("---")
 
     generated_note = (
@@ -97,6 +118,61 @@ def build_agent(source: Path, target: Path, tools: str | None) -> str:
         "tools/build_claude_bundle.py. Do not edit by hand. -->"
     )
     return "\n".join(frontmatter) + "\n\n" + generated_note + "\n\n" + preamble + "\n\n" + body + "\n"
+
+
+# Codex prompts describe the invocation neutrally; Claude Code names the tools.
+COMMAND_REWRITES: list[tuple[str, str]] = [
+    ("Dùng skill `", 'Dùng Skill tool với `skill: "'),
+    ("Dùng agent `", 'Dùng Agent tool với `subagent_type: "'),
+]
+
+
+def build_command(text: str) -> str:
+    """Render a Codex prompt as a Claude Code slash command."""
+    for old, new in COMMAND_REWRITES:
+        index = 0
+        while True:
+            index = text.find(old, index)
+            if index == -1:
+                break
+            closing = text.find("`", index + len(old))
+            if closing == -1:
+                break
+            name = text[index + len(old) : closing]
+            replacement = f'{new}{name}"`'
+            text = text[:index] + replacement + text[closing + 1 :]
+            index += len(replacement)
+    return text
+
+
+def sync_commands(check: bool) -> list[str]:
+    """Mirror Codex prompts into the Claude bundle as project slash commands."""
+    problems: list[str] = []
+    if not CODEX_PROMPTS.is_dir():
+        return problems
+    CLAUDE_COMMANDS.mkdir(parents=True, exist_ok=True)
+    expected = set()
+    for source in sorted(CODEX_PROMPTS.glob("*.md")):
+        rendered = build_command(source.read_text(encoding="utf-8"))
+        target = CLAUDE_COMMANDS / source.name
+        expected.add(target.name)
+        current = target.read_text(encoding="utf-8") if target.exists() else None
+        if current == rendered:
+            continue
+        if check:
+            problems.append(f"out of date: {target.relative_to(REPO)}")
+            continue
+        target.write_text(rendered, encoding="utf-8")
+        print(f"[commands] wrote {target.relative_to(REPO)}")
+    for stale in sorted(CLAUDE_COMMANDS.glob("*.md")):
+        if stale.name in expected:
+            continue
+        if check:
+            problems.append(f"stale command: {stale.relative_to(REPO)}")
+        else:
+            stale.unlink()
+            print(f"[commands] removed stale {stale.relative_to(REPO)}")
+    return problems
 
 
 def sync_skills(check: bool) -> list[str]:
@@ -161,10 +237,10 @@ def main() -> int:
 
     problems: list[str] = []
     CLAUDE_AGENTS.mkdir(parents=True, exist_ok=True)
-    for toml_name, (md_name, tools) in PROFILES.items():
+    for toml_name, (md_name, tools, model) in PROFILES.items():
         source = CODEX_AGENTS / toml_name
         target = CLAUDE_AGENTS / md_name
-        rendered = build_agent(source, target, tools)
+        rendered = build_agent(source, target, tools, model)
         current = target.read_text(encoding="utf-8") if target.exists() else None
         if current == rendered:
             print(f"[agents] up to date: {target.relative_to(REPO)}")
@@ -176,6 +252,7 @@ def main() -> int:
         print(f"[agents] wrote {target.relative_to(REPO)} ({len(rendered)} chars)")
 
     problems.extend(check_shared_assets())
+    problems.extend(sync_commands(args.check))
     skill_problems = sync_skills(args.check)
     problems.extend(skill_problems)
     if not args.check:

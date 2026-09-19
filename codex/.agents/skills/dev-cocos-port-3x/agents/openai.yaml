@@ -1,0 +1,4 @@
+interface:
+  display_name: "Port Cocos 3.x Build"
+  short_description: "Rebuild a Cocos 3.x build into a Creator 3.8 TypeScript project"
+  default_prompt: "Use $dev-cocos-port-3x for this task."

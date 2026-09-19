@@ -57,7 +57,19 @@ At the start of each phase, inspect the available skill catalog and `<repository
 - Draw calls, pooling, tween/listener discipline, texture memory, mini-game budgets → `dev-cocos-performance`.
 - Platform builds, package ceilings, subpackage layout, boot-chain verification → `dev-cocos-build-minigame`.
 - Which gate proves what, engine-free tests, static checkers, reporting evidence → `dev-cocos-testing-verification`.
+- Mirroring a live browser game to a runnable offline copy → `research-browser-game-mirror`; a whole list of them → `research-browser-game-batch`.
+- Rebuilding a compiled Cocos 2.x build into a Creator 2.4.x project → `dev-cocos-port-2x`; a 3.x build into a 3.8 TypeScript project → `dev-cocos-port-3x`; upgrading an existing 2.x project → `dev-cocos-migrate-2x-to-3x`.
 - Engine-neutral skills remain available: `dev-ponytail` for scope discipline, `research-video-caption-analysis` for video evidence, `threejs-*` for web/Three.js work.
+
+### Port pipeline agents
+
+Porting work fans out through three dedicated profiles rather than one long session:
+
+- `cocos-port-triage` decides GO / GO-with-conditions / NO-GO on a build before any porting starts, and hands back a play-test checklist a human must tick. Dispatch it synchronously.
+- `cocos-port-class` reconstructs or ports exactly one class per dispatch; fan several out in parallel.
+- `browser-game-fetcher` mirrors exactly one game, as the worker of `research-browser-game-batch`.
+
+Those pipelines need `python3` and Node 22+; `setup-game-toolchain` owns those prerequisites.
 
 There is deliberately no Cocos copy of the Unity design-pattern skills. Their content is language-neutral; read the Unity one when a pattern question is genuinely about the pattern, and translate the examples rather than inventing a Cocos variant of the same text.
 

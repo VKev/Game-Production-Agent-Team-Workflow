@@ -77,6 +77,8 @@ never audio transcription.
 - `.claude/skills/` — the shared skill library. Skills are optional reference
   material: consult the ones that actually apply, not all of them. The vendored
   `.unitypackage` archives live only in `.agents/skills/setup-unity-packages/assets/`.
+- `.claude/commands/` — slash commands for the browser-game fetch and Cocos port
+  pipeline (`/research-browser-game-mirror`, `/dev-cocos-port-3x`, …).
 - `.mcp.json` + `.claude/settings.json` — project MCP servers, their enable list,
   permission policy, and hooks.
 

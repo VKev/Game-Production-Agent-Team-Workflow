@@ -75,6 +75,7 @@ After approval, if implementation reveals bounded technical discovery already in
 
 - Use `unity-developer` for project-owned Unity code, assets, architecture, tests, and live Editor verification.
 - Use `cocos-developer` for project-owned Cocos TypeScript, scenes, prefabs, bundles, checkers, and live editor verification.
+- Use `cocos-port-triage` for a GO/NO-GO decision on a build before a port starts, `cocos-port-class` for one-class reconstruction fan-out, and `browser-game-fetcher` for per-game mirroring inside a batch. Each handles exactly one unit of work per dispatch.
 - Use `setup-agents` only when the user explicitly requested repository/tool setup or repair. Treat setup as an exclusive lane: run no product worker concurrently while it can touch Git initialization, packages, indexes, user-level configuration, or the Unity Editor lifecycle.
 - Use another profile only when its TOML exists below `.codex/agents/` and the Bead explicitly names it.
 - Do not silently fall back to a different profile. Mark the Bead blocked and report the missing profile.

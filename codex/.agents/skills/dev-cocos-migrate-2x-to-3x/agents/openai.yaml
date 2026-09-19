@@ -1,0 +1,4 @@
+interface:
+  display_name: "Migrate Cocos 2.x to 3.x"
+  short_description: "Upgrade a Cocos Creator 2.x project to 3.8 TypeScript"
+  default_prompt: "Use $dev-cocos-migrate-2x-to-3x for this task."

@@ -9,6 +9,18 @@ Cocos Creator `3.8` — one bundle per AI client, built from one shared source.
 | `claude/` | Claude Code: `.claude/agents/*.md` profiles, `.claude/skills/`, `.claude/settings.json`, `.mcp.json`, and a starter `CLAUDE.md`. See [`claude/README.md`](claude/README.md). |
 | `tools/` | The generator that builds the Claude bundle from the Codex one, plus the hand-written Claude preambles. |
 
+Slash commands ship as `codex/.codex/prompts/*.md` (the canonical copy) and are
+generated into `claude/.claude/commands/*.md`. Claude Code reads project commands
+straight from the copied bundle; **Codex only reads prompts from `~/.codex/prompts/`**,
+so copy them there once:
+
+```bash
+mkdir -p ~/.codex/prompts && cp codex/.codex/prompts/*.md ~/.codex/prompts/
+```
+
+Codex documents custom prompts as deprecated in favour of skills, so the skills
+themselves remain the primary surface for both clients.
+
 Copy one bundle for a single-client project, or both for the dual-client setup.
 Then ask the `setup-agents` agent to run: it installs, registers, and verifies
 every tool and reports one state per component.
@@ -62,6 +74,28 @@ Beads gives Claude one `SessionStart` hook against Codex's four native hooks,
 CodeGraph refuses `--location=local` for Codex, and Claude Code cannot filter a
 server's tool list, so transcript-capable video tools are denied rather than
 hidden.
+
+## Browser-game fetch and port pipeline
+
+Five skills cover acquiring a live browser game and rebuilding it as a Cocos
+project, with three agents for the parallel parts:
+
+| Skill | In → out | Command |
+|---|---|---|
+| `research-browser-game-mirror` | game URL (any engine) → offline mirror + API fixtures | `/research-browser-game-mirror` |
+| `research-browser-game-batch` | list of Cocos games → one folder each, with status and resume | `/research-browser-game-batch` |
+| `dev-cocos-port-2x` | Cocos 2.x build → runnable Creator 2.4.x project | `/dev-cocos-port-2x` |
+| `dev-cocos-port-3x` | Cocos 3.x build → runnable Creator 3.8 TypeScript project | `/dev-cocos-port-3x` |
+| `dev-cocos-migrate-2x-to-3x` | Creator 2.x project with source → 3.8 project | `/dev-cocos-migrate-2x-to-3x` |
+
+Agents: `browser-game-fetcher` (batch worker), `cocos-port-triage` (GO/NO-GO gate,
+run it synchronously), `cocos-port-class` (one class per dispatch, fan out).
+
+Prerequisites beyond the usual set: Node 22+ for the `.mjs` scripts, `python3` for
+the local-run and extraction scripts, a Chrome/Chromium for runtime capture, the
+`funplay_cocos` MCP for 3.x scene work, and optionally `oxipng`. `setup-game-toolchain`
+installs the `python3` and `oxipng` halves; Node comes from `setup-video-analyzer`
+and the Cocos MCP from `setup-cocos-mcp`.
 
 ## Editing the packages
 
