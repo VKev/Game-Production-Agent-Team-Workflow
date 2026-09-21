@@ -1,7 +1,8 @@
 # Agents-Tu-Build
 
-Portable, copy-and-go agent packages for game projects — Unity `6000.3.21f1` and
-Cocos Creator `3.8` — one bundle per AI client, built from one shared source.
+Portable, copy-and-go agent packages for game projects — Unity `6000.3.21f1`,
+Cocos Creator `3.8`, and Cocos Creator `2.4` — one bundle per AI client, built
+from one shared source.
 
 | Folder | Copy into a project root to get |
 |---|---|
@@ -33,16 +34,30 @@ engine's phases:
 | Engine | Detected from | Engine-specific skills |
 |---|---|---|
 | Unity `6000.3.21f1` | `Assets/` + `ProjectSettings/ProjectVersion.txt` | `setup-unity-*` (preflight, gitignore, MCP relay, packages, ZLinq), `dev-unity-*` (60 skills) |
-| Cocos Creator `3.8` | `assets/` + `package.json` with `creator.version` | `setup-cocos-*` (preflight, gitignore, funplay MCP), `dev-cocos-*` (11 skills) |
+| Cocos Creator `3.8` | `assets/` + `package.json` with `creator.version` | `setup-cocos-*` (preflight, gitignore, extensions, funplay MCP), `dev-cocos-*` (11 skills) |
+| Cocos Creator `2.4` | `assets/` + root `project.json` with a `2.x` version | `setup-cocos-*` (preflight, gitignore, extensions), `dev-cocos-*` |
 
 Unity is checked first, because a Unity project can carry Node tooling and
 `Assets/` also answers to `assets/` on a case-insensitive filesystem. Everything
 else in the package set is engine-neutral.
 
-For Cocos the editor MCP server is `funplay-cocos-mcp`, an extension embedded in
-Cocos Creator: it exists only while the editor is open, its port is per project,
+Inside Cocos, the major line changes only two things. **Editor extensions**: the
+package set vendors both builds of `dev-tools` (quick-dev menu) and
+`minigame-pack` (mini-game subpackage packer), and installs the 3.x build into
+`extensions/` or the 2.x build into `packages/`, because the two extension
+systems share no loading contract. **MCP**: `funplay-cocos-mcp` is Creator 3.x
+only, so a 2.x project registers no MCP entry and never waits for an editor —
+its whole setup is editor-independent.
+
+For Cocos 3.x the editor MCP server is `funplay-cocos-mcp`, an extension embedded
+in Cocos Creator: it exists only while the editor is open, its port is per project,
 and its three code-execution tools are approval-gated in both clients while its
 desktop input-simulation and desktop-capture tools are denied outright.
+
+Better Context covers both lines, with measured limits on 2.x: maps and JS
+symbols work, `.prefab` files parse, but `.fire` scenes are never parsed and the
+`cocos` queries need a root `package.json` that a stock 2.x project does not have.
+`setup-better-context` reports the coverage level rather than implying more.
 
 ## Tools both clients get
 

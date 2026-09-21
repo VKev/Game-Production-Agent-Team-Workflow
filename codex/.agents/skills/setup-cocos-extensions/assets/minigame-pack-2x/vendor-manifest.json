@@ -1,0 +1,18 @@
+{
+  "name": "minigame-pack",
+  "version": "1.0.0",
+  "engine_line": "cocos-creator-2x",
+  "editor_requirement": ">=2.4.0 <3.0.0",
+  "install_dir": "packages",
+  "title": "Mini-game Pack",
+  "vendored_from": "ported in-repo from the Creator 3.x extension of the same name",
+  "vendored_on": "2026-09-21",
+  "file_count": 5,
+  "files": {
+    "README.md": "968b273f61cd6421d60bf465b9a992e8a1691f5dfdd17e7bfb2e3fad85becb6c",
+    "main.js": "64fb661dc708e486a838c0ac97aa7a41361e538694722b16693bff9905098a30",
+    "pack.js": "60bb8459af451673592395722667d18c04ce154913706ede0d89b6c790745b79",
+    "package.json": "0a5d7f1630bb312b48f5f3abc73e18b89d58dc77d29c70378015342d1b061e71",
+    "test.js": "9533acc7a60a53ac3b83f70a4a5dc41f164a9071093aa70fe174141ccc057cab"
+  }
+}

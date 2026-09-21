@@ -1,6 +1,6 @@
 ---
 name: dev-cocos-project-context
-description: Establish and maintain verified project context in a Cocos Creator 3.8 TypeScript project, and route retrieval and editing across Better Context maps and cocos queries, CodeGraph, CocoIndex semantic search, the Cocos MCP editor tools, Serena edits, and direct reads. Use before navigating, understanding, editing, or reorganizing Cocos project code and assets, and whenever a first search returns nothing useful.
+description: Establish and maintain verified project context in a Cocos Creator project — 3.8 TypeScript or 2.x JavaScript — and route retrieval and editing across Better Context maps and cocos queries, CodeGraph, CocoIndex semantic search, the Cocos MCP editor tools, Serena edits, and direct reads, including the measured coverage limits on the 2.x line. Use before navigating, understanding, editing, or reorganizing Cocos project code and assets, and whenever a first search returns nothing useful.
 ---
 
 # Cocos project context and retrieval routing
@@ -25,6 +25,23 @@ This is the Cocos peer of `dev-unity-project-context`. The routing policy is the
 | Exact text, small file, or an index is unavailable | direct read/grep |
 
 Stop retrieving as soon as the current evidence answers the question.
+
+## Creator 2.x: what the maps do and do not cover
+
+A 2.x project (root `project.json`, `.js` under `assets/`, `.fire` scenes) gets a narrower version of the surface above. The limits are measured, not guessed — `setup-better-context` records which ones apply:
+
+| Need | 2.x |
+|---|---|
+| Folder maps, metrics, key files | works |
+| Symbols, dependency and call edges | only from real declarations — a component written as `cc.Class({ ... })` declares nothing and contributes zero symbols |
+| `cocos list/show/components` | needs the project detected as Cocos, which needs a root `package.json` with `creator.version`; a stock 2.x project has only `project.json` and the query fails with `Manifest does not contain engine runtime intelligence` |
+| `.prefab` | parses once detected — same serialized-array model as 3.x |
+| `.fire` scenes | **never parsed**; the scene layer is uncovered |
+
+Two consequences for routing:
+
+- `Manifest does not contain engine runtime intelligence` means **not detected**, never "no assets". Do not report it as absence of evidence, and do not reinstall anything over it.
+- For a 2.x scene question, read the `.fire` file or use `dev-cocos-port-2x`; never present an empty `cocos` result as proof a scene lacks something. The map-omission rule applies with more force here: on 2.x, silence is the default, not a signal.
 
 ## What only the serialized layer can answer
 

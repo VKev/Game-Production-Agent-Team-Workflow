@@ -1,7 +1,9 @@
 {
   "name": "minigame-pack",
   "version": "1.0.0",
+  "engine_line": "cocos-creator-3x",
   "editor_requirement": ">=3.8.0",
+  "install_dir": "extensions",
   "title": "Mini-game Pack",
   "vendored_from": "D:/Repos/Cocos/tiktokgame5/extensions/minigame-pack",
   "vendored_on": "2026-09-21",

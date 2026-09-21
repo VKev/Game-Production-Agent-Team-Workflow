@@ -1,6 +1,6 @@
 ---
 name: setup-better-context
-description: Check, install, repair, initialize, and verify VKev/Better-Context 1.7+ plus its companion Unity Editor package for Roslyn-backed C# intelligence, Unity runtime, FBX, texture/Sprite importer, subasset, and component queries, and project-local hierarchical instruction maps written from one scan into every client's instruction file (AGENTS.md for Codex, CLAUDE.md for Claude Code). Use when preparing a copied Codex agent package, when better-context-unity is missing, stale, installed from another source, lacks required Editor/Unity/FBX/summary/call-graph capabilities, or when a Unity project needs fresh navigation maps for one or both clients.
+description: Check, install, repair, initialize, and verify VKev/Better-Context 1.8+ plus — in a Unity project — its companion Unity Editor package for Roslyn-backed C# intelligence, Unity runtime, FBX, texture/Sprite importer, subasset, and component queries, and project-local hierarchical instruction maps written from one scan into every client's instruction file (AGENTS.md for Codex, CLAUDE.md for Claude Code). Covers Unity and both Cocos Creator lines (3.x and 2.x), with the 2.x coverage limits stated explicitly. Use when preparing a copied agent package, when better-context-unity is missing, stale, installed from another source, lacks required Editor/Unity/Cocos/FBX/summary/call-graph capabilities, or when a project needs fresh navigation maps for one or both clients.
 ---
 
 # Better Context Project Setup
@@ -31,10 +31,36 @@ Better Context is a local CLI, not an MCP server, so no client registration exis
 
 One scan writes every selected file, so the clients cannot drift apart. Never run a second scan per client, never hand-copy a managed block from one file into another, and never point the Claude map at a different `--max-depth`, summary set, or ignore policy.
 
+## Engine scope
+
+The CLI is one tool with three coverage levels. Decide which applies **before** running anything, and report the level rather than implying full coverage.
+
+| | Unity | Cocos Creator 3.x | Cocos Creator 2.x |
+|---|---|---|---|
+| Hierarchical maps (`agents`) | yes | yes | yes |
+| Symbol / dependency / call graph | C# via Roslyn | TypeScript | JavaScript, with the gap below |
+| Engine asset queries | `unity list/show/components/bindings` | `cocos list/show/components` | **partial** — see below |
+| Companion Editor package (`editor install/status/sync`) | required | **does not apply** | **does not apply** |
+| .NET SDK 8+ prerequisite | required | not required | not required |
+
+Steps 7 and 11's Editor-snapshot work, the Roslyn evidence requirement, and the `unity` validation calls are **Unity-only**. In a Cocos project, skip them and say so; do not report missing Editor coverage as a blocker there, and never run `editor install` against a Cocos project.
+
+### What Creator 2.x actually gets — verified, not assumed
+
+These limits are real and were measured against the installed CLI. State them in the report instead of letting the user find them:
+
+- **Maps generate normally.** Folder maps, metrics, and PageRank all work.
+- **JavaScript symbols extract only from real declarations.** A 2.x component written as `cc.Class({ ... })` declares no named symbol, so such a file contributes **0 symbols and 0 edges** — the map lists it as a plain project file. A 2.x project whose logic is plain functions/classes indexes normally. This is a property of the source idiom, not a bug to repair.
+- **The `cocos` subcommand needs the project detected as a Cocos project, which requires a root `package.json` carrying `creator.version`.** A stock 2.x project has only `project.json`, so `cocos list` fails with `Manifest does not contain engine runtime intelligence`. That failure means "not detected", not "no assets".
+- **`.prefab` files parse once detected** — 2.x prefabs use the same serialized-array model as 3.x.
+- **`.fire` scenes never parse.** Creator 2.x scenes are invisible to every `cocos` query regardless of detection. Treat the serialized scene layer of a 2.x project as **not covered**, and route scene questions to reading the project or to `dev-cocos-port-2x`, never to a `cocos` query that returned nothing.
+
+Adding a root `package.json` with `creator.version` to a 2.x project unlocks prefab and component queries. It is an **optional** step that changes the user's project, so propose it, state that Creator 2.x itself reads `project.json` and ignores this file, and apply it only on an explicit yes. Never add it silently, and never treat its absence as a setup failure.
+
 ## Workflow
 
 1. Resolve and canonicalize the exact target project root. Record whether `HEAD` exists, its SHA, and the staged-path list. Stop if the index is already non-empty.
-2. Require the root `.gitignore` to ignore `.better-context/`, `.ctxignore`, `.ctx.json`, `.ctx-summaries.json`, and Markdown files, and confirm none is tracked. When orchestrated by `setup-agents`, `setup-unity-gitignore` owns these rules and must complete first.
+2. Require the root `.gitignore` to ignore `.better-context/`, `.ctxignore`, `.ctx.json`, `.ctx-summaries.json`, and Markdown files, and confirm none is tracked. When orchestrated by `setup-agents`, the engine's ignore skill owns these rules and must complete first — `setup-unity-gitignore` in a Unity project, `setup-cocos-gitignore` in either Cocos line.
 3. Resolve `uv` before invoking it:
    - If `uv --version` succeeds, reuse it.
    - If it is missing or cannot start, follow the official standalone installation command in [references/sources.md](references/sources.md) once.
@@ -44,7 +70,7 @@ One scan writes every selected file, so the clients cannot drift apart. Never ru
    - When it resolves, run `better-context-unity --version`, top-level `--help`, `agents --help`, `editor --help`, `unity --help`, and `graph --help`.
    - Run `uv tool list --show-version-specifiers` and require the `better-context-unity` tool to reference `github.com/VKev/Better-Context`.
    - Require version `1.8.0` or newer, a `cocos` subcommand exposing `list`, `show`, and `components`, `agents --help` to expose `--summary`, `--remove-summary`, and `--map-file` (with `AGENTS.md` and `CLAUDE.md` as its accepted values), `editor --help` to expose `install`, `status`, and `sync`, `unity --help` to expose `list`, `show`, `components`, and `bindings`, and `graph --help` to expose dependency and call graph kinds.
-   - Resolve `dotnet --version` and require an SDK major version of at least 8 before accepting Roslyn-backed C# analysis. A missing or older SDK leaves C# dependency/call verification incomplete even when the Python CLI works.
+   - **Unity only:** resolve `dotnet --version` and require an SDK major version of at least 8 before accepting Roslyn-backed C# analysis. A missing or older SDK leaves C# dependency/call verification incomplete even when the Python CLI works. In a Cocos project there is no C# to analyze, so a missing .NET SDK is not a blocker and must not be reported as one.
    - Treat the installation as correct only when the command, minimum version, Git source, summary flags, `--map-file` support, Editor bridge commands, Unity queries, call-graph option, and .NET prerequisite all pass.
 5. Install or repair the CLI only when required:
    - Missing: `uv tool install "git+https://github.com/VKev/Better-Context.git@main"`.
@@ -82,9 +108,29 @@ One scan writes every selected file, so the clients cannot drift apart. Never ru
    # setup-agents:vendor-context:end
    ```
 
+   That block is the **Unity** vendor set. In a Cocos project use this one instead — same marker names, so a later run still recognizes and replaces it:
+
+   ```text
+   # setup-agents:vendor-context:begin
+   .agent-temp/
+   /library/
+   /temp/
+   /build/
+   /local/
+   /profiles/
+   /.dev-tools-trash/
+   extensions/*/node_modules/
+   packages/*/node_modules/
+   **/AGENTS.md.meta
+   **/CLAUDE.md.meta
+   # setup-agents:vendor-context:end
+   ```
+
+   Those are the engine's regenerable roots plus installed extension dependencies — indexing them buries the project's own `assets/` under editor cache. Keep `assets/`, `settings/`, and the authored extension source (`extensions/<name>/` on 3.x, `packages/<name>/` on 2.x) eligible; verify that after merging. `native/` build output is already excluded by the `/build/` and native rules the ignore skill wrote, so do not add a broad `native/` rule that would hide authored native source.
+
    The solution/project files and generated `AGENTS.md.meta` / `CLAUDE.md.meta` files are Unity/IDE side effects rather than navigation source; ignoring them prevents a cleaned compile probe or map generation from immediately invalidating the new map. The remaining entries are registered third-party or generated dependency roots, not project-owned `Assets/Plugins` code. Never replace them with a broad `Assets/Plugins/` or `Packages/` rule. Verify the installed matcher reports these generated patterns, every registered root, and `.agent-temp/` ignored while `Assets/Plugins/Game/Probe.cs` and project-owned embedded-package code remain eligible.
 10. Before regeneration, repair only stale Better Context output beneath those exact vendor/generated roots. For each `AGENTS.md` **and** `CLAUDE.md` containing this tool's managed markers, remove only the managed block; delete the file only when nothing but whitespace remains. Preserve handwritten content and never touch an unmarked file. Remove a paired `.meta` only when its exact map file was deleted and the meta is untracked/generated.
-11. Inspect project map and Editor snapshot state:
+11. Inspect project map and Editor snapshot state. **In a Cocos project, skip every Editor-snapshot bullet below** — there is no companion Editor package, nothing to sync, and no editor that needs to be open. Go straight to the `verify` / generation decision: if `.better-context/manifest.json`, `.better-context/staleness.json`, and the root managed marker exist, run `verify` and skip generation when it succeeds; otherwise run `agents` once with no summaries. A Cocos scan reads the project from disk and is fast, so the ten-minute first-scan budget below is a Unity allowance, not a Cocos one.
    - Run `better-context-unity --root <project-root> editor status`. A fresh snapshot must match the exact Unity version, bridge version, source fingerprint, and package-lock hash.
    - If the snapshot is missing or stale and Unity is open, run `editor sync --mode open`; otherwise allow `editor sync --mode batch` only with the exact Unity version. `auto` must prefer the open Editor and must never launch a second Editor for an already-open project.
    - On Windows, Better Context `1.6.0` from approved source commit `b81b4ea595ecc8053f8bdefb9482b7b8227d05c8` has a registered `os.kill(pid, 0)` liveness defect. If and only if the standard open sync incorrectly says the target is closed while `Library/EditorInstance.json` identifies the live exact-version Editor, run `uv run --no-project python <skill>/scripts/sync_open_editor_snapshot.py --project-root <project-root>`. The fallback is source-hash gated, verifies the recorded PID/version/path against the live Windows process image, calls Better Context's own open snapshot routine, and never launches Unity. An unknown module hash or identity mismatch is `ambiguous` and blocks the fallback.
@@ -95,9 +141,12 @@ One scan writes every selected file, so the clients cannot drift apart. Never ru
    - Otherwise, if maps are missing or verification reports stale state, require that all temporary compile probes and Unity package/post-import mutations have already finished and been cleaned, then run `better-context-unity --root <project-root> agents` once with no summaries.
    - Allow a bounded ten-minute budget for the first Unity scan and report progress at least once per minute. A timeout is incomplete setup, not success.
 12. Validate the generated state without changing project source:
-    - Run `better-context-unity --root <project-root> verify`, `better-context-unity --root <project-root> editor status`, `better-context-unity --root <project-root> unity list --limit 1 --format json`, and `better-context-unity --root <project-root> graph --kind call --format json`. An empty Unity asset list or call graph is valid only when the project genuinely has no matching evidence; command/schema failure is not.
+    - **Unity:** run `better-context-unity --root <project-root> verify`, `editor status`, `unity list --limit 1 --format json`, and `graph --kind call --format json`. An empty Unity asset list or call graph is valid only when the project genuinely has no matching evidence; command/schema failure is not.
+    - **Cocos 3.x:** run `verify`, `cocos list --limit 1 --format json`, and `graph --kind call --format json`. Skip `editor status` — there is no companion Editor package for Cocos.
+    - **Cocos 2.x:** run `verify` and `graph --kind call --format json`. Run `cocos list` only when the project is actually detected as Cocos (a root `package.json` with `creator.version`); otherwise record `cocos-queries: unavailable (Creator 2.x without package.json)` and move on. A `Manifest does not contain engine runtime intelligence` error here is the expected, classified outcome — never report it as a failed install, and never "repair" it by reinstalling the CLI.
     - Parse `.better-context/manifest.json`. Require its generator to report the accepted CLI version and its Unity runtime section to record parsed, unsupported, and error coverage instead of inventing data for unsupported serialization.
-    - When project-owned C# files exist, require Roslyn analysis evidence such as `analysis_engine: roslyn`; fallback-only symbol inventory is incomplete setup because C# dependency and call edges are deliberately omitted.
+    - When project-owned C# files exist, require Roslyn analysis evidence such as `analysis_engine: roslyn`; fallback-only symbol inventory is incomplete setup because C# dependency and call edges are deliberately omitted. This requirement is Unity-only — a Cocos project has no C# and must not be held to it.
+    - In a Cocos 2.x project, a zero-symbol count for files written as `cc.Class({ ... })` is expected and is **not** a reason to reinstall, rescan, or widen the ignore policy. Report it once, with the reason.
     - When a project-owned `.fbx` exists, run `unity list --kind model`, select one exact project-relative result, and require `unity show <path>` to expose parsed FBX structure and/or Unity `ModelImporter` facts. A path-only map row is not proof of FBX analysis.
     - When a project-owned texture exists and Editor coverage is fresh, run `unity show <path>` and require exact dimensions/importer facts plus Sprite subasset identities when applicable. For a prefab with resolved components, require `unity components --asset <path>` to expose exact type/assembly/boundary without filename guessing.
     - Require zero C# dependency edges to `.meta`, zero graph targets ending in `.meta`, and structured Unity edges to carry Unity/GUID evidence rather than free-text type-name matches.
@@ -106,12 +155,16 @@ One scan writes every selected file, so the clients cannot drift apart. Never ru
 
 ## Runtime handoff
 
-After setup, `dev-unity-project-context` owns map verification, navigation, refreshes, and optional summaries. This setup skill must leave summaries untouched and must not duplicate runtime retrieval policy.
+After setup, the engine's context skill owns map verification, navigation, refreshes, and optional summaries: `dev-unity-project-context` in a Unity project, `dev-cocos-project-context` in either Cocos line. This setup skill must leave summaries untouched and must not duplicate runtime retrieval policy. Hand over the measured coverage level with the maps, so the runtime skill does not route a scene question at a query that cannot answer it.
 
 ## Boundaries
 
 - Install the CLI and companion package only from `VKev/Better-Context` with the exact Git requirements above. Do not substitute PyPI, the upstream repository, a mirror, or an editable checkout.
 - Never delete `Library/EditorInstance.json`, a Unity lock file, or launch batch mode while the exact project is already open. Never accept an executable whose version differs from `ProjectVersion.txt`.
+- Never run `editor install`, `editor status`, or `editor sync` against a Cocos project; the companion package is a Unity Editor package and there is no Cocos equivalent.
+- Never claim Cocos scene coverage on Creator 2.x. `.fire` scenes are not parsed by any version of this CLI, so the serialized scene layer of a 2.x project is uncovered — say so rather than presenting an empty `cocos` result as "no scenes".
+- Never add a root `package.json` to a Creator 2.x project to unlock `cocos` queries without the user's explicit yes; it is their project file, not setup state.
+- Never launch or require the Cocos Creator editor for any part of this skill. Unlike Unity, Better Context reads a Cocos project entirely from disk.
 - Never hand-edit `.better-context/editor-snapshot.json`; stale Editor data is invalid evidence and must not be merged.
 - Do not install uv again when a working uv is already available.
 - Do not add summaries during project setup. Summary authoring is an optional runtime decision after source verification.

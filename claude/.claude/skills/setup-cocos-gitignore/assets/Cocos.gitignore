@@ -1,4 +1,4 @@
-# Cocos Creator 3.x — regenerable state.
+# Cocos Creator — regenerable state. Covers both the 3.x and 2.x project layouts.
 # Every entry below is rebuilt by the editor from `assets/` plus the `.meta` files.
 # Comments must be on their own line: a trailing comment after a pattern is matched
 # literally and silently ignores nothing.
@@ -7,6 +7,9 @@
 /temp/
 /local/
 /build/
+
+# 3.x only: machine-local editor profiles. 2.x keeps the same kind of state in
+# /local/, which is already covered above. Harmless in a 2.x project.
 /profiles/
 
 # Native (Android/iOS) build output inside a native project
@@ -16,8 +19,15 @@
 /native/**/.externalNativeBuild/
 /native/**/local.properties
 
-# Editor extensions are committed; their installed dependencies are not
+# Editor extensions are committed; their installed dependencies are not.
+# 3.x loads them from extensions/, 2.x from packages/.
 extensions/*/node_modules/
+packages/*/node_modules/
+
+# Staging directory the dev-tools extension renames a cleared cache into before
+# deleting it in the background. Never authored, sometimes left behind when the
+# editor is closed mid-delete.
+/.dev-tools-trash/
 
 # Node tooling
 node_modules/
@@ -29,9 +39,12 @@ node_modules/
 # *.meta          - holds the asset uuid. A missing .meta makes Cocos mint a new uuid,
 #                   which breaks every scene and prefab reference without an error.
 # /settings/      - shared project configuration (start scene, bundle/build config).
-# /build-templates/ - source injected into builds; not the same as /build/.
+# /build-templates/ - source injected into builds; not the same as /build/. 3.x only.
+# /packages/      - in a 2.x project these are the project's own editor extensions,
+#                   which ARE authored. Only their node_modules are ignored above.
 # package-lock.json - pinned tooling, intentionally committed.
 !*.meta
 !/settings/
 !/build-templates/
+!/packages/
 !package-lock.json

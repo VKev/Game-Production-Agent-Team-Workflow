@@ -33,10 +33,10 @@ Run one deterministic read-only inspection before loading or mutating any other 
 
 | Section | Meaning |
 |---|---|
-| `project` | Root, `creator_version`, `package.json`/`settings` hashes, whether `tsconfig.json` and `settings/v2/packages/builder.json` exist, the authored **bundle contract** (folder → `bundleName` read from `assets/*.meta`), and the editor extensions present. |
+| `project` | Root, `creator_version`, `package.json`/`settings` hashes, whether `tsconfig.json` and `settings/v2/packages/builder.json` exist, the authored **bundle contract** (folder → `bundleName` read from `assets/*.meta`), and the editor extensions present. Extensions are scanned in **both** `extensions/` (the 3.x location) and `packages/` (the 2.x location), so an extension installed under the wrong line's directory is reported at its real path instead of as missing. |
 | `engine` | `creator_major`, `supports_mcp` (3.x and above), `editor_imported_project` (a generated `temp/tsconfig.cocos.json` proves the editor has opened this project at least once), and `editor_reachable`. |
 | `cocos_mcp` | `applicable` (false on 2.x, where nothing below is probed), the project `funplay-cocos-mcp.config.json` path, the installed extension path/version, resolved host/port, tool profile, whether `execute_javascript` safety checks are on, reachability, and the live tool count from `GET /tools`. |
-| `project.managed_extensions` | For each extension this package set owns (`dev-tools`, `minigame-pack`, `funplay-cocos-mcp`): whether it is installed, at which path, and its declared version. `setup-cocos-extensions` and `setup-cocos-mcp` classify from this instead of re-walking the project. |
+| `project.managed_extensions` | For each extension this package set owns (`dev-tools`, `minigame-pack`, `funplay-cocos-mcp`): whether it is installed, at which path, its `engine_line`, and its declared version. `setup-cocos-extensions` and `setup-cocos-mcp` classify from this instead of re-walking the project. |
 | `git` | State, root, `HEAD`, staged paths. A non-empty index blocks setup. |
 | `checkpoint` | Path, existence, phase, reusability, and exact stale reasons. |
 | `clients` | Which agent bundles this repository carries. |

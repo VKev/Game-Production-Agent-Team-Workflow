@@ -1,0 +1,18 @@
+{
+  "name": "dev-tools",
+  "version": "1.0.0",
+  "engine_line": "cocos-creator-2x",
+  "editor_requirement": ">=2.4.0 <3.0.0",
+  "install_dir": "packages",
+  "title": "Dev nhanh",
+  "vendored_from": "ported in-repo from the Creator 3.x extension of the same name",
+  "vendored_on": "2026-09-21",
+  "file_count": 5,
+  "files": {
+    "README.md": "681d91fc57cb201734a20a9b9dac2b6e7f8e2ed6bd7a889aab874d7df6d65373",
+    "cache.js": "0b58d911f335b23dc631ba887c7edc8a71925c83f294f1895ca9fa46387355f6",
+    "main.js": "396f9876334f2b7ad38ed3fcab006d5d0dac4e94c27cd4797879469f0a2aa144",
+    "package.json": "922adeb11611421ac914ae9fa07f13cd7f7769abe836ad2ab0438465e220dd3f",
+    "test.js": "31f373cd827364e027506a7027473caf666caae8eef6e74e1a3a9344e2a1ce2c"
+  }
+}

@@ -143,11 +143,17 @@ if ($null -ne $mcpConfig) {
     }
 }
 
+# Project-local editor extensions live in different directories per engine line:
+# Creator 3.x loads them from `extensions/`, Creator 2.x from `packages/`. Scan
+# both so a mis-detected line shows up as a wrong-line install rather than as
+# "not installed".
 $extensionRoots = @()
-$extensionsDir = Join-Path $root 'extensions'
-if (Test-Path $extensionsDir -PathType Container) {
-    $extensionRoots = @(Get-ChildItem -LiteralPath $extensionsDir -Directory -ErrorAction SilentlyContinue |
-        Sort-Object Name | ForEach-Object { "extensions/$($_.Name)" })
+foreach ($dirName in @('extensions', 'packages')) {
+    $scanDir = Join-Path $root $dirName
+    if (Test-Path $scanDir -PathType Container) {
+        $extensionRoots += @(Get-ChildItem -LiteralPath $scanDir -Directory -ErrorAction SilentlyContinue |
+            Sort-Object Name | ForEach-Object { "$dirName/$($_.Name)" })
+    }
 }
 $mcpExtensionPath = ''
 foreach ($candidate in $extensionRoots) {
@@ -193,8 +199,11 @@ $extensionState = New-Object 'System.Collections.Generic.List[object]'
 foreach ($name in $managedExtensions) {
     $installedPath = ''
     $installedVersion = ''
+    $installedLine = ''
     foreach ($candidate in $extensionRoots) {
-        $folder = $candidate.Substring('extensions/'.Length)
+        $parts = $candidate.Split('/')
+        $hostDir = $parts[0]
+        $folder = $parts[1]
         $packagePath = Join-Path $root ($candidate.Replace('/', '\') + '\package.json')
         $extensionPackage = Read-JsonFile $packagePath 'extension-package'
         $declaredName = ''
@@ -203,6 +212,9 @@ foreach ($name in $managedExtensions) {
         }
         if ($declaredName -eq $name -or $folder -eq $name) {
             $installedPath = $candidate
+            # The directory it sits in is what the editor actually routes on, so
+            # report that rather than inferring the line from the manifest.
+            $installedLine = if ($hostDir -eq 'packages') { 'cocos-creator-2x' } else { 'cocos-creator-3x' }
             if ($null -ne $extensionPackage -and (Has-Prop $extensionPackage 'version')) {
                 $installedVersion = [string]$extensionPackage.version
             }
@@ -210,9 +222,10 @@ foreach ($name in $managedExtensions) {
         }
     }
     $extensionState.Add([pscustomobject][ordered]@{
-        name      = $name
-        installed = [bool]$installedPath
-        path      = $installedPath
+        name        = $name
+        installed   = [bool]$installedPath
+        path        = $installedPath
+        engine_line = $installedLine
         version   = $installedVersion
     })
 }

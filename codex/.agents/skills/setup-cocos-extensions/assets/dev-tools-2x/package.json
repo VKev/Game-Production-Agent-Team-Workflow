@@ -1,0 +1,41 @@
+{
+  "name": "dev-tools",
+  "version": "1.0.0",
+  "title": "Dev nhanh",
+  "description": "Bộ công cụ dev: xoá cache Editor/build/cấu hình, xoá save game, refresh asset, mở preview. (Cocos Creator 2.x)",
+  "author": "oc-vit-cang-cuc",
+  "main": "main.js",
+  "cocos-creator": ">=2.4.0 <3.0.0",
+  "main-menu": {
+    "Dev nhanh/📊 Xem dung lượng cache": {
+      "message": "dev-tools:cache-report"
+    },
+    "Dev nhanh/🧹 Xoá cache Editor (library + temp)…": {
+      "message": "dev-tools:clear-editor-cache"
+    },
+    "Dev nhanh/📦 Xoá thư mục build…": {
+      "message": "dev-tools:clear-build"
+    },
+    "Dev nhanh/⚙️ Xoá cấu hình cục bộ (local)…": {
+      "message": "dev-tools:clear-local-config"
+    },
+    "Dev nhanh/🔥 Xoá cache Editor + cấu hình… (KHÔNG đụng build)": {
+      "message": "dev-tools:clear-all"
+    },
+    "Dev nhanh/💾 Xoá save game (localStorage)…": {
+      "message": "dev-tools:clear-save"
+    },
+    "Dev nhanh/🎮 Bảng lệnh Dev cho Game Design…": {
+      "message": "dev-tools:design-cheatsheet"
+    },
+    "Dev nhanh/🔄 Refresh assets": {
+      "message": "dev-tools:refresh-assets"
+    },
+    "Dev nhanh/▶️ Mở game preview trong trình duyệt": {
+      "message": "dev-tools:open-preview"
+    },
+    "Dev nhanh/📂 Mở thư mục project": {
+      "message": "dev-tools:open-project-dir"
+    }
+  }
+}

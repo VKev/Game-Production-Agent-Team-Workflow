@@ -143,8 +143,51 @@ class InspectCocosSetupStateTests(unittest.TestCase):
             self.assertEqual(sorted(managed), ["dev-tools", "funplay-cocos-mcp", "minigame-pack"])
             self.assertTrue(managed["dev-tools"]["installed"])
             self.assertEqual(managed["dev-tools"]["path"], "extensions/dev-tools")
+            self.assertEqual(managed["dev-tools"]["engine_line"], "cocos-creator-3x")
             self.assertEqual(managed["dev-tools"]["version"], "1.0.0")
             self.assertFalse(managed["minigame-pack"]["installed"])
+            self.assertFalse(managed["funplay-cocos-mcp"]["installed"])
+
+    def test_creator_2x_extensions_are_found_under_packages(self) -> None:
+        """Creator 2.x loads project-local extensions from `packages/`, not `extensions/`.
+
+        Scanning only `extensions/` reported a correctly installed 2.x extension as
+        missing, which made setup reinstall it on every run.
+        """
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "assets").mkdir()
+            (root / "project.json").write_text(
+                json.dumps({"engine": "cocos-creator-js", "version": "2.4.14"}), encoding="utf-8"
+            )
+            for name in ("dev-tools", "minigame-pack"):
+                folder = root / "packages" / name
+                folder.mkdir(parents=True)
+                (folder / "package.json").write_text(
+                    json.dumps(
+                        {
+                            "name": name,
+                            "version": "1.0.0",
+                            "main": "main.js",
+                            "cocos-creator": ">=2.4.0 <3.0.0",
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+
+            payload = json.loads(self.run_inspector(root).stdout)
+
+            self.assertEqual(
+                payload["project"]["extensions"],
+                ["packages/dev-tools", "packages/minigame-pack"],
+            )
+            managed = {item["name"]: item for item in payload["project"]["managed_extensions"]}
+            for name in ("dev-tools", "minigame-pack"):
+                self.assertTrue(managed[name]["installed"], name)
+                self.assertEqual(managed[name]["path"], f"packages/{name}")
+                self.assertEqual(managed[name]["engine_line"], "cocos-creator-2x")
+                self.assertEqual(managed[name]["version"], "1.0.0")
+            # There is no 2.x build of the MCP extension.
             self.assertFalse(managed["funplay-cocos-mcp"]["installed"])
 
     def test_refuses_a_non_cocos_root(self) -> None:

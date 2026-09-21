@@ -1,0 +1,17 @@
+{
+  "name": "minigame-pack",
+  "version": "1.0.0",
+  "title": "Mini-game Pack",
+  "description": "Gộp JSON + đóng gói lại subpackage cho build mini-game (giảm số file trong gói). (Cocos Creator 2.x)",
+  "author": "oc-vit-cang-cuc",
+  "main": "main.js",
+  "cocos-creator": ">=2.4.0 <3.0.0",
+  "main-menu": {
+    "Build nhanh/🛠 Mở panel Build": {
+      "message": "minigame-pack:open-build-panel"
+    },
+    "Build nhanh/📦 Đóng gói lại thư mục build mini-game…": {
+      "message": "minigame-pack:pack-existing"
+    }
+  }
+}
