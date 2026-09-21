@@ -1,0 +1,16 @@
+{
+  "name": "minigame-pack",
+  "version": "1.0.0",
+  "editor_requirement": ">=3.8.0",
+  "title": "Mini-game Pack",
+  "vendored_from": "D:/Repos/Cocos/tiktokgame5/extensions/minigame-pack",
+  "vendored_on": "2026-09-21",
+  "file_count": 5,
+  "files": {
+    "browser.js": "4a696c1aa4205edf4a57abc81fc7ac86cd3624fd382c848d344eeff476ca3865",
+    "hooks.js": "c71e28627bb1a97c1c69e1b86ca2afe9e82eebff98dae5a73c0b386b8f689ec5",
+    "pack.js": "3d71dafd5fa8e8a55e840642c4dda1b94122ad34df5658dee397d6a7c995ca06",
+    "package.json": "ba3ae5023a8b5c19aa362635bba3bb9c46d41841884728d57a837084c1be9c0e",
+    "README.md": "6f37f2ba7fb3a2136dcb6d8fecb9a54f234cfc15ff1a34f4d631fe6bd8ac5ac2"
+  }
+}

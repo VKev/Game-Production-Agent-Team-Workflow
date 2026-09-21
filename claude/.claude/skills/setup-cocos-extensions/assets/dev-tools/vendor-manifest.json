@@ -1,0 +1,16 @@
+{
+  "name": "dev-tools",
+  "version": "1.0.0",
+  "editor_requirement": ">=3.8.0",
+  "title": "Dev nhanh",
+  "vendored_from": "D:/Repos/Cocos/tiktokgame5/extensions/dev-tools",
+  "vendored_on": "2026-09-21",
+  "file_count": 5,
+  "files": {
+    "browser.js": "1bf300ebde282e74aa25207ffb8cdaf96562cabf1e6682e2373d0f9fa47ed94b",
+    "cache.js": "e4b52793b28396946d8834eeecee9cdf08a55331c09db145be96ed1f3c21dbb0",
+    "package.json": "a7f07b8f070ab69fc682b6f33a72c84adc3a12749f29e00e4c4a40e5937e8243",
+    "README.md": "7393c7c196a5d170972a11fcfd17bebde5fc9dbc82199912defa8b3ff011e403",
+    "test.js": "99a38c248e2ceaa47d022a4035e1f8a2eff4801fcf7be87b92b9608740ad8c0c"
+  }
+}

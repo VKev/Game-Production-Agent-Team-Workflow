@@ -79,6 +79,74 @@ class InspectCocosSetupStateTests(unittest.TestCase):
             self.assertEqual(payload["recommended_phase"], "phase-a")
             self.assertEqual(payload["status"], "ready")
 
+    def test_creator_2x_project_is_accepted_without_an_mcp_phase(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            # Creator 2.x has no package.json; the root project.json carries the version.
+            (root / "assets" / "scripts").mkdir(parents=True)
+            (root / "settings").mkdir()
+            (root / "project.json").write_text(
+                json.dumps(
+                    {"engine": "cocos-creator-js", "packages": "packages", "version": "2.4.14"}
+                ),
+                encoding="utf-8",
+            )
+
+            result = self.run_inspector(root)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["project"]["creator_version"], "2.4.14")
+            self.assertEqual(payload["project"]["creator_major"], 2)
+            self.assertFalse(payload["engine"]["supports_mcp"])
+            # Nothing live to wait for: the MCP extension does not exist for 2.x.
+            self.assertFalse(payload["cocos_mcp"]["applicable"])
+            self.assertEqual(payload["cocos_mcp"]["port"], 0)
+            self.assertFalse(payload["cocos_mcp"]["reachable"])
+            self.assertEqual(payload["recommended_phase"], "phase-a")
+            self.assertEqual(payload["status"], "ready")
+
+    def test_creator_2x_never_probes_a_configured_port(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "assets").mkdir()
+            (root / "project.json").write_text(
+                json.dumps({"engine": "cocos-creator-js", "version": "2.4.14"}), encoding="utf-8"
+            )
+            # A stray config from a copied bundle must not make a 2.x project probe.
+            (root / "funplay-cocos-mcp.config.json").write_text(
+                json.dumps({"host": "127.0.0.1", "port": 29999}), encoding="utf-8"
+            )
+
+            payload = json.loads(self.run_inspector(root).stdout)
+
+            self.assertFalse(payload["cocos_mcp"]["applicable"])
+            self.assertEqual(payload["cocos_mcp"]["config_path"], "")
+            self.assertEqual(payload["cocos_mcp"]["port"], 0)
+
+    def test_managed_extension_state_is_reported(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            _cocos_project(root)
+            dev_tools = root / "extensions" / "dev-tools"
+            dev_tools.mkdir(parents=True)
+            (dev_tools / "package.json").write_text(
+                json.dumps({"name": "dev-tools", "version": "1.0.0", "editor": ">=3.8.0"}),
+                encoding="utf-8",
+            )
+
+            payload = json.loads(self.run_inspector(root).stdout)
+
+            managed = {
+                item["name"]: item for item in payload["project"]["managed_extensions"]
+            }
+            self.assertEqual(sorted(managed), ["dev-tools", "funplay-cocos-mcp", "minigame-pack"])
+            self.assertTrue(managed["dev-tools"]["installed"])
+            self.assertEqual(managed["dev-tools"]["path"], "extensions/dev-tools")
+            self.assertEqual(managed["dev-tools"]["version"], "1.0.0")
+            self.assertFalse(managed["minigame-pack"]["installed"])
+            self.assertFalse(managed["funplay-cocos-mcp"]["installed"])
+
     def test_refuses_a_non_cocos_root(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

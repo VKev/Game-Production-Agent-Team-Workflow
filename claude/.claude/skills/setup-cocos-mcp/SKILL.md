@@ -1,9 +1,11 @@
 ---
 name: setup-cocos-mcp
-description: Install, verify, and register the official FunplayAI funplay-cocos-mcp editor extension for a Cocos Creator 3.8 project and every AI client bundle present in the repository (Codex TOML and Claude Code .mcp.json), with the code-execution and desktop-input tools gated client-side. Use when preparing a copied agent package in a Cocos project, when the extension or its client registration is missing or stale, or when the MCP server is unreachable.
+description: Install, verify, and register the official FunplayAI funplay-cocos-mcp editor extension for a Cocos Creator 3.x project (never a 2.x one) and every AI client bundle present in the repository (Codex TOML and Claude Code .mcp.json), with the code-execution and desktop-input tools gated client-side. Use when preparing a copied agent package in a Cocos project, when the extension or its client registration is missing or stale, or when the MCP server is unreachable.
 ---
 
 # Cocos MCP Setup
+
+This skill applies to **Cocos Creator 3.8 and newer only**. The extension requires 3.8+, and Creator 2.x uses a different extension system entirely — in a 2.x project this whole skill is a no-op: report `not-applicable` and do not install, register, or probe anything. `setup-cocos-project-preflight` decides that from `creator_major` / `supports_mcp`; never infer it from a folder name.
 
 `funplay-cocos-mcp` is an **editor extension**, not a standalone server: it embeds a streamable-HTTP MCP endpoint inside Cocos Creator. Nothing works while the editor is closed, and no client configuration can change that. Read [references/sources.md](references/sources.md) before changing install, version, port, or registration behavior.
 
@@ -34,10 +36,12 @@ Both entries must point at the same resolved URL and carry the same tool policy.
 2. Resolve the installed extension version and compare it with the latest official release:
    - Releases live at `https://github.com/FunplayAI/funplay-cocos-mcp/releases`, each publishing `Funplay.CocosMcp.v<version>.zip` plus `SHA256SUMS.txt`.
    - Treat an older installed version as `incorrect` only when the user wants the update; an older working extension is not a setup failure. Record both versions either way.
-3. Install or repair the extension only when it is missing or the user asked for the update, using one official route and no other:
+3. Install or repair the extension only when it is missing or the user asked for the update, using one of these routes and no other:
+   - **The vendored copy in this skill**, `<skills-dir>/setup-cocos-mcp/assets/funplay-cocos-mcp`, which carries a `vendor-manifest.json` with its version and a per-file SHA-256. This is the offline route and the one a copied bundle can always take. Verify every file hash after copying, and report the vendored version next to the latest released one so an older pin is visible rather than silent.
    - Cocos Store page `https://store.cocos.com/app/detail/8913` (user action in the editor), or
    - the release zip, verified against `SHA256SUMS.txt` before extraction, unpacked into `<project>/extensions/funplay-cocos-mcp`, or
    - `git clone https://github.com/FunplayAI/funplay-cocos-mcp.git extensions/funplay-cocos-mcp`.
+   When the project already has the extension, classify it the same way `setup-cocos-extensions` does: matching hashes means `correct`, a different version with unmodified files means `stale`, and any locally modified file means **stop and ask** rather than overwrite.
    Never install from a fork or mirror, never patch the extension's files, and never delete an existing extension folder to force a clean install — back it up first and report the path.
 4. After any install or update, the editor must reload extensions. That is a user action: ask, then wait for preflight to report `reachable`.
 5. Read `funplay-cocos-mcp.config.json` and record `host`, `port`, `toolProfile`, `enabledToolCategories`, and `executeJavascriptSafetyChecks`. If the file does not exist, the extension has never run in this project: ask the user to open **Funplay > MCP Server** once so it is created with the project's real port. Do not hand-write this file.
@@ -108,7 +112,8 @@ Codex can remove the input-simulation tools from the exposed list with `disabled
 
 ## Boundaries
 
-- Install only from the Cocos Store listing, the official GitHub releases, or the official Git repository. The npm `funplay-cocos-mcp` package is only the optional stdio bridge to an already-running editor server; it is not a replacement for the extension and is out of scope unless the user asks for it.
+- Install only from the vendored copy in this skill's `assets/`, the Cocos Store listing, the official GitHub releases, or the official Git repository.
+- Never install, register, or probe anything in a Creator 2.x project, and never present the vendored copy as the latest release: report both versions. The npm `funplay-cocos-mcp` package is only the optional stdio bridge to an already-running editor server; it is not a replacement for the extension and is out of scope unless the user asks for it.
 - Never launch, focus, or close Cocos Creator, and never automate its UI. Extension install, extension reload, and opening **Funplay > MCP Server** are user actions at a checkpoint.
 - Never call the MCP input-simulation or desktop-capture tools from setup, and never remove their deny/disable rules; this package set prohibits desktop automation regardless of which transport offers it.
 - Keep `executeJavascriptSafetyChecks` enabled and never pass `safety_checks: false` from setup. The upstream docs call the checks a guardrail, not a sandbox.

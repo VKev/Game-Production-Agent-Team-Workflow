@@ -60,10 +60,26 @@ if ($null -ne $package -and (Has-Prop $package 'creator')) {
         $creatorVersion = [string]$package.creator.version
     }
 }
+# Creator 2.x has no `package.json`; its root `project.json` carries the version.
+$legacyProjectPath = Join-Path $root 'project.json'
+$legacyProject = $null
+if ([string]::IsNullOrWhiteSpace($creatorVersion)) {
+    $legacyProject = Read-JsonFile $legacyProjectPath 'project-json'
+    if ($null -ne $legacyProject -and (Has-Prop $legacyProject 'version')) {
+        $creatorVersion = [string]$legacyProject.version
+    }
+}
+
 $assetsDir = Join-Path $root 'assets'
 if (-not (Test-Path $assetsDir -PathType Container) -or [string]::IsNullOrWhiteSpace($creatorVersion)) {
     throw "Not a Cocos Creator project root: $root"
 }
+
+$creatorMajor = 0
+if ($creatorVersion -match '^(\d+)') { $creatorMajor = [int]$Matches[1] }
+if ($creatorMajor -eq 0) { $blockers.Add('unreadable-creator-version') }
+# The editor MCP extension requires Creator 3.8+, so a 2.x project has no MCP phase.
+$supportsMcp = ($creatorMajor -ge 3)
 
 $projectSettingsPath = Join-Path $root 'settings\v2\packages\project.json'
 $builderSettingsPath = Join-Path $root 'settings\v2\packages\builder.json'
@@ -113,7 +129,7 @@ if ($stagedPaths.Count -gt 0) { $blockers.Add('non-empty-staged-index') }
 
 # --- funplay-cocos-mcp -------------------------------------------------------
 $mcpConfigPath = Join-Path $root 'funplay-cocos-mcp.config.json'
-$mcpConfig = Read-JsonFile $mcpConfigPath 'cocos-mcp-config'
+$mcpConfig = if ($supportsMcp) { Read-JsonFile $mcpConfigPath 'cocos-mcp-config' } else { $null }
 $mcpHost = '127.0.0.1'
 $mcpPort = 0
 $toolProfile = ''
@@ -151,7 +167,7 @@ if (-not $mcpExtensionPath) { $mcpExtensionVersion = '' }
 # extension running. Never launch the editor to make this true.
 $mcpReachable = $false
 $mcpToolCount = 0
-if ($mcpPort -gt 0) {
+if ($supportsMcp -and $mcpPort -gt 0) {
     try {
         $uri = "http://${mcpHost}:${mcpPort}/health"
         $response = Invoke-WebRequest -Uri $uri -TimeoutSec ([Math]::Max(1, [int][Math]::Ceiling($HealthTimeoutMs / 1000))) -UseBasicParsing -ErrorAction Stop
@@ -167,6 +183,38 @@ if ($mcpPort -gt 0) {
             }
         } catch { $mcpToolCount = 0 }
     }
+}
+
+# --- project-local editor extensions ------------------------------------------
+# Reported so `setup-cocos-extensions` and `setup-cocos-mcp` can classify without
+# re-walking the project. Versions come from each extension's own package.json.
+$managedExtensions = @('dev-tools', 'minigame-pack', 'funplay-cocos-mcp')
+$extensionState = New-Object 'System.Collections.Generic.List[object]'
+foreach ($name in $managedExtensions) {
+    $installedPath = ''
+    $installedVersion = ''
+    foreach ($candidate in $extensionRoots) {
+        $folder = $candidate.Substring('extensions/'.Length)
+        $packagePath = Join-Path $root ($candidate.Replace('/', '\') + '\package.json')
+        $extensionPackage = Read-JsonFile $packagePath 'extension-package'
+        $declaredName = ''
+        if ($null -ne $extensionPackage -and (Has-Prop $extensionPackage 'name')) {
+            $declaredName = [string]$extensionPackage.name
+        }
+        if ($declaredName -eq $name -or $folder -eq $name) {
+            $installedPath = $candidate
+            if ($null -ne $extensionPackage -and (Has-Prop $extensionPackage 'version')) {
+                $installedVersion = [string]$extensionPackage.version
+            }
+            break
+        }
+    }
+    $extensionState.Add([pscustomobject][ordered]@{
+        name      = $name
+        installed = [bool]$installedPath
+        path      = $installedPath
+        version   = $installedVersion
+    })
 }
 
 # --- checkpoint --------------------------------------------------------------
@@ -213,26 +261,37 @@ if ($checkpointReusable -and $checkpointPhase) {
         default { $recommendedPhase = 'phase-a' }
     }
 }
+if (-not $supportsMcp -and $recommendedPhase -eq 'await-editor-open') {
+    # Nothing live to wait for without the MCP extension; editor-closed work is all
+    # a Creator 2.x project needs.
+    $recommendedPhase = 'phase-a'
+}
 if ($blockers.Count -gt 0) { $recommendedPhase = 'ambiguous' }
 
 $parallelSafe = ($blockers.Count -eq 0)
 $status = if ($blockers.Count -gt 0) { 'blocked' } else { 'ready' }
-$mcpConfigReported = if (Test-Path $mcpConfigPath -PathType Leaf) { Normalize-Path $mcpConfigPath } else { '' }
+# Reported only for the line that can actually use it; a stray config left by a
+# copied bundle must not look like a live MCP setup in a 2.x project.
+$mcpConfigReported = if ($supportsMcp -and (Test-Path $mcpConfigPath -PathType Leaf)) { Normalize-Path $mcpConfigPath } else { '' }
 $parallelLanes = @('tool-source-audit', 'cocos-mcp-source-audit', 'project-gate-audit')
 
 $projectInfo = [pscustomobject][ordered]@{
     root                 = $root
     engine               = 'cocos'
     creator_version      = $creatorVersion
+    creator_major        = $creatorMajor
     package_json_sha256  = $packageSha
     settings_sha256      = $settingsSha
     has_tsconfig         = (Test-Path $tsconfigPath -PathType Leaf)
     has_builder_settings = (Test-Path $builderSettingsPath -PathType Leaf)
     bundles              = $bundles.ToArray()
     extensions           = @($extensionRoots)
+    managed_extensions   = $extensionState.ToArray()
 }
 
 $engineInfo = [pscustomobject][ordered]@{
+    creator_major           = $creatorMajor
+    supports_mcp            = $supportsMcp
     editor_imported_project = $editorImported
     editor_reachable        = $mcpReachable
 }
@@ -247,6 +306,7 @@ $cocosMcpInfo = [pscustomobject][ordered]@{
     safety_checks     = $safetyChecks
     reachable         = $mcpReachable
     tool_count        = $mcpToolCount
+    applicable        = $supportsMcp
 }
 
 $gitInfo = [pscustomobject][ordered]@{

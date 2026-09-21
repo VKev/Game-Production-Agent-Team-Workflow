@@ -1,0 +1,38 @@
+{
+  "package_version": 2,
+  "name": "minigame-pack",
+  "version": "1.0.0",
+  "title": "Mini-game Pack",
+  "description": "Gộp JSON + đóng gói lại subpackage cho build mini-game (giảm số file trong gói).",
+  "author": "oc-vit-cang-cuc",
+  "main": "browser.js",
+  "editor": ">=3.8.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "contributions": {
+    "builder": "./hooks.js",
+    "menu": [
+      {
+        "path": "Build nhanh",
+        "label": "📦 Build WeChat (ít file)",
+        "message": "build-wechat"
+      },
+      {
+        "path": "Build nhanh",
+        "label": "📦 Build Douyin/TikTok (ít file)",
+        "message": "build-bytedance"
+      },
+      {
+        "path": "Build nhanh",
+        "label": "Đóng gói lại thư mục build mini-game…",
+        "message": "pack-existing"
+      }
+    ],
+    "messages": {
+      "build-wechat": { "methods": ["buildWechat"] },
+      "build-bytedance": { "methods": ["buildBytedance"] },
+      "pack-existing": { "methods": ["packExisting"] }
+    }
+  }
+}

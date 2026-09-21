@@ -1,0 +1,85 @@
+{
+  "package_version": 2,
+  "name": "dev-tools",
+  "version": "1.0.0",
+  "title": "Dev nhanh",
+  "description": "Bộ công cụ dev: xoá cache Editor/build/cấu hình, xoá save game, refresh asset, mở preview.",
+  "author": "oc-vit-cang-cuc",
+  "main": "browser.js",
+  "editor": ">=3.8.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "contributions": {
+    "menu": [
+      {
+        "path": "Dev nhanh",
+        "label": "📊 Xem dung lượng cache",
+        "message": "cache-report"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "🧹 Xoá cache Editor (library + temp)…",
+        "message": "clear-editor-cache"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "📦 Xoá thư mục build…",
+        "message": "clear-build"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "⚙️ Xoá cấu hình cục bộ (profiles + local)…",
+        "message": "clear-local-config"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "🔥 Xoá cache Editor + cấu hình… (KHÔNG đụng build)",
+        "message": "clear-all"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "💾 Xoá save game (localStorage)…",
+        "message": "clear-save"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "🎮 Bảng lệnh Dev cho Game Design…",
+        "message": "design-cheatsheet"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "🔄 Refresh assets",
+        "message": "refresh-assets"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "🌐 Mở bảng Dev trong trình duyệt",
+        "message": "open-dev-page"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "▶️ Mở game preview trong trình duyệt",
+        "message": "open-preview"
+      },
+      {
+        "path": "Dev nhanh",
+        "label": "📂 Mở thư mục project",
+        "message": "open-project-dir"
+      }
+    ],
+    "messages": {
+      "cache-report": { "methods": ["cacheReport"] },
+      "clear-editor-cache": { "methods": ["clearEditorCache"] },
+      "clear-build": { "methods": ["clearBuild"] },
+      "clear-local-config": { "methods": ["clearLocalConfig"] },
+      "clear-all": { "methods": ["clearAll"] },
+      "clear-save": { "methods": ["clearSave"] },
+      "design-cheatsheet": { "methods": ["designCheatsheet"] },
+      "refresh-assets": { "methods": ["refreshAssets"] },
+      "open-dev-page": { "methods": ["openDevPage"] },
+      "open-preview": { "methods": ["openPreview"] },
+      "open-project-dir": { "methods": ["openProjectDir"] }
+    }
+  }
+}

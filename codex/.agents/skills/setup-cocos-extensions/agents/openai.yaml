@@ -1,0 +1,4 @@
+interface:
+  display_name: "Set Up Cocos Extensions"
+  short_description: "Install the vendored dev-tools and minigame-pack editor extensions"
+  default_prompt: "Use $setup-cocos-extensions to install the project-local Cocos editor extensions this package vendors."
