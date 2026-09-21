@@ -153,6 +153,50 @@ nhanh nhất. Game nhiều prefab đều nhau thì viết script sinh — và **
 đây** việc giữ prefab hay chuyển sang JSON compact + builder runtime, vì để tới
 GĐ6 mới quyết là phải làm lại (xem bảng "ba quyết định chốt sớm" trong `SKILL.md`).
 
+## Code recover VÁ ĐÈ prototype của engine → Editor tự làm bẩn scene
+
+Game Trung Quốc rất hay vá đè lifecycle của component engine ở tầng module:
+
+```js
+cc.Label.prototype.onLoad  = function () { … this.lineHeight += 20; … };
+cc.Sprite.prototype.onLoad = function () { this.node.opacity = 0; loadBundle('local', …); };
+```
+
+Hai hậu quả, cả hai đều đã dính:
+
+**1. Nó chạy trong EDITOR.** `cc.Sprite`/`cc.Label` là `executeInEditMode`, nên
+mở scene trong Editor là các hàm này chạy thật — và chúng **ghi thẳng vào
+component**. Editor thấy scene "đã đổi" và **lưu giá trị rác vào `.fire`**:
+node logo bị ghim `_opacity: 0`, label bị `lineHeight += 20` mỗi lần mở. Git
+sẽ báo scene thay đổi mà không ai đụng tới nó.
+
+**2. Trong Editor không có bundle.** Engine 2.4 **luôn** tải kèm
+`assets/<bundle>/index.js` khi `loadBundle` (xem `downloader.js`), mà file đó
+không tồn tại trong Editor ⇒ mỗi lần mở scene là một dòng
+`Load assets/local/index.js failed!`, và nếu callback không kiểm null thì thêm
+`TypeError: Cannot read property 'load' of null`.
+
+Cách xử lý — **chặn bằng `CC_EDITOR`, giữ nguyên phần của engine**:
+
+```js
+cc.Sprite.prototype.onLoad = function () {
+  if (CC_EDITOR) return;                      // toàn bộ thân hàm là chuyện runtime
+  …
+};
+cc.Label.prototype.onLoad = function () {
+  // giữ nguyên phần engine (cacheMode…), chỉ bọc phần localization
+  …engine…;
+  !CC_EDITOR && (window.LanguageLabel[this.node.uuid] = this, …);
+};
+```
+
+`CC_EDITOR` là global có sẵn ở cả Editor lẫn bản build (`CC_EDITOR=!1`), dùng
+được trực tiếp. Preview (`CC_PREVIEW`) vẫn chạy bình thường.
+
+⚠ Sau khi vá, **kiểm lại `.fire` xem đã bị bẩn từ trước chưa** — `_opacity: 0`
+trên node đáng lẽ hiện, `lineHeight` lệch `fontSize` đúng 20. Sửa tay, vì bản
+vá chỉ chặn lần sau chứ không hoàn tác lần trước.
+
 ## Kiểm trung gian trong lúc làm
 
 Ba việc này **không thay được cổng ra** (cổng ra là người dùng chơi thử), nhưng

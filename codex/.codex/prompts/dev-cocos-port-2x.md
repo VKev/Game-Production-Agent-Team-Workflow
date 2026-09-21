@@ -3,7 +3,7 @@ description: Tái dựng bản build Cocos 2.x thành project Cocos Creator 2.4.
 argument-hint: [thư mục build/mirror, vd "./mirror-abc" hoặc "."]
 ---
 
-Dùng skill `dev-cocos-port-2x` cho bản build sau:
+Dùng Skill tool với `skill: "dev-cocos-port-2x"` cho bản build sau:
 
 $ARGUMENTS
 
@@ -35,6 +35,18 @@ Cổng người: user phải chơi được bản gốc ở local trước khi k
 2. Quảng cáo giả — mọi chỗ xem quảng cáo nhận thưởng đều trao thưởng ngay
 3. Comment tiếng Anh, ngắn gọn; chuỗi hiển thị giữ nguyên văn, không dịch
 4. Tương thích Android/iOS: resolution policy, audio sau user gesture, safe area
+
+## Nếu đích là mini-game (TikTok / Douyin / WeChat)
+
+Chạy thêm GĐ5 — `references/minigame-platform.md`. Runtime đó **không phải trình
+duyệt**: DOM giả, thiếu `URLSearchParams`/`URL`/`fetch`/`Event`, có trần dung
+lượng cứng, và có khâu đóng gói riêng. Nhóm lỗi này **không tái hiện được trong
+simulator của IDE** và thường chỉ hiện trên **một** hệ điều hành.
+
+User báo "iOS chạy mà Android không mở được" (hoặc ngược lại), hoặc nền tảng báo
+không mở được mà **không có log** → đi thẳng vào reference đó, đừng đoán. Kiểm
+bằng `check-minigame-package.js` + `check-minigame-globals.js` (chạy **sau** khi
+Build) rồi nén bằng `zip-minigame.js`.
 
 ## Báo lại cho user
 

@@ -8,7 +8,11 @@ description: >-
   "lấy source game này ra". Bao gồm: cổng thẩm định khả thi CẢNH BÁO SỚM (chấm
   obfuscation L0–L4, NO-GO khi code đã mất), recon bằng phân tích tĩnh + runtime,
   bóc asset, dựng project, và lớp runtime bắt buộc — API mock toàn bộ dữ liệu
-  giả, quảng cáo giả luôn trao thưởng, tương thích Android/iOS. KHÔNG dùng cho
+  giả, quảng cáo giả luôn trao thưởng, tương thích Android/iOS. Bao gồm cả khâu
+  ship lên nền tảng mini-game (TikTok/Douyin/WeChat): global trình duyệt mà
+  runtime không có, trần dung lượng gói, dọn `ccRequire.js`, hạ ES5, và nén .zip
+  đúng hình dạng — dùng khi game "chạy trên máy này mà không mở được trên máy
+  kia" hoặc nền tảng báo không mở được mà không có log. KHÔNG dùng cho
   build Cocos 3.x (dùng dev-cocos-port-3x) hay để nâng project 2.x lên 3.8
   (dùng dev-cocos-migrate-2x-to-3x).
 ---
@@ -129,9 +133,60 @@ cáo: [references/shims-and-mobile.md](references/shims-and-mobile.md).
    chạm đầu, HUD không chui vào tai thỏ.
 5. Console: `__apiMockReport()` không còn dòng `no fixture for`;
    `__fakeAdsReport()` cho thấy mọi chỗ quảng cáo đều đã được trao thưởng.
+6. Bấm **từng** chỗ có quảng cáo và xác nhận phần thưởng **vào thật**. Log đẹp
+   không đủ: quảng cáo hay có hai tầng, tầng ngoài vẫn in đủ
+   `adViewed → adBreakDone{viewed}` trong khi tầng trong mới là chỗ treo —
+   §2.1 của [references/shims-and-mobile.md](references/shims-and-mobile.md).
 
 ⛔ **Cổng người:** người dùng chơi thử project 2.4.x và xác nhận gameplay đúng
 như bản gốc. Chưa qua cổng này thì **không** chạy `/dev-cocos-migrate-2x-to-3x`.
+
+## GĐ5 — Ship lên nền tảng mini-game (TikTok / Douyin / WeChat)
+
+**Chỉ chạy khi đích đến không phải web-mobile.** Đọc
+[references/minigame-platform.md](references/minigame-platform.md) — toàn bộ nội
+dung trong đó là lỗi **đã gặp thật** trong một lần port, không phải phòng xa.
+
+Runtime mini-game khác trình duyệt theo kiểu **im lặng**: DOM là đồ giả, thiếu
+một loạt global (`URLSearchParams`, `URL`, `fetch`, `Event`…), có trần dung lượng
+cứng, và có một khâu đóng gói riêng. Triệu chứng chung của gần hết nhóm này:
+**màn hình đứng, hoặc nền tảng báo không mở được, KHÔNG một dòng log nào**.
+
+Ba điều nói TRƯỚC với người dùng, để họ không mất niềm tin giữa chừng:
+
+- **Các lỗi ở đây xếp hàng, không đứng một mình.** Một ca thật đi qua bốn lỗi
+  nối đuôi nhau, mỗi lỗi chỉ lộ ra sau khi lỗi trước được sửa. Hãy hẹn nhiều
+  vòng build ngay từ đầu.
+- **Phải có log vConsole trên chính máy hỏng.** Không có log thì mọi kết luận
+  chỉ là phỏng đoán — và trong nhóm này phỏng đoán gần như luôn sai, vì bản
+  trình duyệt và giả lập IDE **không** chạy cùng nhánh code.
+- **iOS chạy không có nghĩa Android chạy.** Chúng khác cả JS engine
+  (JavaScriptCore vs V8) lẫn tính năng nền tảng (native physics chỉ có trên
+  Android). Test riêng từng hệ, đừng suy ra.
+
+Nguy hiểm nhất: **nó không tái hiện được trong simulator của IDE** — devtools
+chạy trên Chromium thật nên adapter chỉ điền vào chỗ thiếu, DOM thật vẫn thắng.
+Chỉ máy thật mới bày ra, và thường là **chỉ một hệ điều hành** (global WHATWG có
+sẵn trong ngữ cảnh WebKit, không có trên V8 trần → "iOS chạy, Android không").
+
+Nên: **kiểm bản build bằng script tĩnh, đừng tin "chạy ngon trong simulator".**
+
+```bash
+node <skills-dir>/dev-cocos-port-2x/scripts/check-minigame-package.js <build-dir>
+node <skills-dir>/dev-cocos-port-2x/scripts/check-minigame-globals.js <build-dir> <assets-dir>
+node <skills-dir>/dev-cocos-port-2x/scripts/zip-minigame.js <build-dir> [out.zip] [assets-dir]
+```
+
+⚠ `check-minigame-globals.js` phải chạy **SAU khi Build**: script trong
+`assets/Script/` được gộp vào `assets/main/index.js`, nên sửa source mà quên bấm
+Build thì gói vẫn mang code cũ. Script quét cả bundle đã build chính vì vậy.
+
+⛔ **Cổng:** cả ba script exit 0, giải nén lại `diff -r` khớp từng byte với thư
+mục build, và game chạy được khi **rút mạng**.
+
+Khi gói đã sạch mà nền tảng vẫn không mở được: phần còn lại nằm ở console/tài
+khoản (test user list, region, version đang mở) — xem PHẦN 3 của reference. Đừng
+soi tiếp source, lỗi tầng host không để lại dấu vết nào trong đó.
 
 ## Luật vàng
 
@@ -155,6 +210,9 @@ như bản gốc. Chưa qua cổng này thì **không** chạy `/dev-cocos-migra
 | `split-bundle-modules.mjs` | Tách bundle browserify 2.x thành từng module (thân giữ nguyên văn) |
 | `extract-cocos24-assets.py` | Bóc asset khỏi bundle 2.4 (SpriteFrame, Spine, particle, audio) |
 | `cdp.py` | Toolkit CDP: eval / screenshot / tap / diag render — chạy game thật headless |
+| `check-minigame-package.js` | GĐ5. Trần dung lượng (gói chính / subpackage / tổng), `require()` chết ở tầng gói, cú pháp ES6 còn sót trong `game.js`/`main.js`/`ccRequire.js` |
+| `check-minigame-globals.js` | GĐ5. Global trình duyệt mà adapter không dựng — quét **cả source lẫn bundle đã build**. Danh sách "adapter có gì" đọc thẳng từ `adapter-min.js` |
+| `zip-minigame.js` | GĐ5. Chạy hai cổng trên rồi nén: nội dung ở **gốc archive**, luôn `/`, rồi đọc lại chính file vừa tạo để kiểm |
 
 Babel đã vendor sẵn trong `scripts/node_modules` — **không cần `npm i`**.
 
