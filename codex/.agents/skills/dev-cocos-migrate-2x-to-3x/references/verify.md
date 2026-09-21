@@ -13,7 +13,7 @@ Giai đoạn này biến mọi khẳng định thành số đo lấy từ một 
 | Tầng | Cách chạy | Trả lời được | Không trả lời được |
 |---|---|---|---|
 | **Editor preview** | MCP: `run_project_preview`, `capture_preview_screenshot`, `get_runtime_state`, `get_recent_logs` | logic gameplay, UI, wiring | mọi thứ liên quan build/bundle/dung lượng |
-| **Bản build + Chrome headless (CDP)** | `scripts/cdp.py` | resolution policy, camera, bundle load, thứ tự init thật | API riêng của nền tảng (`wx.*`, `tt.*`) |
+| **Bản build + Chrome headless (CDP)** | `cdp.py` (đường dẫn bên dưới) | resolution policy, camera, bundle load, thứ tự init thật | API riêng của nền tảng (`wx.*`, `tt.*`) |
 | **Devtools nền tảng / thiết bị thật** | WeChat/Douyin devtools | subpackage, quyền, ad, IAP, hiệu năng thật | — |
 
 Nguyên tắc: **bug chỉ xuất hiện ở tầng dưới thì phải bắt ở tầng dưới.** Rất
@@ -28,17 +28,22 @@ qua HTTP server cục bộ (bản web Cocos **không** mở được bằng `fil
 `cdp.py --serve` có server tích hợp, đã trả đúng MIME `.wasm` và
 `Content-Encoding` cho file nén sẵn `.br`/`.gz`, nhưng **không hỗ trợ HTTP
 Range**. Nếu bản build cần Range (audio seek, asset lớn) thì chạy
-`serve-local.py` rồi trỏ `cdp.py --url` vào đó thay vì dùng `--serve`.
+`serve-local.py` (cùng thư mục `scripts/`) rồi trỏ `cdp.py --url` vào đó thay vì
+dùng `--serve`.
+
+`CDP=<skills-dir>/dev-cocos-migrate-2x-to-3x/scripts/cdp.py`, và `<build-dir>` là
+thư mục build thật mà probe ở GĐ1 báo (`build/web-mobile`, `build/bytedance`… tuỳ
+project):
 
 ```bash
 # chụp + dump chẩn đoán render của một bản build
-python3 scripts/cdp.py diag --serve build/web-mobile --out diag1 --w 1600 --h 757
+python3 $CDP diag --serve <build-dir> --out diag1 --w 1600 --h 757
 
 # chạy preview của Editor, bấm vào toạ độ, chụp lại
-python3 scripts/cdp.py play --url http://localhost:7456 --tap 375,900 --wait 6 --out run1
+python3 $CDP play --url http://localhost:7456 --tap 375,900 --wait 6 --out run1
 
 # chạy một biểu thức JS trong game đang chạy và in kết quả
-python3 scripts/cdp.py eval --url http://localhost:7456 \
+python3 $CDP eval --url http://localhost:7456 \
         --expr "return cc.director.getScene().children.map(n=>n.name)"
 ```
 
@@ -63,10 +68,10 @@ designResolution, visibleSize, scaleX/Y, viewportRect, canvas px, và mọi Came
 
 ## 4. So với bản gốc (A/B) — cách bắt sai lệch rẻ nhất
 
-Bạn có **hai** bản 2.x chạy được để đối chiếu: bản mirror gốc (GĐ1) và **project
-2.4.x đã tự dựng (GĐ2)**. Bản GĐ2 là bản so quan trọng hơn — nó cùng cấu trúc
-node với bản 3.x nên diff có nghĩa từng dòng. Chạy **cùng một màn** trên cả hai,
-dump cùng một bộ chỉ số, rồi diff.
+Bản so chuẩn là **chính project 2.x đầu vào** — nó cùng cấu trúc node với bản
+3.x nên diff có nghĩa từng dòng. (Project đi qua `dev-cocos-port-2x` thì còn bản
+mirror gốc để so thêm, nhưng bản project mới là bản đáng so.) Chạy **cùng một
+màn** trên cả hai, dump cùng một bộ chỉ số, rồi diff.
 
 ```js
 // dump so sánh được — chạy trên CẢ 2 bản

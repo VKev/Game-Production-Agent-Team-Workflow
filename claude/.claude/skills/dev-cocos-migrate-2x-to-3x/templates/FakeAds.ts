@@ -4,7 +4,13 @@
 // never fires its close callback, so "watch ad -> get reward" dies there.
 //
 // Setup: copy <mirror>/api-mock/client/fake-ads-client.js into
-// assets/scripts/vendor/, then route every ad call through this class.
+// <script-root>/vendor/ (the project's real script root — see
+// scripts/probe-cocos-layout.js), then route every ad call through this class.
+//
+// Watch for the second ad layer: a publisher SDK often calls the platform's own
+// showRewardAds() after ITS callback succeeds, and that inner call is what hangs
+// on cc.game.pause(). Replacing the host factory (tt/wx.createRewardedVideoAd)
+// covers both layers — see dev-cocos-port-2x/references/shims-and-mobile.md.
 
 import './vendor/fake-ads-client'; // side effect: defines globalThis.FakeAds
 

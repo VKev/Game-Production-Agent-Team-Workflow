@@ -43,8 +43,9 @@ import { view, ResolutionPolicy } from 'cc';
 view.setDesignResolutionSize(designW, designH, policy);
 ```
 
-**Phát hiện sớm.** `python3 scripts/cdp.py diag --serve build/... --w 1600 --h 757`
-→ so `design` với `visible`; policy sai thì `visible` khác hẳn `design`.
+**Phát hiện sớm.** `python3 <skills-dir>/dev-cocos-migrate-2x-to-3x/scripts/cdp.py
+diag --serve <build-dir> --w 1600 --h 757` → so `design` với `visible`; policy sai
+thì `visible` khác hẳn `design`.
 
 ## §3. Widget stretch bake offset âm → layer phình 🔇
 
@@ -72,7 +73,7 @@ hàng chục đơn vị: người chơi bấm đúng vào vật mà game nhận 
 → Sửa: cắt `camera.rect` đúng tỉ lệ thiết kế (letterbox thật) và đảm bảo
 `viewportRect` khớp.
 
-**Phát hiện sớm.** `scripts/cdp.py diag` in thẳng `viewportRect` + `rect` của mọi
+**Phát hiện sớm.** `cdp.py diag` in thẳng `viewportRect` + `rect` của mọi
 camera + `clearsColor`. Muốn đo lệch thật: lấy world position của một vật, dùng
 `camera.worldToScreen`, quy về `getUILocation`, so với world position ban đầu —
 lệch > bán kính hitbox là hỏng.
@@ -164,12 +165,10 @@ mắt.
 
 ## §11. Font mất glyph sau khi bóc/đóng lại asset 🔇
 
-Skill này **không dịch** (Luật vàng #7), nên ba bẫy localize kinh điển không áp
-dụng — chúng nằm ở `text-language-en.md` (phụ lục, mặc định TẮT), đọc khi nào có
-dự án localize riêng.
+Skill này **không dịch**, nên ba bẫy localize kinh điển không áp dụng.
 
 Còn lại một bẫy vẫn áp dụng: **BMFont/atlas chữ bị thiếu glyph sau khi đi qua
-bước bóc asset ở GĐ1 rồi import lại vào 3.8.** Ảnh font ra đúng kích thước nhưng
+bước bóc asset rồi import lại vào 3.8.** Ảnh font ra đúng kích thước nhưng
 thiếu ký tự, hoặc file `.fnt`/`.json` metric lệch → chữ ra **ô trống hoặc mất
 hẳn**, console im lặng.
 

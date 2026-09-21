@@ -1,6 +1,7 @@
-# GĐ3 — Port script: Cocos 2.4.x (JS) → 3.8.x (TypeScript)
+# GĐ2 — Port script: Cocos 2.4.x (JS) → 3.8.x (TypeScript)
 
-Chuyển từng `assets/scripts/*.js` (2.x) sang `*.ts` (3.8.x). **Giữ nguyên tên
+Chuyển từng `.js` (2.x) trong `<script-root>` sang `.ts` (3.8.x) — `<script-root>`
+là giá trị probe đo được ở GĐ1, không phải một tên thư mục cố định. **Giữ nguyên tên
 file, tên class, và mọi logic/side-effect. Chỉ đổi API + cú pháp.**
 
 ⛔ **Cổng ra:** toàn bộ `.ts` **compile sạch** trong 3.8.x. Chưa cần chạy đúng

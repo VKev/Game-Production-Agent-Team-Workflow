@@ -1,4 +1,4 @@
-# GĐ4 — Dựng lại scene & prefab
+# GĐ3 — Dựng lại scene & prefab
 
 Script đã compile sạch nhưng chưa có gì để chạy: scene, prefab, và **wiring**
 (node nào gắn component nào, `@property` trỏ vào đâu) vẫn là con số 0.
@@ -6,7 +6,7 @@ Script đã compile sạch nhưng chưa có gì để chạy: scene, prefab, và
 ⛔ **Cổng ra:** `validate_scene` + `validate_prefab_references` → **0 broken ref**,
 và scene mở được trong Editor không văng lỗi.
 
-> **Nạp skill `cocos-mcp` trước khi bắt đầu giai đoạn này.** Nó là luật vận hành
+> **Nạp skill `dev-cocos-mcp` trước khi bắt đầu giai đoạn này.** Nó là luật vận hành
 > Editor qua MCP (tool nào cho việc gì, vòng đời read → mutate → save → validate).
 
 ---
@@ -31,13 +31,15 @@ Prefab dựng tay **luôn** lệch ở những chỗ không nhìn thấy: `conte
 `anchorPoint`, `group` collider, `layer` render, opacity, màu.
 
 Nguồn đúng, theo thứ tự:
-1. **Project 2.4.x đã chạy được ở GĐ2** — mở trong Editor 2.4.14 rồi `inspect`
-   node/prefab tương ứng. Đây là nguồn tốt nhất: nó là dữ liệu thật trong một
-   Editor thật, không phải dump.
-2. `runtime-scene-component-state.json` (GĐ1 bước 4) — giá trị **thật lúc chạy**.
-   Dùng cho prefab không xuất hiện trong scene nào của project 2.x.
-3. File `import/*.json` đã decode trong bundle gốc — dạng compact của
-   prefab 2.x, đọc được bằng mắt sau khi format.
+1. **Project 2.x đầu vào** — mở trong Editor 2.4.x rồi `inspect` node/prefab
+   tương ứng. Đây là nguồn tốt nhất: nó là dữ liệu thật trong một Editor thật,
+   không phải dump.
+2. Dump state lúc chạy của bản 2.x (`runtime-scene-component-state.json` nếu
+   project đi qua `dev-cocos-port-2x`) — giá trị **thật lúc chạy**. Dùng cho
+   prefab không xuất hiện trong scene nào.
+3. File `.prefab`/`.fire` của chính project 2.x — đọc được bằng mắt sau khi
+   format. `.fire` **không** có công cụ nào parse hộ (xem
+   `dev-cocos-project-context`), nên đây là đọc tay.
 
 Đừng dùng nguồn 4 = "nhìn screenshot rồi ước lượng". Ước lượng sai 5 px thì
 layout lệch dồn, và bạn sẽ mất buổi chiều để tìm.
@@ -48,8 +50,8 @@ khác".
 
 ## Thứ tự dựng
 
-1. **Scene rỗng + Canvas + camera** đúng designResolution của bản gốc
-   (lấy từ `runtime-api.json`). Sai bước này thì mọi toạ độ sau đều sai.
+1. **Scene rỗng + Canvas + camera** đúng designResolution của bản gốc (probe ở
+   GĐ1 đọc từ `settings/` của project 2.x). Sai bước này thì mọi toạ độ sau đều sai.
 2. **Prefab lá trước, prefab gộp sau.** Prefab UI/gameplay nhỏ (item, ô, nút)
    → prefab layer → scene. Ngược lại thì phải sửa lại nhiều lần.
 3. **Wiring `@property`** — gán reference sau khi cả node lẫn component đã tồn tại.
@@ -79,8 +81,13 @@ Và soát 3 thứ hay sai âm thầm (chi tiết ở `pitfalls.md`):
 Dựng tay từng cái không khả thi. Hai hướng, chọn theo bản chất dữ liệu:
 
 **(a) Sinh prefab bằng script chạy trong Editor.** Viết một component
-`@executeInEditMode` đọc dữ liệu đã export ở GĐ1 rồi dựng cây node + gọi API
+`@executeInEditMode` đọc dữ liệu đã export từ bản 2.x rồi dựng cây node + gọi API
 lưu prefab. Ưu điểm: engine tự lo serialize.
+
+⚠ Component `@executeInEditMode` **chạy thật trong Editor và ghi thẳng vào
+scene** — mở scene một lần là Editor lưu giá trị nó sinh ra vào `.scene`. Chặn
+bằng `EDITOR` từ `cc/env` cho mọi nhánh chỉ dành cho runtime; cùng một cơ chế đã
+làm bẩn `.fire` ở bản 2.x (`dev-cocos-port-2x/references/rebuild-2x.md`).
 
 **(b) Bỏ prefab, dựng runtime từ dữ liệu.** Nếu cấu trúc **rất đều** (ví dụ:
 level = layer → board → hole), thì đừng lưu 90 prefab; lưu **JSON compact** +

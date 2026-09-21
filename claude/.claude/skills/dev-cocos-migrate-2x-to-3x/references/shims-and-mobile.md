@@ -1,4 +1,4 @@
-# Lớp runtime bắt buộc — API mock, quảng cáo giả, Android/iOS (Cocos 3.8.x)
+# GĐ4 — Lớp runtime bắt buộc: API mock, quảng cáo giả, Android/iOS (Cocos 3.8.x)
 
 Ba thứ này quyết định project có **chạy được ngoài đời** hay chỉ mở được trong
 Editor. Làm ngay khi project 3.8.x bắt đầu boot được, đừng để tới cuối.
@@ -7,12 +7,29 @@ Editor. Làm ngay khi project 3.8.x bắt đầu boot được, đừng để t�
 
 ### Nối vào project
 
+`<script-root>` và `<resources-root>` dưới đây là **giá trị probe đo được ở GĐ1**
+([project-layout.md](project-layout.md)), không phải tên thư mục cố định:
+
 ```text
-<mirror>/api-mock/client/api-mock-client.js  → assets/scripts/vendor/
-<mirror>/api-mock/client/fake-ads-client.js  → assets/scripts/vendor/
-<mirror>/api-mock/index.inline.json          → assets/resources/apimock/index.inline.json
-templates/ApiMock.ts                         → assets/scripts/mock/ApiMock.ts
+<mirror>/api-mock/client/api-mock-client.js  → <script-root>/vendor/
+<mirror>/api-mock/client/fake-ads-client.js  → <script-root>/vendor/
+<mirror>/api-mock/index.inline.json          → <resources-root>/apimock/index.inline.json
+templates/ApiMock.ts                         → <script-root>/mock/ApiMock.ts
 ```
+
+`<script-root>` phải thuộc **bundle nạp lúc boot**. Đặt lớp mock trong một
+subpackage tải sau thì nó vá `fetch` sau khi game đã gọi API — lỗi hiện ra dưới
+dạng "thỉnh thoảng mất mạng là đứng", không tái hiện đều.
+
+Không có `<resources-root>` (probe báo rỗng) thì **đừng tạo `resources/` chỉ để
+cho khớp ví dụ trên** — nhúng fixture vào một bundle rồi trỏ template vào đó:
+
+```ts
+ApiMock.bundle = '<bundle>';               // tên bundle, không phải đường dẫn
+ApiMock.fixturePath = 'apimock/index.inline';
+```
+
+Template tự `loadBundle` nếu bundle chưa nạp.
 
 Gắn `ApiMock` vào một node trong **scene đầu tiên**. Template đã có
 `@executionOrder(-10000)` — **giữ nguyên số đó**, đừng hạ.
@@ -56,6 +73,21 @@ Thay mọi lời gọi SDK bằng `FakeAds`. Giữ nhánh trao thưởng, bỏ n
 
 Kiểm bằng `__fakeAdsReport()`. Người chơi bấm "xem quảng cáo" mà bảng không có
 dòng mới → chỗ đó vẫn gọi SDK thật, chưa thay.
+
+### Ba thứ hay bị làm hụt — cơ chế giống hệt 2.x
+
+Cả ba đã mất công thật trên máy thật, và cơ chế không đổi giữa hai line engine,
+chỉ khác cú pháp. Đọc `dev-cocos-port-2x/references/shims-and-mobile.md`:
+
+| § ở port-2x | Bẫy |
+|---|---|
+| §2.1 | **Quảng cáo có HAI tầng.** SDK publisher (VNG/4399/Ohayoo) gọi tiếp `platform.showRewardAds()` của nền tảng. Giả tầng ngoài thì log in đủ `adViewed → adBreakDone{viewed}` mà game vẫn treo ở `cc.game.pause()` — `resume()` chỉ nằm trong `onClose`. Người dùng báo "bấm quảng cáo là đứng", không phải "không được thưởng" |
+| §2.2 | **Thay factory của host** (`tt.createRewardedVideoAd = fake…`) thay vì viết lại lớp platform: luồng `pause → load → show → close → resume → trao thưởng` chạy nguyên vẹn. Ba bẫy trong hợp đồng: phải định nghĩa **kể cả khi host thiếu**, `show()` chỉ được đóng **một** lần, `onLoad` phải **bất đồng bộ** |
+| §2.3 | **Global của SDK bên thứ ba** (ThinkingAnalytics, UMeng, TalkingData) không theo sang khi port — chỉ file `.d.ts` theo sang, trông như đã có. `ReferenceError` trong constructor lớp platform **giết cả chuỗi khởi động**, log dừng ngay sau dòng `[platform]` |
+
+Tìm sớm, trước khi lên máy: `plan-port-waves.js` in danh sách `external` —
+require không tìm thấy file. Mỗi cái là một trong ba: thư viện phải copy, module
+chết, hoặc đúng cái global thứ ba này.
 
 ## 3. Android / iOS — bốn lỗi chiếm gần hết số ca
 

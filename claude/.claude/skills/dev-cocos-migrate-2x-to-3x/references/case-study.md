@@ -6,9 +6,9 @@
 > **biết một bước thật trông ra sao** — đừng áp giả định lên game khác.
 > Nếu bạn đang tìm `GbzGameManager` trong một dự án khác: dừng lại.
 
-Dự án gốc: `/Users/lap16952/Documents/workspace/oc-vit-cang-cuc-live/`
-(project 3.x ở `cocos-project-3x/`, script phân tích ở `analysis-tools/`,
-báo cáo đầy đủ ở `cocos-project-3x/docs/bao-cao-tai-dung.md`).
+Cách dự án đó xếp thư mục — project 3.x ở `cocos-project-3x/`, script phân tích ở
+`analysis-tools/`, báo cáo ở `cocos-project-3x/docs/` — là **của riêng nó**, không
+phải khuôn mẫu. Project của bạn đo bằng `probe-cocos-layout.js` (GĐ1).
 
 ---
 

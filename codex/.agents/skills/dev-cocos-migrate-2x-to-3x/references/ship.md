@@ -14,7 +14,7 @@ thay đổi đắt.
 Luật: **sau MỖI bước, chạy lại tập kiểm rẻ** —
 
 ```bash
-python3 scripts/cdp.py diag --serve build/web-mobile --out after-step-N
+python3 <skills-dir>/dev-cocos-migrate-2x-to-3x/scripts/cdp.py diag --serve <build-dir> --out after-step-N
 ```
 
 boot không lỗi đỏ + vào được scene đầu + `visible` khớp `design`. Chỉ chạy lại
@@ -24,13 +24,18 @@ full loop win/lose của GĐ5 **một lần ở cuối**, hoặc ngay khi tập 
 
 ## 1. Trần dung lượng (WeChat / Douyin mini-game)
 
-| Phần | Trần |
-|---|---|
-| Gói chính (main package) | **4 MB** |
-| Mỗi subpackage | **20 MB** |
-| Tổng (bao gồm remote/CDN) | thực tế không giới hạn nếu tải từ CDN |
+| Phần | WeChat | TikTok / Douyin |
+|---|---|---|
+| Gói chính (main package) | **4 MB** | **4 MB** |
+| Mỗi subpackage | **20 MB** | **4 MB** |
+| Tổng | phần còn lại tải từ CDN | **30 MB** (engine không phải Unity) |
 
-Đo bằng **kích thước thư mục build thật**, không phải kích thước `assets/`.
+⚠ **Trần subpackage khác nhau giữa hai nền tảng** — 20 MB của WeChat không áp cho
+TikTok. Tra lại trần của đúng nền tảng đích trước khi chia gói, đừng lấy bảng này
+làm căn cứ cuối.
+
+Đo bằng **kích thước thư mục build thật** (`<build-dir>` từ GĐ1), không phải kích
+thước `assets/`, và không bằng `du -sh`.
 
 ## 2. Thứ tự tối ưu (theo tỉ lệ lợi ích / rủi ro)
 
@@ -38,7 +43,7 @@ Làm theo thứ tự này; dừng khi đã đạt trần.
 
 ### ① Nén ảnh lossless — rẻ nhất, không rủi ro
 ```bash
-python3 scripts/optimize-images.py --assets <project>/assets      # mặc định LOSSLESS + verify pixel
+python3 <skills-dir>/dev-cocos-migrate-2x-to-3x/scripts/optimize-images.py --assets <PROJECT-3X>/<assets-root>
 ```
 Bản tái dựng gần như luôn lưu PNG ở RGBA 32-bit dù ảnh chỉ có ≤256 màu (asset đi
 qua bước crop/extract mất palette). `oxipng -o4 --strip safe` hạ color-type khi
@@ -98,14 +103,20 @@ Xem `pitfalls.md` §2–§5. Ba nhóm hay gặp nhất:
    `camera.rect` không khớp `view.getViewportRect()` làm **toạ độ chạm lệch toạ
    độ vẽ** (đo được tới hàng chục đơn vị) → người chơi bấm trượt.
 
-Kiểm nhanh cả ba: `python3 scripts/cdp.py diag --serve build/web-mobile`.
+Kiểm nhanh cả ba: `python3 <skills-dir>/dev-cocos-migrate-2x-to-3x/scripts/cdp.py diag --serve <build-dir>`.
+
+Đích là nền tảng mini-game thì đọc thêm
+`dev-cocos-port-2x/references/minigame-platform.md` — global trình duyệt mà
+runtime không dựng, hình dạng `.zip`, `subPackages` viết hoa chữ P, và `priority`
+của bundle quyết định asset nằm gói nào. Ba khác biệt của bản 3.x: platform id là
+**`bytedance-mini-game`** (2.x là `bytedance`), không có `ccRequire.js`, và SDK
+stub nằm trong `build-templates/<platform>/`. Phần build: `dev-cocos-build-minigame`.
 
 ## 4. Việc phát hành khác dễ quên
 
 - **Ngôn ngữ hiển thị: không có việc gì ở đây.** Skill này giữ nguyên văn mọi
-  chuỗi, không dịch — xem Luật vàng #7 trong `SKILL.md`. Nếu khách yêu cầu bản
-  tiếng Anh/đa ngôn ngữ thì đó là **một dự án riêng sau khi ship**, quy trình +
-  3 bẫy im lặng nằm ở `text-language-en.md` (phụ lục, mặc định TẮT).
+  chuỗi, không dịch. Nếu khách yêu cầu bản tiếng Anh/đa ngôn ngữ thì đó là **một
+  dự án riêng sau khi ship**, ngoài phạm vi skill này.
 - **Loại scene công cụ khỏi build** (editor-tool scene) và **chỉ định
   `startScene` bằng uuid** — builder mặc định rơi về scene index 0, rất hay là
   scene test.
