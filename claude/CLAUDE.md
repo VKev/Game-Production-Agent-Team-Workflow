@@ -1,8 +1,8 @@
 # Claude Code instructions
 
 Starter project instructions for the Claude bundle. Setup tools append their own
-marker-managed blocks to this file — Beads (`<!-- BEGIN BEADS INTEGRATION -->`),
-Serena, and Better Context Unity (`<!-- better-context-unity:begin -->`). Keep
+marker-managed blocks to this file — Beads (a `BEGIN BEADS INTEGRATION` HTML comment),
+Serena, and Better Context Unity (a `better-context-unity:begin` HTML comment). Keep
 handwritten guidance outside those markers; regeneration preserves it.
 
 This project also carries the Codex bundle (`AGENTS.md`, `.codex/`, `.agents/`)
