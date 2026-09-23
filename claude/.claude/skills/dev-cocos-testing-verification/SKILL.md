@@ -51,3 +51,41 @@ State exactly which gates ran and what they said. "Type check clean, 51 extensio
 - Never write test artifacts into the live project directory.
 - Never adjust a checker's threshold or allowlist to make a red gate green without saying why in the same change.
 - Never report a measurement without the command that produced it.
+
+
+## What the built-in gates are blind to
+
+`tsc --noEmit`, `validate_scene`, `validate_prefab_references` and
+`run_script_diagnostics` between them cover types and references. On a 2.x→3.8
+port the expensive bugs live in two layers none of them touch:
+
+- **asset import** — 9-slice `capInsets` and `trimType` are stored on the
+  sprite-frame `.meta`, not on the Sprite component. A re-import silently resets
+  them and every `SLICED` sprite renders stretched. The prefab data is correct, so
+  a prefab-level checker cannot see it.
+- **serialisation** — node `_layer`, `cc.PrefabInfo` linkage, `Label` defaults and
+  `Widget.alignMode` enum values are all plain fields nobody validates.
+
+So on a port, the real gate is a **data checker that compares the two projects**:
+dump the 2.x asset, dump the 3.x one, diff the fields that matter, and require
+zero differences you cannot explain. Examples that earned their keep:
+`contentSize` per node, prefab root position, Widget insets, spine animation names
+against the bound skeleton, and every cross-bundle import edge.
+
+## A checker that cannot fail is not a checker
+
+After writing one, **break the thing it guards on purpose** and confirm it goes
+red, then restore. This has already caught a checker that silently passed because
+the script meant to break the code matched `\n` while the file used CRLF, so it
+changed nothing and the "negative test" proved only that the file was unchanged.
+
+Verify the sabotage actually applied, not just that the test ran.
+
+## Prefer a test that can run outside the engine
+
+A module chain that does not import `cc` can be compiled to **real ESM** and
+evaluated in Node against a fake host — which is how an engine-boot-order bug can
+be reproduced in a second instead of on a device. It must be ESM: CommonJS
+evaluates in source order and hides exactly the hoisting bug you are hunting.
+
+Keep those chains free of `cc` imports on purpose; it is what makes them testable.

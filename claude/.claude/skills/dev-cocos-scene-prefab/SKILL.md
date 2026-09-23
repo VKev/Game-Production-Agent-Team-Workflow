@@ -57,3 +57,37 @@ The consequence: the binding between a scene and a script is the script's uuid, 
 - Never mass-edit serialized files with a regex; a `re.S`-style pattern silently spans thousands of lines and eats unrelated fields.
 - Never assume a clean `tsc` means the scene layer is intact — it cannot see any of it.
 - Never present a scene change as done without a validation call, and for visual work, a screenshot.
+
+
+## Traps paid for on a real port
+
+These all pass `validate_scene` **and** `validate_prefab_references`. Those gates
+check references; they are blind to the layer, the serialised defaults and the
+prefab linkage itself.
+
+- **Node layer.** `new Node()` defaults to `Layers.Enum.DEFAULT` (`1 << 30`). A
+  Canvas camera renders only what is in its `visibility`, so a UI node left on
+  DEFAULT is culled with no error — and `UITransform.hitTest` fails too, because
+  hit testing goes through the camera. Set `Layers.Enum.UI_2D` (`1 << 25`) on
+  every UI node, and assert it before writing an asset. Creator's own `scene-2d`
+  template: Canvas subtree `UI_2D`, camera node `DEFAULT`, camera `_visibility`
+  `1108344832`.
+- **`create_prefab_from_node` (MCP) writes no `cc.PrefabInfo`.** `_prefab` ends up
+  null on every node, so scene instances no longer track the asset, and the editor
+  logs `open prefab failed ... reading 'instance'` after every save. Use
+  `cce.Prefab.createPrefabAssetFromNode(String(nodeUuid), url)` — the same call the
+  editor makes when you drag a node into Assets. It takes a **uuid string**; hand
+  it a node object and it returns null and writes nothing, silently. Check by
+  counting: `cc.PrefabInfo` count must equal `cc.Node` count.
+- **Property order matters when building nodes.** Set `Sprite.sizeMode`/`type`
+  *before* `spriteFrame` — assigning the frame while `sizeMode` is still `TRIMMED`
+  overwrites `UITransform`, and setting `sizeMode` afterwards does not restore it.
+  Always assign `Label.string` (fall back to `''`): 2.x omits an empty string from
+  serialisation, and the 3.8 default is the literal text `'label'`, which then
+  shows on screen. Re-assert `contentSize` once after every component is added.
+- **`open_scene` switches scenes asynchronously.** It returns ok while the old
+  scene is still live, so the next `execute_javascript` builds into the wrong
+  scene. Assert `cc.director.getScene().name` inside the script before building.
+
+Full write-up: `dev-cocos-migrate-2x-to-3x/references/pitfalls.md` §17, §20, §21,
+§25, §31.

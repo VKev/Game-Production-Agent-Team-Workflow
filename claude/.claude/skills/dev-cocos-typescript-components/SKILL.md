@@ -75,3 +75,33 @@ Cocos 3.x bundles ES modules. A module that only writes to `globalThis` and is n
 - Never add a second `@ccclass` to an existing file.
 - Never "fix" a null `@property` by constructing the object in code when the design expects editor wiring — check the scene/prefab first.
 - Never rely on `constructor.name` at runtime; release builds are minified.
+
+
+## Traps paid for on a real port
+
+- **`window` does not exist in a mini-game runtime.** The common
+  `const w = window as any;` is fine in a browser and throws `ReferenceError`
+  inside TikTok/ByteDance/WeChat — while the module is evaluating, so the whole
+  game fails to start and all you get is
+  `Unable to instantiate chunks:///_virtual/<file>.ts`. Use `globalThis` (ES2020,
+  present everywhere including browsers). Replace only the bare identifier, not
+  `w.window` or the string `'window'`.
+- **ES modules hoist imports, so side-effect order from CommonJS is gone.** 2.x
+  code often assigns a global *between* two groups of `require()` calls and relies
+  on that position. After porting, any module that builds a singleton at
+  evaluation time (`export default new X()`) runs before the assignment. Express
+  the dependency in the **module graph** instead: put the assignment in its own
+  module, import it from everything that touches it, and call a real exported
+  function — a bare `import './X'` is both unordered and tree-shakeable.
+- **Adding a helper import to code recovered from a minified bundle collides.**
+  That code uses `t`, `e`, `n`, `o`, `i` as locals in almost every function, so
+  `import { t } from './I18n'` makes `t(...)` resolve to the local. Use a
+  namespace import (`import * as I18n from './I18n'`). `tsc` catches it as
+  "This expression is not callable" — which is the lucky case; had the local been
+  a function it would have run silently wrong.
+- **Default values differ between engines and that is as dangerous as an API
+  change, but quieter.** 2.x serialises sparsely, so an absent field carries
+  meaning. The clearest case: an empty `Label.string` is omitted by 2.x, and the
+  3.8 default is the literal `'label'`, which then renders on screen.
+
+Full write-up: `dev-cocos-migrate-2x-to-3x/references/pitfalls.md` §21, §27, §28, §36.

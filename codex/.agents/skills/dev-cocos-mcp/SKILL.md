@@ -49,3 +49,40 @@ Use the prefab tools rather than raw scene operations: `create_prefab_from_node`
 - Never leave the editor in a state the user did not ask for: no changed selection as the final state, no half-built node tree, no unsaved scene presented as saved.
 - Never enter play mode or change `set_time_scale` on a shared editor without saying so first.
 - If the connection drops mid-operation, re-inspect before retrying; a disconnect is not proof the operation failed.
+
+
+## Tool behaviours worth knowing before you rely on them
+
+- **`create_prefab_from_node` produces a prefab with no `cc.PrefabInfo`.** It
+  serialises the tree through `asset-db:create-asset`, so `_prefab` is null on
+  every node, scene instances stop tracking the asset, and the editor logs
+  `open prefab failed ... reading 'instance'` after every save.
+  `validate_prefab_references` still reports 0 missing — it only checks
+  references, and there are none to break. Use
+  `cce.Prefab.createPrefabAssetFromNode(String(nodeUuid), url)` instead (the
+  editor's own drag-into-Assets path). It takes a **uuid string**; a node object
+  returns null and writes nothing without throwing. It also renames the root node
+  after the file, so check nothing looks that name up.
+- **`open_scene` returns before the scene has switched.** A following
+  `execute_javascript` still runs against the previous scene. Assert
+  `cc.director.getScene().name` inside the script before doing any work. A scratch
+  scene must also end **empty**: a leftover root keeps it dirty, and a dirty scene
+  makes the editor ignore the next `open_scene` while `open_scene` still reports
+  success.
+- **`builder.command-build` takes an object**, not the CLI option string —
+  `{ platform, debug, sourceMaps, buildPath, outputName }`. A string throws
+  `Cannot create property 'platform' on string`. There is no `builder - build`
+  message; list `contributions.messages` of the `builder` package if you need
+  another name. `refresh_assets` first if any `.ts` moved outside the editor.
+- **`execute_javascript` safety checks reject string literals that look like
+  paths**, including a bare `'/'`. Rewrite the expression so no such literal is
+  needed (`url.includes('spine')`) rather than obfuscating the literal, and never
+  pass `safety_checks: false`.
+- **Repeated `create_scene` / `delete_asset` / `open_scene` on the live scene
+  corrupts the editor's own camera.** `Editor Camera` gets stranded in the closed
+  scene, loses `activeInHierarchy`, and its renderer camera is destroyed, after
+  which every gizmo raycast logs
+  `Cannot read properties of null (reading 'enabled')` on mouse move and
+  `defaultFocus` logs `reading 'update'` on scene open. It reproduces on an
+  **empty scene**, which is the quick way to tell it apart from a data problem.
+  The fix is restarting Creator; there is nothing to change in the project.

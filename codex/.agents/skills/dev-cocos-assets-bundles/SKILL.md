@@ -60,3 +60,37 @@ resources.load('ui/icon/spriteFrame', SpriteFrame, cb);
 - Never conclude "the asset is missing" from a path search; check the uuid through the project map or an MCP asset query.
 - Never size a mini-game package with `du -sh`: block rounding inflates the number against a hard 4 MB ceiling.
 - Never load by path when the asset can be wired as a property, unless the set is genuinely dynamic.
+
+
+## Traps paid for on a real port
+
+- **A static import from `main` into another bundle is fatal at boot.** Any
+  `assets/<folder>` with `isBundle: true` is its own bundle; everything else is
+  `main`. `main` holds the start scene and loads first, so SystemJS cannot resolve
+  the other bundle's `chunks:///` specifier — it falls back to
+  `<script src="chunks:///...">`, the browser refuses the scheme, and the game
+  boots to an empty scene with only a CORS error to show for it. **Preview is
+  fine**; only the build breaks. The reverse direction (game/framework → main) is
+  safe. Guard it with a checker that reports every cross-bundle edge and marks the
+  fatal ones; `fatal: 0` before every build.
+- **Import type decides whether a Sprite can reference anything.** A PNG imported
+  as `texture` has **no `spriteFrame` sub-asset**, so every Sprite in a prefab
+  ends up empty. Compare against the 2.x census and fix the `.meta` `type` via
+  `asset-db save-asset-meta`. Atlas pages for spine legitimately stay `texture`.
+- **Re-importing loses 9-slice and trim settings.** `capInsets`
+  (`borderTop/Bottom/Left/Right`) live on the **sprite-frame**, not on the Sprite
+  component; a 3.8 re-import resets them to 0, and a `SLICED` sprite with zero
+  insets renders exactly like a stretched image. `trimType` also flips from the
+  2.x `custom` (no trim) to `auto` (trim transparent edges), changing
+  rect/size/offset. Restore from the 2.x `.meta`: `trimType`, `trimThreshold`,
+  `trimX/Y`, `width/height`, `rawWidth/rawHeight`, `offsetX/Y`, `rotated`,
+  `border*`. This was the root cause of every "the UI is stretched" report on one
+  port, and no prefab-level checker can see it.
+- **3.8 eagerly evaluates every `.js` under `assets/`.** 2.x loaded modules
+  lazily, so an unused vendor UMD bundle never ran. In 3.8 it runs, and a
+  browserify-style `require` reached through an alias (`var i = require;
+  i("buffer")`) becomes `Unresolved specifier buffer`, which takes down the whole
+  script executor. Check who actually uses it before fixing the specifier — the
+  answer is often nobody, and moving it out of `assets/` is the fix.
+
+Full write-up: `dev-cocos-migrate-2x-to-3x/references/pitfalls.md` §18, §19, §29, §30.

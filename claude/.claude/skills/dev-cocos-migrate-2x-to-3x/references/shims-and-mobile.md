@@ -146,3 +146,58 @@ meta viewport trong `index.html` của bản build:
 - [ ] Multi-touch: hai ngón cùng lúc không kẹt input
 - [ ] Chạy bản **BUILD** (không phải preview) trên điện thoại thật
 - [ ] Rút mạng vẫn chơi được hết vòng lặp
+
+
+---
+
+## Bổ sung: ba thứ chỉ lộ trên máy thật
+
+### A. `window` không tồn tại trong runtime mini-game
+
+Quy ước `const w = window as any;` chạy tốt trên trình duyệt và **ném
+ReferenceError** trong runtime TikTok/ByteDance/WeChat — ném ngay lúc module đang
+eval, nên **cả game không khởi động**, chỉ để lại
+`Unable to instantiate chunks:///_virtual/<file>.ts`.
+
+Dùng `globalThis` ở mọi nơi (ES2020, có trong mọi runtime kể cả trình duyệt).
+Chỉ đổi định danh `window` **đứng một mình**, không đụng `w.window` hay chuỗi
+`'window'`. Script sẵn: `scripts/fix-window-global.js`.
+
+Kiểm: `grep -rnw window assets --include=*.ts` — mọi hit phải là thuộc tính hoặc
+chuỗi.
+
+### B. Safe area — kiểm tra bản 2.x TRƯỚC khi coi là lỗi port
+
+§3.3 ở trên mô tả cách làm. Nhưng trước đó phải đo bản gốc, vì trường hợp hay gặp
+nhất là **bản 2.x cũng không hề có safe area**:
+
+- file kiểu `MobileAdapter` **thoát sớm** khi không có DOM thật ⇒ không chạy trong
+  bất kỳ runtime mini-game nào;
+- và CSS var nó ghi (`--safe-top`…) **không ai đọc**.
+
+Tức là trên iPhone có notch, HUD trên cùng bị che ở **cả hai** bản. Đây là **lựa
+chọn sản phẩm**, không phải lỗi port ⇒ **hỏi user**: giữ parity, hay thêm safe
+area thật (khác bản gốc).
+
+Nếu thêm: đặt component ở **container**, cộng inset vào `Widget.top` của **các con
+căn TOP**. Đừng gắn `cc.SafeArea` của engine lên root — nó resize cả container và
+kéo vùng gameplay tụt xuống theo. Dùng `sys.getSafeAreaRect()` (đã ở hệ toạ độ
+design) chứ không phải `screen.safeArea` (pixel vật lý). Nhớ nghe
+`screen.on('window-resize' | 'orientation-change')` và ghi nhớ lượng đã cộng để
+áp lại không bị cộng dồn.
+
+### C. Lớp mock mất đảm bảo thứ tự khi bỏ `isPlugin`
+
+File `isPlugin: true` của 2.x chạy **trước khi engine boot**. Ở 3.8 không có gì
+tái lập điều đó: `@executionOrder(-10000)` chạy **muộn hơn** thứ nó thay thế, còn
+`import './X'` lấy side-effect thì **vừa không có thứ tự vừa bị tree-shake**.
+
+Mỗi mock export `installX()` có guard idempotent; một `BootPrelude` duy nhất giữ
+thứ tự và **gọi thật**; entry point gọi `bootPrelude()` ở module scope.
+
+Thứ tự có lý do: `FakeAnalytics` → `ApiMock` → `FakeAds` → `MobileAdapter`.
+`ApiMock` bọc `fetch`/`XMLHttpRequest` nên phải bọc **bản thật**, không phải bản
+của `FakeAds`. Cài hai lần còn tệ hơn không cài.
+
+**`BootPrelude` phải nằm cùng bundle với thứ gọi nó** (thường là `main`) — xem
+`pitfalls.md` §29.

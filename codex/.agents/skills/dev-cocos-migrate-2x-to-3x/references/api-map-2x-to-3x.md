@@ -225,3 +225,102 @@ onLoad() { Instance.setUIMgr(this); }
 Cám dỗ lớn nhất khi port là *cải tiến code luôn thể*. Đừng. Ở GĐ3, mọi khác biệt
 hành vi đều là bug tiềm ẩn không ai truy được. Refactor sau khi GĐ5 xanh, thành
 một commit riêng.
+
+
+---
+
+## 17. Bốn bẫy API nữa — cùng tên, khác nghĩa
+
+Bốn thứ này **compile sạch** và chỉ sai lúc chạy. Grep chúng ngay từ wave đầu.
+
+### 17.1 `getDelta()` đổi hệ toạ độ — BẪY IM LẶNG
+
+| 2.x | 3.8.x |
+|---|---|
+| `event.getDelta()` → **design-space** | `event.getUIDelta()` |
+| `event.getLocation()` → design-space | `event.getUILocation()` |
+
+Ở 3.x `getDelta()` vẫn tồn tại nhưng trả **pixel màn hình**. Triệu chứng: kéo thả
+không bám ngón tay, càng kéo càng trôi. Với view scale 0.75 thì node đi
+`1/0.75 = 1.33` lần quãng đường con trỏ.
+
+```bash
+grep -rn "getDelta()\|\.getLocation()" assets --include=*.ts   # phải 0 hit
+```
+
+Grep **toàn bộ**, đừng tin "wave trước làm rồi": lần này hai file đã đúng còn một
+file bị sót.
+
+### 17.2 `node._components[0]` không còn là script — BẪY IM LẶNG
+
+Idiom 2.x `node._components[0]` chính là script của prefab. Ở 3.x **mọi node UI
+đều có `UITransform` đứng trước**, nên `a._components[0]._data = e` gán data vào
+`UITransform` và script không bao giờ nhận được → `this._data` null trong
+`initView`/`onEnable`, **mọi popup hỏng cùng lúc**.
+
+```ts
+function projectScript(node: Node): Component | null {
+    for (const c of node.components) {
+        const n = js.getClassName(c);
+        if (!n.startsWith('cc.') && !n.startsWith('sp.')) return c;
+    }
+    return null;
+}
+```
+
+```bash
+grep -rn "_components\[0\]" assets    # mọi hit đều đáng ngờ
+```
+
+### 17.3 `Widget.AlignMode` — enum ĐẢO THỨ TỰ
+
+| | ONCE | ALWAYS | ON_WINDOW_RESIZE |
+|---|---|---|---|
+| Cocos **2.x** | 0 | **2** | **1** |
+| Cocos **3.8** | 0 | **1** | **2** |
+
+Copy **số thô** từ `.prefab`/`.meta` của 2.x làm mọi Widget từng là `ALWAYS` biến
+thành `ON_WINDOW_RESIZE` và ngược lại. Map tường minh `{0:0, 1:2, 2:1}`.
+
+Đây là lớp bẫy **"enum cùng tên, khác giá trị"** — với mọi enum được copy số, in
+enum ở **cả hai** runtime rồi so trước khi tin.
+
+### 17.4 3.8 KHÔNG tự align Widget khi instantiate lúc chạy
+
+2.4 align Widget ngay khi node enable; 3.8 **không đảm bảo**. Prefab 2.x thường
+được author tại vị trí Canvas `(designW/2, designH/2)` và **dựa vào** Widget kéo
+về gốc — port sang 3.8 thì nó nằm nguyên ở đó, lệch hẳn ra góc màn hình.
+
+Với root prefab có Widget stretch (`alignFlags = 45`, insets 0), vị trí đúng
+**không phụ thuộc realign** là `(0,0,0)`.
+
+> Đừng lấy "khớp 1-1 với số 2.x" làm bất biến ở chỗ này. Bất biến thật là *"vị trí
+> đúng kể cả khi không có ai realign"*.
+
+## 18. Hai thứ không phải API nhưng giết cả bản build
+
+### 18.1 `window` → `globalThis`
+
+`const w = window as any;` **ném ReferenceError** trong runtime
+TikTok/ByteDance/WeChat (không có `window`), ngay lúc module đang eval ⇒ cả game
+không khởi động. Dùng `globalThis` (ES2020, có ở mọi runtime kể cả trình duyệt).
+
+### 18.2 Thứ tự eval: ES module hoist import lên đầu
+
+CommonJS chạy `require()` **đúng chỗ nó được viết**. Code 2.x rất hay có dạng:
+
+```js
+var a = require("Api");            // nhóm 1
+window.wxapi = window.tt || {};    // gán GIỮA hai nhóm
+var q = require("ReportQueue");    // nhóm 2 — thấy wxapi
+```
+
+ES module **hoist toàn bộ import** ⇒ nhóm 2 eval **trước** dòng gán. Module nào
+dựng singleton lúc eval (`export default new X()`) mà constructor chạm tới global
+đó sẽ nổ.
+
+**Sửa:** đưa quan hệ vào **module graph**, không dựa vào vị trí dòng — tách phần
+gán ra module riêng, mọi module chạm tới nó **import nó** và **gọi một hàm export
+thật** (bare import bị tree-shake).
+
+Chi tiết + cách test ngoài engine: `pitfalls.md` §27, `scripts/test-module-order.js`.

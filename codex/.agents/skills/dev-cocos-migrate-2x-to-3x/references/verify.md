@@ -114,3 +114,88 @@ Ba điều bắt buộc, rút từ một lần làm thật:
 Mỗi lần verify để lại: `<tag>.png` (screenshot), `<tag>.json` (dump state),
 `<tag>.chrome.log` (console). Khi ai đó hỏi "sửa xong chưa", câu trả lời là 3
 file này, không phải một câu khẳng định.
+
+
+---
+
+## 7. Cổng kiểm tự động — chạy trước khi build, không phải sau
+
+Chạy thật (mục 1–6 ở trên) bắt được thứ nhìn thấy được. Lớp asset-import và lớp
+serialize thì **không nhìn thấy** cho tới khi ai đó tình cờ mở đúng màn hình. Bộ
+script dưới đây đối chiếu dữ liệu 2.x ↔ 3.x, chạy trong vài giây, và đã bắt được
+những bug mà `validate_scene` + `validate_prefab_references` + `tsc` đều báo xanh.
+
+| Script | Bắt được gì |
+|---|---|
+| `check-cross-bundle.py` | import xuyên bundle; **`fatal: 0` bắt buộc** — import từ `main` sang bundle khác làm build boot ra scene rỗng |
+| `verify-prefab-sizes.js` | `contentSize` từng node + vị trí root prefab |
+| `verify-responsive.js` | `Widget` + `LongScreenWidgetComponent` khớp 1-1 với 2.x |
+| `verify-spine.js` | binding skeleton ↔ tên animation code gọi (sai tên = luồng đứng, không lỗi) |
+| `verify-i18n.js` | phủ bản dịch, nếu có localization |
+| `test-module-order.js` | thứ tự eval ES module của chuỗi storage |
+| `test-boot-prelude.js` | thứ tự cài lớp mock + idempotent |
+| `test-api-coverage.js` | mọi endpoint có fixture; thay cho "rút mạng chơi thử" |
+| `test-fake-ads.js` | quảng cáo giả luôn trao thưởng, không trao hai lần |
+
+Bốn `test-*.js` chạy **ngoài engine**: chuỗi module liên quan không import `cc`,
+nên `lib/esm-harness.js` compile sang **ESM thật** rồi eval bằng Node. Phải là
+ESM — CommonJS eval theo vị trí dòng và sẽ **giấu mất** đúng bug đang tìm.
+
+Giữ tính chất "không import `cc`" của các module đó khi thêm code, nếu không mất
+luôn khả năng test.
+
+### Tự kiểm checker: nó có fail được không?
+
+Một checker không fail được thì không phải checker. Sau khi viết xong, **cố ý làm
+hỏng** thứ nó canh rồi chạy lại:
+
+- gỡ guard idempotent → `test-boot-prelude` phải báo `fetch identity CHANGED`;
+- trả một `hostApi()` về `w.wxapi` trực tiếp → `test-module-order` phải THREW.
+
+Đã có lần negative-check **pass nhầm** vì script sửa file khớp `\n` trong khi file
+dùng **CRLF** nên không sửa được gì. Kiểm cả việc "lệnh phá hỏng có thật sự áp
+dụng không".
+
+### A/B: khử dương tính giả trước khi đọc kết quả
+
+Bộ diff dump scene hai bên rồi so. Hai nguồn nhiễu làm báo cáo gần như vô dụng
+nếu không khử:
+
+1. **màu** — 2.x tint qua `node.color`, 3.x bỏ `node.color` và đưa màu lên
+   component ⇒ mỗi node sinh **hai** finding đối xứng giả. So giá trị **hiệu
+   dụng**: phía thiếu thì lấy màu của node.
+2. **tên script** — bản 2.x đã minify nên mọi script báo tên `e`/`t`; 3.x báo tên
+   thật ⇒ mọi node có script đều bị flag. So type engine theo tên, script dự án chỉ
+   so "có script hay không".
+
+Đo thật: 316 finding → khử còn **107**. Trong 107 đó, phần lớn là **nhiễu frame**
+(hai dump ở visible size khác nhau vì trang preview khoá khung) và **tween đang
+chạy**. Ép hai bên **cùng kích thước khung** trước khi dump, nếu không sẽ đuổi theo
+chênh lệch không có thật.
+
+
+### Bốn bug của chính bộ checker — đều suýt dẫn tới kết luận sai
+
+Ghi lại vì cả bốn đều **báo lỗi giả hàng loạt**, và một con số lớn bất thường là
+dấu hiệu checker sai chứ không phải project sai.
+
+1. **Cocos 2.4 không có `node.components` public** — mảng thật là
+   `node._components`. Đọc nhầm làm **mọi** node 2.x trông như không có component
+   nào ⇒ **127 lệch "component set" hoàn toàn giả**.
+2. **Tên constructor 2.x có tiền tố `cc_`** (`cc_Sprite`, `cc_Label`, `cc_Mask`)
+   trong khi 3.8 dùng `Sprite`/`Label`/`Mask`. Không normalize thì mọi so sánh
+   component là dương tính giả.
+3. **Sibling trùng tên** đầy project (`Background`, `Text`, `1`). Không phân biệt
+   `#2`/`#3` **ở CẢ HAI phía** thì ghép sai cặp node ⇒ **21 lệch giả**.
+4. **`undefined` vs `0`.** 2.x serialize **sparse**: field bằng default bị bỏ qua,
+   nên `_top` vắng mặt nghĩa là `0`. So `undefined` với `0` ⇒ **49 lệch giả** trên
+   49 Widget.
+
+> Quy tắc rút ra: **một con số lệch lớn bất thường là giả cho tới khi chứng minh
+> ngược lại.** Kiểm tính hợp lý của con số trước khi đi sửa project.
+
+### Mẹo giữ dump ra khỏi context
+
+Dump scene graph cỡ 50–100 KB mỗi bên. Cho **trang tự ghi ra file** (Blob +
+download, hoặc POST về một server nhỏ) rồi đọc từ đĩa — dữ liệu không đi qua
+context lần nào, và bạn diff bằng script thay vì bằng mắt.

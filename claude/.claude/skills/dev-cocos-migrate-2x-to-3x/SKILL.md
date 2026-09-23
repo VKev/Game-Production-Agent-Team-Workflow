@@ -43,6 +43,13 @@ Chỉ có bản build (không `.meta`, không source) thì **chưa dùng skill n
    **luôn trao thưởng ngay**. Không để lại lời gọi SDK thật.
 4. **Comment tiếng Anh, ngắn gọn.** Một câu nói *vì sao*. Comment gốc giữ nguyên.
 5. **Tương thích Android/iOS.** Xem [references/shims-and-mobile.md](references/shims-and-mobile.md).
+6. **Cổng kiểm phải xanh trước khi build.** `tsc --noEmit`,
+   `check-cross-bundle.py` (**`fatal: 0`**), `verify-prefab-sizes.js`,
+   `verify-responsive.js`, `verify-spine.js` và bộ `test-*.js` — tất cả nằm ở
+   `scripts/`. Cổng mặc định của Cocos (`validate_scene`,
+   `validate_prefab_references`) **mù với lớp asset-import và lớp serialize**:
+   chúng báo xanh trong khi màn hình đen, UI kéo giãn, hoặc prefab mất
+   `PrefabInfo`. Xem `references/pitfalls.md` Phần B.
 
 Chuỗi hiển thị **giữ nguyên văn**, không dịch. Tên class/method/asset/node cũng
 không đổi — đổi tên là mất khả năng diff 1-1 với bản 2.x, thứ duy nhất chứng minh
@@ -234,14 +241,20 @@ giả định sai.
 
 ## Script của skill
 
-| Script | Việc |
+Toàn bộ pipeline port + bộ cổng kiểm nằm ở [`scripts/`](scripts/), có
+[`scripts/README.md`](scripts/README.md) ghi thứ tự chạy và chỗ cần chỉnh theo
+project. **Mọi bản vá của các bẫy trong `references/pitfalls.md` đã nằm sẵn trong
+code đó** — dùng lại, đừng viết mới.
+
+| Nhóm | Script |
 |---|---|
-| `probe-cocos-layout.js` | GĐ1. Bản đồ thư mục thật của một project (2.x hoặc 3.x): script root, bundle + priority, resources, design resolution, start scene |
-| `plan-port-waves.js` | GĐ2. Đồ thị `require()` → wave theo thứ tự phụ thuộc, tách file vendor, chỉ ra nhóm require vòng |
-| `cdp.py` | GĐ5. Toolkit CDP: eval / screenshot / tap / diag render — chạy game thật headless |
-| `serve-local.py` | GĐ5. HTTP server có hỗ trợ Range cho bản build web |
-| `optimize-images.py` | GĐ6. Nén PNG lossless, verify từng pixel, có backup |
-| `api-mock-client.js` / `fake-ads-client.js` | GĐ4. Client nhúng vào project |
+| GĐ1 khảo sát | `probe-cocos-layout.js`, `census-types.js`, `build-uuid-map.js`, `inventory-props.js` |
+| GĐ2 port | `plan-port-waves.js`, `fix-window-global.js` |
+| GĐ3 scene/prefab | `dump-2x-tree.js`, `build-prefab.scene.js`, `gd3-build-prefabs.scene.js`, `gd3-build-scene.scene.js` |
+| GĐ4/5 cổng kiểm | `check-cross-bundle.py`, `verify-prefab-sizes.js`, `verify-responsive.js`, `verify-spine.js`, `verify-i18n.js`, `test-module-order.js`, `test-boot-prelude.js`, `test-api-coverage.js`, `test-fake-ads.js`, `lib/esm-harness.js` |
+| GĐ5 chạy thật | `cdp.py`, `serve-local.py`, `serve-build.js` |
+| GĐ6 ship | `make-subpackages.py`, `make-minigame-zip.py`, `optimize-images.py` |
+| Template nhúng | `api-mock-client.js`, `fake-ads-client.js`, `templates/*.ts` |
 
 ## Khi nào DỪNG và hỏi
 
@@ -251,3 +264,9 @@ giả định sai.
 - MCP không kết nối được sau khi đã cài extension → dừng ở GĐ3, đừng dựng scene tay.
 - Shader/effect riêng nhiều → báo số lượng và ước lượng riêng cho phần đó.
 - Phát hiện logic nằm trên server → chốt phạm vi (bản offline dùng API giả?) trước.
+- **Bản 2.x không xử lý safe area** (thường gặp: `MobileAdapter` thoát sớm khi
+  không có DOM, CSS var không ai đọc) → đây là **lựa chọn sản phẩm**, không phải
+  lỗi port. Hỏi giữ parity hay thêm safe area thật. Xem `pitfalls.md` §37.
+- Gặp code chết trông như đang chạy (component không gắn ở đâu, bảng không ai
+  đọc) → **nói ra trước khi “làm cho nó hoạt động”**. Làm theo mô tả mà không
+  kiểm sẽ sinh ra file trơ trông như đã xong.

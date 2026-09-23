@@ -56,3 +56,39 @@ Expect benign differences: a visible size that differs from the design resolutio
 - Never build while the editor is importing assets or has the project open for a CLI build.
 - Never report a package size from `du -sh` against a hard platform ceiling.
 - Never change the platform id, compression type, or bundle layout without rebuilding and re-verifying the boot chain.
+
+
+## Traps paid for on a real ship
+
+- **An empty `engine.json` ships everything.** If
+  `settings/v2/packages/engine.json` holds only `{__version__}`, no module config
+  exists and 3.8 bundles the lot — including Bullet 3D physics in a 2D game. The
+  runtime tell is `[PHYSICS]: register bullet` plus a 4.7–10 s `Init SubSystem`
+  while wasm loads. Declaring `includeModules` with only what the game uses took
+  one project's main package from **5.80 MB to 2.84 MB** (`cocos-js` 4.81 → 2.3 MB).
+  Audit usage by grep, do not guess. **Preview cannot verify this** — it runs a
+  prebuilt engine bundle from `scripting/engine/bin/.cache`, so you must build.
+- **The builder does not create subpackages.** Building with `merge_dep` puts
+  everything in the main package. Relocating is a *post-build* step and needs all
+  three of: move `assets/<bundle>/` → `subpackages/<bundle>/`; rename the entry
+  `index.js` → **`game.js`**; patch **both** manifests (`game.json` `subpackages`
+  and `src/settings.json` `assets.subpackages`). `internal` and `main` must stay
+  under `assets/` because `main` holds the preloaded start scene. Keep this in a
+  checked-in tool — done by hand once, it was nearly lost and nearly shipped an
+  over-ceiling package.
+- **Build through the running editor** instead of closing it for a CLI build:
+  `Editor.Message.request('builder', 'command-build', { platform, debug,
+  buildPath, outputName })`. It takes an **object**; the CLI-style string throws
+  `Cannot create property 'platform' on string`. There is no `builder - build`
+  message. After moving or editing `.ts` outside the editor, `refresh_assets`
+  first or the build fails with `ModuleNotFoundError` against the old path.
+- **Measure real bytes, excluding `subpackages/`** — `du -sh` reports something
+  else and the platform ceiling is unforgiving. Zip with a tool that writes
+  forward slashes and keeps `game.json` at the archive root; PowerShell's
+  `Compress-Archive` writes backslash entry names, which is outside the ZIP spec
+  and platforms reject it.
+- **Serve verification builds with `Cache-Control: no-store`**, or the browser
+  keeps the previous build's `assets/main/index.js` and a fixed bug still looks
+  broken.
+
+Full write-up: `dev-cocos-migrate-2x-to-3x/references/ship.md` §5.

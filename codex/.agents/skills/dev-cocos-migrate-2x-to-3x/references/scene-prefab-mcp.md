@@ -102,3 +102,73 @@ Nếu chọn (b): **giữ prefab gốc ở ngoài thư mục bundle** (`assets/�
 nguồn tái sinh, và viết script `verify-*.py` đối chiếu JSON ↔ prefab. Builder
 runtime và script verify phải phản chiếu nhau — sửa một bên thì sửa cả hai, nếu
 không verify mất giá trị.
+
+
+---
+
+## Bốn thứ của 3.8 làm hỏng prefab trong im lặng
+
+Rút từ một lần port project→project. Cả bốn đều **không** bị
+`validate_prefab_references` hay `validate_scene` bắt.
+
+### 1. `create_prefab_from_node` của MCP không sinh `cc.PrefabInfo`
+
+Tool đó dùng `asset-db:create-asset`: serialize cây node nhưng **không** sinh
+`cc.PrefabInfo` / `cc.CompPrefabInfo`. Kết quả `_prefab = null` trên mọi node ⇒
+instance trong scene không track được asset ⇒ hỏng đúng workflow artist, và
+Editor log `open prefab failed TypeError: Cannot read properties of null` sau
+**mỗi** lần lưu.
+
+Dùng API mà Editor dùng khi kéo node vào Assets:
+
+```js
+cce.Prefab.createPrefabAssetFromNode(String(nodeUuid), 'db://assets/.../X.prefab')
+```
+
+Tham số đầu là **UUID STRING**. Truyền object node → trả `null`, **không ghi gì,
+không ném**.
+
+**Cổng kiểm bằng dữ liệu:** số `cc.PrefabInfo` phải **bằng** số `cc.Node`, và
+`cc.Node._prefab` phải trỏ tới một `cc.PrefabInfo` có `root`/`asset`/`fileId`.
+
+Drift chấp nhận được: API này **đổi tên node gốc theo tên file**. Kiểm xem có code
+nào tra cứu tên đó không rồi hãy chấp nhận.
+
+### 2. Layer mặc định là DEFAULT, không phải UI_2D
+
+`new Node()` cho `layer = DEFAULT` (`1 << 30`). Camera của Canvas chỉ render
+`visibility` của nó, nên node UI ở DEFAULT bị **cull im lặng** — và **hit-test
+cũng chết** vì `UITransform.hitTest` đi qua camera.
+
+Script dựng phải set `node.layer = Layers.Enum.UI_2D` ngay sau `new Node()` và
+**assert trước khi ghi asset**. Xem `pitfalls.md` §17 cho bảng giá trị chuẩn.
+
+### 3. Thứ tự gán property có ý nghĩa
+
+- `Sprite`: set `sizeMode` + `type` **trước** `spriteFrame`. Gán `spriteFrame` khi
+  `sizeMode` còn là `TRIMMED` sẽ **ghi đè `UITransform`**, và set `sizeMode` sau
+  đó không khôi phục lại.
+- `Label`: **luôn** gán `string`, fallback `''`. 2.x không serialize chuỗi rỗng;
+  bỏ qua trường vắng ⇒ Label giữ default của 3.8 là `'label'` và chữ đó hiện thật.
+- Sau khi add xong **mọi** component, **re-assert `contentSize`** một lần nữa —
+  `Label` tự resize theo `string`/`overflow`.
+
+### 4. `open_scene` chuyển scene BẤT ĐỒNG BỘ
+
+`open_scene` trả `ok` ngay, nhưng `execute_javascript` gọi liền sau đó vẫn chạy
+trên **scene cũ**. Hệ quả thật: dựng nguyên một scene vào nhầm scratch scene rồi
+mất trắng khi editor reload.
+
+Script dựng phải tự kiểm trước khi làm gì:
+
+```js
+if (cc.director.getScene().name !== expected) return { aborted: '...' };
+```
+
+Và scratch scene phải **kết thúc rỗng**: một node root sót lại giữ scene ở trạng
+thái dirty, và scene dirty khiến Editor **lờ đi** `open_scene` kế tiếp trong khi
+`open_scene` vẫn báo thành công.
+
+> Dọn node sau khi tạo prefab: **đừng** tra theo uuid mà builder trả về —
+> `createPrefabAssetFromNode` thay node bằng prefab instance mang **uuid mới**.
+> Chụp `new Set(scene.children)` trước, xoá phần chênh lệch sau.

@@ -122,3 +122,115 @@ stub nằm trong `build-templates/<platform>/`. Phần build: `dev-cocos-build-m
   scene test.
 - Tắt/guard mọi công cụ dev (bot, debug overlay) bằng `BUILD` từ `cc/env`.
 - Chốt lại số đo cuối và ghi vào báo cáo: gói chính / subpackage / tổng file.
+
+
+---
+
+## 5. Ba thứ của bản mini-game 3.8 hay làm vượt trần / chết build
+
+### 5.1 `engine.json` trống ⇒ ship cả physics 3D
+
+`settings/v2/packages/engine.json` chỉ có `{__version__}` nghĩa là **không cấu
+hình module nào**, và 3.8 ship **TẤT CẢ**. Dấu hiệu tại runtime:
+`[PHYSICS]: register bullet` trong một game 2D, và `Init SubSystem` mất
+**4.7–10 giây** vì nạp wasm.
+
+Đo thật trên một game 2D: `cocos-js` **4.81 MB → 2.3 MB**, `_virtual_cc`
+2.92 → 1.7 MB, bullet biến mất hẳn, gói chính **5.80 → 2.84 MB**.
+
+Audit bằng grep trước khi cắt, đừng đoán: `cc.Animation`, `WebSocket`,
+`Intersection`, `RichText`, `EditBox`, `VideoPlayer`, `WebView`, `dragonBones`,
+`TiledMap` thường **0 lần dùng**.
+
+**Ba cái bẫy nối nhau ở bước này — vấp đủ cả ba mới ship được:**
+
+1. **Sửa tay `engine.json` KHÔNG ăn.** Editor bỏ qua file viết tay. Phải ghi qua
+   **`Editor.Profile.setProject`**. Lấy danh sách module ID hợp lệ từ chính Editor
+   (55 feature ở 3.8), đừng đoán tên.
+2. **Build đầu tiên sau khi đổi module tái dùng engine cache** ⇒ dung lượng
+   **không đổi** và bạn tưởng cắt hỏng. Dấu hiệu: build chỉ mất ~53s. Cách biết
+   chắc: so **mtime của `_virtual_cc.js` với `game.js`** — cũ hơn nghĩa là cache cũ.
+3. **Xoá cache engine để ép build lại thì HỎNG PREVIEW** cho tới khi **khởi động
+   lại Cocos Creator**. Hỏng ở hai chỗ: cache engine của Editor và `temp/` của
+   project. Triệu chứng: `System is not defined`, hoặc
+   `ENOENT ... temp/programming/preview/systemjs/system.js`.
+   `Editor.Message.request('engine','quick-compile')` chạy xong (2864 file/35 MB)
+   nhưng **không** đủ để preview sống lại.
+
+> **PREVIEW KHÔNG kiểm chứng được thay đổi này** — preview chạy engine bundle đã
+> build sẵn trong `scripting/engine/bin/.cache`. Phải build thật.
+
+### 5.2 Builder KHÔNG tự tạo subpackage
+
+Build với `merge_dep` cho ít file nhưng **dồn hết vào gói chính**. Tách subpackage
+là bước **sau build**. Thiếu một trong ba việc dưới đây là màn hình đen:
+
+1. chuyển `assets/<bundle>/` → `subpackages/<bundle>/`;
+2. đổi tên entry `index.js` → **`game.js`**;
+3. vá **CẢ HAI** manifest: `game.json` khoá `subpackages` và `src/settings.json`
+   khoá `assets.subpackages`.
+
+`internal` + `main` **phải ở lại** `assets/` — `main` giữ start scene và được preload.
+
+Script sẵn: `scripts/make-subpackages.py` (idempotent, exit khác 0 khi vượt trần).
+**Giữ bước này trong tool, đừng để trong đầu ai đó** — nó từng được làm tay, phiên
+sau không biết, suýt giao gói vượt trần.
+
+### 5.3 Build qua Editor đang chạy
+
+Khỏi phải đóng Editor để build CLI:
+
+```js
+await Editor.Message.request('builder', 'command-build', {
+    platform: 'bytedance-mini-game', debug: false,
+    buildPath: 'project://build', outputName: 'bytedance-mini-game',
+});
+```
+
+Nhận **object**, không phải chuỗi CLI (`"platform=web-mobile;..."` sẽ ném
+`Cannot create property 'platform' on string`). Message `builder - build` **không
+tồn tại**; đọc `contributions.messages` của package `builder` nếu cần tên khác.
+
+Sau khi sửa/di chuyển `.ts` **ngoài** Editor: **`refresh_assets` trước khi build**,
+nếu không asset DB còn đường dẫn cũ và build fail với `ModuleNotFoundError`.
+
+### 5.4 Đo dung lượng cho đúng
+
+Đo **tổng byte thật**, loại trừ `subpackages/`. `du -sh` cho số khác và trần nền
+tảng thì không tha:
+
+```bash
+find . -path ./subpackages -prune -o -type f -printf '%s\n' | awk '{s+=$1} END {printf "%.2f MB\n", s/1048576}'
+```
+
+Đóng gói bằng `scripts/make-minigame-zip.py`: forward slash + `game.json` ở root.
+**Đừng dùng `Compress-Archive` của PowerShell** — nó ghi tên entry bằng backslash,
+sai chuẩn ZIP 4.4.17.1, nền tảng từ chối hoặc giải nén sai.
+
+Server verify build phải gửi `Cache-Control: no-store`, nếu không trình duyệt giữ
+`assets/main/index.js` của lần build trước và **bug đã sửa vẫn trông như còn nguyên**.
+
+
+### 5.5 Preview KHÔNG chạy được với bộ module đã cắt
+
+Đây là hệ quả cố hữu, không phải hỏng hóc: preview chạy **engine bundle đầy đủ**
+nhưng asset `internal` đã bị cắt theo cấu hình module mới ⇒
+
+```
+[Physics] PhysicsSystem initDefaultMaterial() Failed to load builtinMaterial.
+```
+
+⇒ boot treo ở `Init SubSystem` (đo được đúng `10007ms`, như một timeout). **Build
+thì hoàn toàn đúng.**
+
+Muốn có artifact mở được trong browser để verify: **build `web-mobile` với cùng bộ
+module**, đừng cố chữa preview.
+
+> Hệ quả về quy trình: sau khi cắt module, **preview không còn là đường kiểm chứng
+> nữa**. Mọi verify phải chạy trên bản build.
+
+### 5.6 Preview server cần restart sau khi rebuild asset
+
+Khác với mục trên. Sau một đợt rebuild prefab/asset, preview có thể treo ở
+`Init SubSystem` dù không cắt module gì. Restart preview server là xong — đừng đi
+truy như một bug của game.

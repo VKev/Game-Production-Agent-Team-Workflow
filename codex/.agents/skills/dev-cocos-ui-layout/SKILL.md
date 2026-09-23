@@ -48,3 +48,31 @@ Sizing lives on `UITransform`, not on the node: `node.getComponent(UITransform).
 - Never treat a node's authored `width`/`height` as decoration — code frequently reads `contentSize` as data.
 - Never rename a node to "clean up" a hierarchy without checking for `getChildByName` lookups and display-string reuse.
 - Never claim a UI change is done from code alone; attach or describe a screenshot at the target resolution.
+
+
+## Traps paid for on a real port
+
+- **`Widget.AlignMode` is a different enum in 2.x and 3.8.**
+  2.x `ONCE=0, ON_WINDOW_RESIZE=1, ALWAYS=2`; 3.8 `ONCE=0, ALWAYS=1,
+  ON_WINDOW_RESIZE=2`. Copying the raw number out of a 2.x asset inverts the
+  meaning. Map explicitly `{0:0, 1:2, 2:1}`.
+- **3.8 does not re-align a Widget when a node is instantiated at runtime.** 2.4
+  did. A prefab authored at the Canvas position and relying on its Widget to pull
+  it back to the origin stays where it was — measured: local `(375,667)` became
+  world `(750,1334)`, i.e. the top-right corner. For a root whose Widget stretches
+  (`alignFlags = 45`, zero insets) the position that is correct *without* a
+  re-align is `(0,0,0)`.
+- **Safe area: check the original before calling it a port bug.** A 2.x project
+  that ships a `MobileAdapter` writing `--safe-top` from `env(safe-area-inset-*)`
+  usually does **nothing**: it bails out when there is no real DOM (every
+  mini-game runtime), and nothing reads the CSS variables. So the notch is
+  unhandled in *both* versions — that is a product decision to raise, not a
+  regression to fix.
+  If you do add it: put the component on the **container** and add the inset to
+  `Widget.top` of the TOP-aligned children. Putting engine `cc.SafeArea` on the
+  root resizes the whole container and drags the gameplay area down with it. Read
+  `sys.getSafeAreaRect()` (already in design coordinates), not `screen.safeArea`
+  (physical pixels), and re-apply on `window-resize` / `orientation-change` while
+  remembering what you already added so it does not accumulate.
+
+Full write-up: `dev-cocos-migrate-2x-to-3x/references/pitfalls.md` §24, §25, §37.

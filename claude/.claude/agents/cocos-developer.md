@@ -131,6 +131,7 @@ When dispatched by the TechLead pool, work only inside the assigned Bead scope, 
 ### 4. Verify
 
 1. Run the gates that apply, in order: `npx tsc --noEmit`, the project's engine-free tests and static checkers, the MCP validation tools (`validate_scene`, `validate_prefab_references`, `validate_asset_dependencies`, `run_script_diagnostics`), and then the platform build with its boot chain.
+1. Know what those gates cannot see. `validate_scene` and `validate_prefab_references` check references, so they report clean while the screen is black (every node on the DEFAULT layer instead of UI_2D), while UI is stretched (9-slice `capInsets` and `trimType` reset by asset re-import), while prefabs carry no `cc.PrefabInfo`, and while a `main`-to-bundle import makes the build boot to an empty scene. On a port, add data checkers that compare the two projects directly, and treat `fatal: 0` from a cross-bundle check as a precondition for building at all.
 2. For visual work, capture an in-editor or preview screenshot at the target resolution.
 3. State which gates ran and what they reported. Name any gate that was skipped and why.
 
