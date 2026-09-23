@@ -135,6 +135,31 @@ Muốn test lại: xoá 2 key `TT_*` trong localStorage (hoặc mở tab ẩn da
 Dùng `BUILD` từ `cc/env` (hằng biên dịch → nhánh bị loại khỏi bundle phát hành), **không dùng `PREVIEW`**
 (hằng dynamic → code vẫn nằm trong bundle).
 
+## Cổng kiểm engine-free: `scripts/test-tiktok-sdk.js`
+
+Template không import `cc`, nên Node chạy thẳng được chính các module đó với một
+host TTMinis giả — kiểm được trong một giây thứ mà máy thật phải chơi tới nơi mới
+thấy. `tsc --noEmit` mù hoàn toàn với lớp này: code biên dịch y hệt nhau dù hợp
+đồng callback đúng hay sai.
+
+```bash
+node <tools>/test-tiktok-sdk.js      # 18 check, in PASS/FAIL
+```
+
+Nó chốt: ngoài TikTok không crash và **không tự trao thưởng**; máy < 41.0.0
+(`canIUse` false) degrade thay vì ném TypeError; `login` giữ AuthorizationCode,
+idempotent mỗi phiên nhưng vẫn thử lại sau khi fail; `AdUnitId` rỗng ⇒
+`isAvailable()` false (đây chính là thứ cho phép build thử trước khi verify xong);
+ad instance tạo **một lần** rồi tái dùng; chỉ thưởng khi `isEnded === true`; và
+`onClose` + `onError` của **cùng một lần phát** chỉ trả kết quả MỘT lần — thiếu
+chốt này là người chơi ăn thưởng hai lần cho một quảng cáo.
+
+Nó tự biên dịch bản thứ hai có `AdUnitId` điền sẵn, vì `AdUnitId` là const cấp
+module — cách duy nhất trung thực để test đúng cấu hình sẽ ship.
+
+⚠ Sau khi sửa template, **phá thử đúng thứ nó canh** rồi chạy lại để chắc test biết
+đỏ, sau đó khôi phục. Một checker không thể fail thì không phải checker.
+
 ## Checklist trước khi up (grep bản BUILD, không phải source)
 
 ```bash

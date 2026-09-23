@@ -75,6 +75,21 @@ Chạy hết, tất cả phải xanh **trước khi build**:
 | `test-api-coverage.js` | mọi endpoint có fixture, không còn `no fixture for` |
 | `test-fake-ads.js` | quảng cáo giả luôn trao thưởng, không trao hai lần |
 
+**So sánh A/B trực tiếp hai bản đang chạy** — cổng bắt được nhiều lỗi visual nhất,
+vì nó đọc scene graph THẬT chứ không đọc file:
+
+| Script | Việc |
+|---|---|
+| `ab-dump.browser.js` | dán vào console của **cả hai** bản (2.4 gốc và 3.8 port) → định nghĩa `__abDump()`, xuất scene graph về một dạng chuẩn hoá chung |
+| `ab-dump.min.js` | bản rút gọn để dán nhanh khi console giới hạn độ dài |
+| `ab-diff.js` | `node ab-diff.js dump-2x.json dump-3x.json` — xếp hạng khác biệt, thứ người chơi thấy được lên trước |
+
+Đọc `references/verify.md` mục *Bốn bug của chính bộ checker* TRƯỚC khi tin kết quả:
+cả bốn đều báo lỗi giả hàng loạt (127 / 21 / 49 finding), và **một con số lệch lớn bất
+thường là giả cho tới khi chứng minh ngược lại**. Hai bẫy đo đạc nữa ở `pitfalls.md`
+§43 (phải ép CÙNG kích thước khung trước đã) và §44 (đừng dump ở hai thời điểm khác
+nhau của animation).
+
 `lib/esm-harness.js` là phần dùng chung của 4 test cuối: compile `.ts` sang **ESM
 thật** rồi eval bằng Node. **Phải là ESM** — CommonJS eval theo vị trí dòng và sẽ
 giấu mất đúng bug đang tìm.
