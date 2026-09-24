@@ -5,7 +5,8 @@ description: >-
   CHỈ còn nền tảng thứ ba mà game thật sự ship — mặc định TikTok Minis: gỡ SDK
   publisher (VNG/choingay…), adapter các nền tảng khác (WeChat, QQ, Douyin tt,
   Kuaishou, OPPO, VIVO, Huawei, Xiaomi, Alipay, Android/iOS native), analytics
-  (ThinkingData, UMeng, report server riêng), link/endpoint, tên riêng, comment/log
+  (ThinkingData, UMeng, report server riêng), link/endpoint, định danh bên thứ ba
+  (appid tt…/wx…, ad unit id, report id, secret ký API), tên riêng, comment/log
   không phải tiếng Anh và header "Recovered from…" — mà game VẪN chạy được sau mỗi
   bước. Kèm script quét tồn dư, map script ↔ scene/prefab theo uuid nén, gỡ lời gọi
   trong biểu thức dấu phẩy, template Platform TikTok+Dev và bản TikTok giả cho
@@ -24,8 +25,8 @@ và của publisher). Đầu ra: project **vẫn chạy được**, chỉ còn t
 (mặc định TikTok Minis), không còn endpoint/analytics lạ, comment/log tiếng Anh.
 
 Rút từ lần clean thật `tiktokgame17` (Tiêu Diệt Hexa, Cocos 3.8.8): 141 file thay đổi,
-−9.6k dòng, 42 script còn lại; bản gốc quét ra 705 điểm tồn dư, bản sạch còn đúng các
-điểm giữ có chủ đích.
+−9.6k dòng, 42 script còn lại; bản gốc quét ra 720 điểm tồn dư (12 trong đó là appid,
+ad id, report id, secret), bản sạch còn đúng các điểm giữ có chủ đích và 0 định danh.
 
 ## Luật bắt buộc
 
@@ -48,6 +49,13 @@ Rút từ lần clean thật `tiktokgame17` (Tiêu Diệt Hexa, Cocos 3.8.8): 14
    tiếng Trung là dữ liệu, đổi là vỡ animation).
 5. **Lưu tiến độ đi qua storage của nền tảng đích** — TikTok: `GameStorage.ts` của skill
    `tiktok-growth-missions` (Bước 7). Không cược save vào localStorage.
+6. **Định danh và secret của bên thứ ba cũng là thứ phải clean**, không chỉ tên:
+   appid nền tảng (`tt` + 18 hex của Douyin, `wx` + 16 hex của WeChat), ad unit / reward /
+   banner id, report id của analytics, `API_SECRET`, salt ký request. Xoá **cả khối cấu
+   hình** (vd `PROJECT_CONFIG` nhiều nền tảng), đừng chỉ để rỗng. Áp dụng cho cả **tài
+   liệu/report bạn viết về lần clean** — lần clean thật đã xoá sạch code nhưng lại in
+   lại appid Douyin vào `report/report.md` làm "bằng chứng nguồn gốc". Mô tả loại định
+   danh ("có Douyin appid") thay vì chép giá trị.
 
 ## GĐ0 — Kiểm kê (không sửa gì)
 
@@ -58,7 +66,10 @@ python3 <skills-dir>/dev-cocos-clean-3x-minigame/scripts/script-usage.py --root 
 
 - `scan-third-party.py`: theo file — tên nền tảng/publisher/analytics, host global
   (`w.tt`, `wx`, `qq`, `ks`, `qg`…), URL cứng, chữ Hán, comment tiếng Việt (có/không
-  dấu), header port. Chạy lại ở cuối: mọi dòng còn lại phải là thứ **cố ý giữ**.
+  dấu), header port, và **`id`**: appid `tt…`/`wx…`, khoá cấu hình có giá trị (`appid`,
+  `rewardId`, `reportId`, `adUnitId`, `secret`, `token`…), chuỗi 32 ký tự kiểu secret.
+  Quét cả `settings/`, `report/`, `docs/` và `*.md` ở gốc. Chạy lại ở cuối: mục `id`
+  phải về **0**; mọi dòng khác còn lại phải là thứ **cố ý giữ**.
 - `script-usage.py`: mỗi script được **ai import**, **gắn vào scene/prefab nào** (theo
   uuid nén — grep tên file không thấy), và **ai `addComponent("Tên")`**. Script gắn
   trong scene/prefab phải gỡ component qua Editor TRƯỚC khi xoá file.
@@ -108,6 +119,13 @@ Thứ tự (sai thứ tự là MissingScript hoặc preview chết):
    xoá prefab popup, xoá node nút trong prefab qua MCP, bỏ enum/handler liên quan.
 6. Default "tắt" của config server (vd `bms.checkKey("isbanner")` mặc định `false`)
    nghĩa là nhánh đó là **code chết** — xoá cả nhánh, đừng cố nối sang nền tảng mới.
+7. **Định danh còn sót ngoài file đã xoá**: id hard-code giữa câu lệnh (vd
+   `this._config.rewardId = "e7hm…"` trong một adapter), salt ký nối chuỗi
+   (`i += "VuFF…", md5(i)`), comment trích lại id (`// createRewardedVideoAd({ adUnitId: "18dic…" })`)
+   trong mock. `scan-third-party.py` mục `id` bắt được cả ba dạng này.
+8. **Lịch sử git vẫn giữ id/secret** của commit port ban đầu. Báo người dùng commit nào
+   chứa gì; **không tự viết lại lịch sử** nhánh đã push chung. Secret là của bên thứ ba
+   (không phải của mình) thì không có gì để rotate — chỉ cần không dùng lại.
 
 ## GĐ3 — Lớp mock cho nền tảng đích
 
@@ -166,11 +184,14 @@ Thứ tự (sai thứ tự là MissingScript hoặc preview chết):
 | Template/storage dùng `window` | Runtime native TikTok có thể không có `window` | `globalThis` |
 | Nền tảng cũ trả mã lỗi mới cho caller | Toast đỏ/không thưởng ở chục chỗ gọi | Giữ hợp đồng callback; nhánh không hỗ trợ trả mã mà caller đã xử lý |
 | Xoá mock vì "không còn endpoint" | Preview không còn chạy như TikTok, người dùng phải yêu cầu lại | Hỏi trước (Luật 1); đổi mock sang giả nền tảng đích |
+| Chỉ quét tên nền tảng, không quét định danh | Code sạch tên nhưng id/secret vẫn nằm trong config, comment, report | Mục `id` của `scan-third-party.py` về 0, kể cả `report/` |
 | Chạy `git add -A` ở repo có thay đổi dở của người khác | Commit lẫn việc không phải của mình | Chỉ `git add` đúng file của mình; hunk lẫn trong cùng file → `git apply --cached` bản vá riêng |
 
 ## Checklist cuối
 
-- [ ] `scan-third-party.py` chỉ còn điểm cố ý giữ (đã báo người dùng).
+- [ ] `scan-third-party.py` chỉ còn điểm cố ý giữ (đã báo người dùng); mục `id` = 0.
+- [ ] Report/tài liệu về lần clean không chép lại appid, ad id, secret.
+- [ ] Đã báo người dùng commit nào trong lịch sử git còn chứa id/secret.
 - [ ] Không còn file của nền tảng/publisher/analytics; không còn import tới chúng.
 - [ ] Scene/prefab: 0 MissingScript, 0 node của tính năng đã bỏ.
 - [ ] Save đi qua `GameStorage`; reload giữ tiến độ.
@@ -182,7 +203,7 @@ Thứ tự (sai thứ tự là MissingScript hoặc preview chết):
 
 | File | Việc |
 |---|---|
-| `scripts/scan-third-party.py` | Kiểm kê tồn dư theo file: platform / host / url / han / vi-comment / header. `--keep` nền tảng giữ lại, `--json` xuất báo cáo |
+| `scripts/scan-third-party.py` | Kiểm kê tồn dư theo file: platform / host / url / han / vi-comment / header / **id** (appid, ad/report id, secret). Quét cả settings, report, docs. `--keep` nền tảng giữ lại, `--json` xuất báo cáo |
 | `scripts/script-usage.py` | Mỗi script: ai import, scene/prefab nào gắn (uuid nén), ai `addComponent("Tên")`; liệt kê script mồ côi |
 | `scripts/strip-calls.py` | Gỡ trọn lời gọi khỏi biểu thức dấu phẩy theo regex, đi tới ngoặc đóng khớp; dry-run mặc định |
 | `templates/Platform.ts` | Platform facade chỉ TikTok + Dev, giữ hợp đồng `showRewardAds(cb)`, mute quanh quảng cáo |

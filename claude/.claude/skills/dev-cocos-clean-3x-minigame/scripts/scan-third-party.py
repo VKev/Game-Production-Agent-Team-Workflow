@@ -12,6 +12,12 @@ editor extensions such as funplay-cocos-mcp are skipped) and reports, per file:
   han        Chinese characters (code, tooltips, logs, prefab labels)
   vi-comment Vietnamese comments (with or without diacritics)
   header     "Recovered from the shipped ... bundle" port headers
+  id         third-party identifiers and secrets: platform app ids (tt..., wx...),
+             config keys with a value (appid, rewardId, bannerId, reportId, adUnitId,
+             secret, token...), and quoted 32-char key-like literals
+
+Also scans settings/, report/, docs/ and the root *.md files: ids leak into the
+reports and notes written ABOUT the cleanup just as easily as into code.
 
 Nothing is modified. Use the report to decide what to delete, what to replace and
 what to translate; rerun it at the end: every remaining hit must be a deliberate keep.
@@ -41,22 +47,47 @@ VI_ASCII_WORDS = re.compile(
 )
 COMMENT_RE = re.compile(r"^\s*(//|\*|/\*)")
 HEADER_RE = re.compile(r"Recovered from the shipped \w+ bundle")
+# Mini-game app ids: Douyin/Toutiao "tt" + 16-20 hex, WeChat "wx" + 16 hex.
+APP_ID_RE = re.compile(r"\b(tt[0-9a-f]{16,20}|wx[0-9a-f]{16})\b")
+# A config key that carries a real value: appid: "tt94…", rewardId = '18dic…', API_SECRET = "…"
+ID_KEY_RE = re.compile(
+    r"""\b(app_?id|app_?key|reward_?id|banner_?id|insert_?id|report_?id|native_?ad_?id|ad_?unit_?id|"""
+    r"""placement_?id|slot_?id|(?:api_?)?secret|sign_?key|access_?key|token)\b["']?\s*[:=]\s*["'`]([^"'`\s]{6,})["'`]""",
+    re.I,
+)
+# Quoted 32-char alphanumeric literal (API secrets, sign salts, analytics keys).
+SECRET_RE = re.compile(r"""["'`]([A-Za-z0-9]{32})["'`]""")
+ID_PLACEHOLDERS = {"UNKNOW", "UNKNOWN", "your_app_id", "test_placement_id"}
 
 SKIP_DIRS = {"node_modules", "library", "temp", "build", "profiles", ".git", "funplay-cocos-mcp"}
-TEXT_EXT = {".ts", ".js", ".json", ".prefab", ".scene", ".md", ".txt"}
+TEXT_EXT = {".ts", ".js", ".json", ".prefab", ".scene", ".md", ".txt", ".html", ".yaml", ".yml", ".toml"}
+SKIP_FILES = {"package-lock.json", "vendor-manifest.json"}  # hashes, not ids
 
 
 def iter_files(root: Path):
-    for base in ("assets", "extensions"):
+    for base in ("assets", "extensions", "settings", "report", "reports", "docs"):
         d = root / base
         if not d.exists():
             continue
         for p in d.rglob("*"):
-            if not p.is_file() or p.suffix not in TEXT_EXT or p.name.endswith(".meta"):
+            if not p.is_file() or p.suffix not in TEXT_EXT or p.name.endswith(".meta") or p.name in SKIP_FILES:
                 continue
             if any(part in SKIP_DIRS for part in p.relative_to(root).parts):
                 continue
             yield p
+    for p in root.glob("*.md"):
+        yield p
+
+
+def find_ids(line: str) -> bool:
+    # ids that only appear inside a URL (public store page, docs link) are not config
+    bare = URL_RE.sub("", line)
+    if APP_ID_RE.search(bare):
+        return True
+    for m in ID_KEY_RE.finditer(bare):
+        if m.group(2) not in ID_PLACEHOLDERS:
+            return True
+    return bool(SECRET_RE.search(bare))
 
 
 def scan_file(path: Path, keep: set[str]):
@@ -84,6 +115,9 @@ def scan_file(path: Path, keep: set[str]):
             add("url", n, line)
         if HAN_RE.search(line):
             add("han", n, line)
+        # prefab/scene serialize uuids and fileIds that look like keys; ids live in code/config/docs
+        if path.suffix not in (".prefab", ".scene") and find_ids(line):
+            add("id", n, line)
         if is_code and COMMENT_RE.match(line):
             if VI_DIACRITIC_RE.search(line) or len(VI_ASCII_WORDS.findall(line)) >= 2:
                 add("vi-comment", n, line)
