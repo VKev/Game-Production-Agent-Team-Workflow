@@ -13,15 +13,23 @@ export class TikTokLogin {
   /** AuthorizationCode của phiên hiện tại, rỗng khi chưa login hoặc chạy ngoài TikTok. */
   static authCode = '';
 
+  private static done = false;
+
+  /** Idempotent: mỗi phiên login tối đa MỘT lần; fail thì cho thử lại ở lần gọi sau. */
   static login (): void {
+    if (TikTokLogin.done) return;
     if (!canUseTikTok('login')) { console.log('[TikTokLogin] login unsupported'); return; }
+    TikTokLogin.done = true;
     ttGame().login({
       success: (res: any) => {
         TikTokLogin.authCode = (res && res.code) || '';
         console.log('[TikTokLogin] success, code length =', TikTokLogin.authCode.length);
         // TODO(project): có backend thì POST authCode lên server để đổi AccessToken + OpenID.
       },
-      fail: (err: any) => console.log('[TikTokLogin] fail', err && err.errMsg),
+      fail: (err: any) => {
+        TikTokLogin.done = false; // không chặn luồng chơi, lần boot/gọi sau thử lại
+        console.log('[TikTokLogin] fail', err && err.errMsg);
+      },
     });
   }
 }

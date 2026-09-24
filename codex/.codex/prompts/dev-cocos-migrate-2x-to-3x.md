@@ -42,7 +42,8 @@ export). File vendor thì copy, không port.
 
 1. API giả toàn bộ — bản 3.x phải chơi được khi **rút mạng**. Project 2.x đã có
    `ApiMock`/`FakeAds`/`MobileAdapter` thì convert chúng sang TS, đừng viết lại
-2. Quảng cáo giả — mọi chỗ xem quảng cáo nhận thưởng đều trao thưởng ngay. Nhớ
+2. Quảng cáo giả — mọi chỗ xem quảng cáo nhận thưởng hiện `MockAdOverlay` (màn đen
+   đếm ngược 3 giây) rồi trao thưởng. Nhớ
    kiểm tầng thứ hai: SDK publisher hay gọi tiếp quảng cáo thật của nền tảng
 3. Comment tiếng Anh, ngắn gọn; chuỗi hiển thị **giữ nguyên văn** (còn dùng để
    diff 1-1 với bản 2.x ở bước verify)

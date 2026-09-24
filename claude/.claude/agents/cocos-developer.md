@@ -56,10 +56,11 @@ At the start of each phase, inspect the available skill catalog and `<repository
 - Canvas, design resolution, Widget/Layout/ScrollView, safe areas, labels → `dev-cocos-ui-layout`.
 - Draw calls, pooling, tween/listener discipline, texture memory, mini-game budgets → `dev-cocos-performance`.
 - Platform builds, package ceilings, subpackage layout, boot-chain verification → `dev-cocos-build-minigame`.
-- TikTok Mini Game growth capabilities — silent login, rewarded ad, home shortcut, profile revisit, and the upload gate that statically scans the build for each API name → `tiktok-growth-missions`.
+- TikTok Mini Game growth capabilities — silent login, rewarded ad, home shortcut, profile revisit, progress storage through `TTMinis.game` storage, and the upload gate that statically scans the build for each API name → `tiktok-growth-missions`.
 - Which gate proves what, engine-free tests, static checkers, reporting evidence → `dev-cocos-testing-verification`.
 - Mirroring a live browser game to a runnable offline copy → `research-browser-game-mirror`; a whole list of them → `research-browser-game-batch`.
-- Rebuilding a compiled Cocos 2.x build into a Creator 2.4.x project → `dev-cocos-port-2x`; a 3.x build into a 3.8 TypeScript project → `dev-cocos-port-3x`; upgrading an existing 2.x project → `dev-cocos-migrate-2x-to-3x`.
+- Rebuilding a compiled Cocos 2.x build into a Creator 2.4.x project → `dev-cocos-port-2x`; a 3.x build into a 3.8 TypeScript project → `dev-cocos-port-3x`; upgrading an existing 2.x project → `dev-cocos-migrate-2x-to-3x`. Their mock rewarded ad is `MockAdOverlay` (black overlay, 3 s countdown, always rewards).
+- Stripping a ported/migrated 3.x mini-game down to the one platform it ships to — publisher SDKs, other mini-game platforms, analytics, endpoints, non-English comments and port headers — while keeping it playable after every step → `dev-cocos-clean-3x-minigame`.
 - Engine-neutral skills remain available: `dev-ponytail` for scope discipline, `research-video-caption-analysis` for video evidence, `threejs-*` for web/Three.js work.
 
 ### Port pipeline agents

@@ -92,8 +92,9 @@ hidden.
 
 ## Browser-game fetch and port pipeline
 
-Five skills cover acquiring a live browser game and rebuilding it as a Cocos
-project, with three agents for the parallel parts:
+Six skills cover acquiring a live browser game, rebuilding it as a Cocos
+project and cleaning it for the one platform it ships to, with three agents for
+the parallel parts:
 
 | Skill | In → out | Command |
 |---|---|---|
@@ -102,6 +103,7 @@ project, with three agents for the parallel parts:
 | `dev-cocos-port-2x` | Cocos 2.x build → runnable Creator 2.4.x project | `/dev-cocos-port-2x` |
 | `dev-cocos-port-3x` | Cocos 3.x build → runnable Creator 3.8 TypeScript project | `/dev-cocos-port-3x` |
 | `dev-cocos-migrate-2x-to-3x` | Creator 2.x project with source → 3.8 project | `/dev-cocos-migrate-2x-to-3x` |
+| `dev-cocos-clean-3x-minigame` | ported 3.x project → only the shipping platform (TikTok) left, still playable | `/dev-cocos-clean-3x-minigame` |
 
 Agents: `browser-game-fetcher` (batch worker), `cocos-port-triage` (GO/NO-GO gate,
 run it synchronously), `cocos-port-class` (one class per dispatch, fan out).

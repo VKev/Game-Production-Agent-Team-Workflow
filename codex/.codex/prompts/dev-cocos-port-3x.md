@@ -33,10 +33,13 @@ sau khi stub SDK và code obfuscate nặng · logic quyết định nằm trên 
 ## Bốn thứ không được quên
 
 1. API giả toàn bộ — project phải chơi được khi **rút mạng**
-2. Quảng cáo giả — mọi chỗ xem quảng cáo nhận thưởng đều trao thưởng ngay
+2. Quảng cáo giả — mọi chỗ xem quảng cáo nhận thưởng hiện `MockAdOverlay` (màn đen
+   đếm ngược 3 giây) rồi trao thưởng
 3. Comment tiếng Anh, ngắn gọn; chuỗi hiển thị giữ nguyên văn, không dịch
 4. Tương thích Android/iOS: resolution policy, audio sau user gesture, safe area
 
 ## Báo lại cho user
 
 Quyết định + map rate của extractor + số class/scene/prefab + đường dẫn báo cáo.
+Port xong mà game chỉ ship lên một nền tảng → gợi ý `/dev-cocos-clean-3x-minigame`
+để gỡ SDK và nền tảng thừa.

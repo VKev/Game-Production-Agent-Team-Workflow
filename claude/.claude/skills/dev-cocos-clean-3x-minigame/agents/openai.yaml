@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Cocos 3.x Mini-game"
+  short_description: "Strip third-party SDKs, platforms and non-English leftovers from a Cocos 3.x mini-game"
+  default_prompt: "Use $dev-cocos-clean-3x-minigame for this task."

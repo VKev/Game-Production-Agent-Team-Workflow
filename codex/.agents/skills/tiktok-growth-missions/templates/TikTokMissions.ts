@@ -23,7 +23,7 @@ import { canUseTikTok, ttGame } from './TikTokApi';
 import { BUILD } from 'cc/env';
 
 // tt.onShow là API cấp app (global `tt`), không nằm trong TTMinis.game.
-const W = window as any;
+const W = globalThis as any; // không dùng window — xem TikTokApi.ts
 
 const RevisitReward = 200;
 const ShortcutReward = 300;   // docs: thưởng shortcut phải CAO HƠN các entry point khác

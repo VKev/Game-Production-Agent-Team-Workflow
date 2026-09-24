@@ -1,6 +1,6 @@
 ---
 name: tiktok-growth-missions
-description: "Tích hợp ĐỦ 4 capability BẮT BUỘC của TikTok Mini Game — silent-login (login), rewarded-ad (createRewardedVideoAd), home-shortcut (addShortcut/getShortcutMissionReward), profile-revisit (startEntranceMission/getEntranceMissionReward) — thiếu bất kỳ cái nào là TikTok CHẶN upload. Kèm template TTMinis wrapper portable, quy tắc entry point, reward một lần do server quản, cách lấy adUnitId, checklist grep bản build và cách test. Use when: up game TikTok bị báo thiếu capability, cần gắn revisit-from-profile / add-to-home-screen / rewarded ad / silent login, port game mới lên TikTok Minis. Triggers: tiktok mission, revisit from profile, home screen shortcut, add shortcut, rewarded ad, createRewardedVideoAd, adUnitId, silent login, TTMinis, growth capability, bị chặn upload, entrance mission, up game tiktok."
+description: "Tích hợp ĐỦ 4 capability BẮT BUỘC của TikTok Mini Game — silent-login (login), rewarded-ad (createRewardedVideoAd), home-shortcut (addShortcut/getShortcutMissionReward), profile-revisit (startEntranceMission/getEntranceMissionReward) — thiếu bất kỳ cái nào là TikTok CHẶN upload. Kèm template TTMinis wrapper portable, quy tắc entry point, reward một lần do server quản, cách lấy adUnitId, checklist grep bản build và cách test. Use when: up game TikTok bị báo thiếu capability, cần gắn revisit-from-profile / add-to-home-screen / rewarded ad / silent login, port game mới lên TikTok Minis. Kèm lưu tiến độ qua storage TikTok (`TTMinis.game.setStorageSync`) cho iOS/Android. Triggers: lưu tiến độ, save game tiktok, setStorageSync, localStorage mất dữ liệu, tiktok mission, revisit from profile, home screen shortcut, add shortcut, rewarded ad, createRewardedVideoAd, adUnitId, silent login, TTMinis, growth capability, bị chặn upload, entrance mission, up game tiktok."
 ---
 
 # TikTok Mini Game — 4 capability BẮT BUỘC
@@ -48,6 +48,7 @@ Copy từ `templates/` (cùng thư mục skill này) vào thư mục script chí
 | `TikTokMissions.ts` | 2 mission + claim + popup thưởng | 3 điểm `TODO(project)` |
 | `TikTokAds.ts` | rewarded video | dán `AdUnitId` (xem Bước 5) |
 | `TikTokLogin.ts` | silent login | không (chỉ cần khi có backend/IAP thì xử lý `code`) |
+| `GameStorage.ts` | lưu tiến độ qua storage của TikTok (Bước 7) | không — thay chỗ đọc/ghi của save manager |
 
 `TikTokMissions.ts` có 3 điểm ADAPTER đánh dấu `TODO(project)`:
 1. `grantReward()` — cộng tiền tệ bằng hệ thống của project (storage manager + event update UI).
@@ -89,6 +90,12 @@ bật **Ad placements** → **Add ad placement** (đặt tên, chọn **Rewarded
 Điều kiện trước đó: **business verification** xong và **bật capability IAA** cho mini app.
 
 - Docs KHÔNG có test ad unit id → preview/web phải giữ nhánh quảng cáo GIẢ để test gameplay.
+  Ad giả nên là **màn phủ đen đếm ngược ~3 giây rồi trao thưởng** (template
+  `dev-cocos-port-3x/templates/MockAdOverlay.ts`) thay vì trao thưởng tức thì: tester nhìn
+  thấy chỗ nào gọi quảng cáo, và nhịp chơi giống thật. Dựng bằng node Cocos (Graphics + Label +
+  BlockInputEvents), KHÔNG dùng DOM — runtime native không có DOM.
+- Khi `AdUnitId` còn rỗng, cho cả **máy TikTok thật** đi màn ad giả này (không trả lỗi "chưa có
+  quảng cáo"): bản test up lên TikTok vẫn chơi trọn vòng được trước khi placement được duyệt.
 - Chỉ cấp thưởng khi `onClose` trả **`res.isEnded === true`**. Đóng sớm = không thưởng.
 - Tạo instance MỘT lần rồi tái dùng, đừng `createRewardedVideoAd` mỗi lần phát.
 - Chưa có ID vẫn code trước được: để hằng `AdUnitId = ''`, `isAvailable()` trả false → game tự lùi về
@@ -99,6 +106,43 @@ Game port thường đã có một hàm ad trung tâm (vd `SdkManager.showVideo(
 được gọi ở cả chục chỗ. **Chỉ sửa hàm đó**: có TTMinis + có ad unit → ad thật; ngược lại → ad giả.
 ⚠ Đọc kỹ chữ ký hàm cũ trước khi sửa: ở game 2.x tham số thứ 2 thường là **callback THẤT BẠI**
 (hiện toast đỏ), KHÔNG phải `onClose`. Gọi nhầm nó sau khi thưởng → mỗi lần xem xong lại hiện toast lỗi.
+
+### Bước 7 — Lưu tiến độ trên iOS / Android: `GameStorage.ts`
+
+Mọi save của game (xu, level, cài đặt…) phải đi qua `templates/GameStorage.ts`, KHÔNG gọi thẳng
+`localStorage` / `sys.localStorage`:
+
+| Chạy ở đâu | Backend | Vì sao |
+|---|---|---|
+| App TikTok (iOS/Android) | `TTMinis.game.setStorageSync` / `getStorageSync` / `removeStorageSync` | Storage CHÍNH THỨC của Mini Games SDK (docs: /docs/en/mini-games-sdk-storage) |
+| Preview Editor / web | `localStorage` | Không có TTMinis |
+| Không có cả hai | bộ nhớ tạm | Chỉ để không crash |
+
+- Build `bytedance-mini-game` chạy trên **runtime native** của TikTok: không DOM, `window` /
+  `window.localStorage` có thể không tồn tại. Bản HTML runtime chạy trong WebView, và iOS
+  (WKWebView) được phép dọn localStorage khi thiếu dung lượng — TikTok không cam kết giữ nó.
+  Kết luận: **đừng cược tiến độ người chơi vào localStorage**, dù test trên máy thấy vẫn còn.
+- `getStorageSync` trả `null` (vài bản trả `''`) khi chưa có key → wrapper quy về `null`.
+- Lưu dạng **string** (tự `JSON.stringify` ở tầng save manager) để 2 backend cư xử y nhau.
+- `canIUse('setStorageSync')` false (app cũ) → tự lùi về localStorage, không crash.
+- Game đã từng phát hành bản lưu localStorage: gọi `GameStorage.migrateFromLocalStorage('<prefix>_')`
+  MỘT lần lúc khởi tạo save manager — chép save cũ sang storage TikTok, không ghi đè key đã có.
+- Preview stub TTMinis (nếu có) **không** giả `setStorageSync` → preview vẫn lưu localStorage,
+  xoá được bằng DevTools như thường.
+
+Nối vào save manager có sẵn: chỉ thay 2 dòng đọc/ghi.
+
+```ts
+// trước
+sys.localStorage.setItem(this.prefix + '_' + key, JSON.stringify(value));
+JSON.parse(sys.localStorage.getItem(this.prefix + '_' + key));
+// sau
+GameStorage.setItem(this.prefix + '_' + key, JSON.stringify(value));
+JSON.parse(GameStorage.getItem(this.prefix + '_' + key));
+```
+
+Kiểm tra: preview → nhận thưởng → reload → số dư còn nguyên; trên máy thật: vuốt tắt hẳn app
+TikTok, mở lại game → tiến độ còn.
 
 ## Luật CỨNG — vi phạm là hỏng gate upload
 
@@ -143,7 +187,7 @@ thấy. `tsc --noEmit` mù hoàn toàn với lớp này: code biên dịch y h�
 đồng callback đúng hay sai.
 
 ```bash
-node <tools>/test-tiktok-sdk.js      # 18 check, in PASS/FAIL
+node <tools>/test-tiktok-sdk.js      # 18 check (+11 check storage khi có GameStorage.ts), in PASS/FAIL
 ```
 
 Nó chốt: ngoài TikTok không crash và **không tự trao thưởng**; máy < 41.0.0
@@ -152,7 +196,10 @@ idempotent mỗi phiên nhưng vẫn thử lại sau khi fail; `AdUnitId` rỗng
 `isAvailable()` false (đây chính là thứ cho phép build thử trước khi verify xong);
 ad instance tạo **một lần** rồi tái dùng; chỉ thưởng khi `isEnded === true`; và
 `onClose` + `onError` của **cùng một lần phát** chỉ trả kết quả MỘT lần — thiếu
-chốt này là người chơi ăn thưởng hai lần cho một quảng cáo.
+chốt này là người chơi ăn thưởng hai lần cho một quảng cáo. Có `GameStorage.ts` thì kiểm
+thêm: trong TikTok ghi vào TTMinis storage (không phải localStorage), ngoài TikTok / `canIUse`
+false thì lùi về localStorage, key thiếu → `null`, host ném lỗi không làm crash game, migrate
+save cũ đúng MỘT lần và không ghi đè.
 
 Nó tự biên dịch bản thứ hai có `AdUnitId` điền sẵn, vì `AdUnitId` là const cấp
 module — cách duy nhất trung thực để test đúng cấu hình sẽ ship.
@@ -170,7 +217,8 @@ done
 # cả 6 tên phải xuất hiện; thiếu tên nào console chặn capability đó
 ```
 
-Kiểm thêm: `AdUnitId` đã điền chưa, ad placement đã **Active** chưa, entry còn hiển thị sau khi
+Kiểm thêm: mọi save đi qua `GameStorage` (grep `localStorage` trong source chỉ còn trong
+wrapper), `AdUnitId` đã điền chưa, ad placement đã **Active** chưa, entry còn hiển thị sau khi
 đã nhận thưởng chưa, wrapper có nằm trong gói chính không.
 
 ## Test — biết trước giới hạn để khỏi mất thời gian

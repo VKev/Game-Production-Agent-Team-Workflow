@@ -20,21 +20,27 @@
 //   2. an app older than 41.0.0 (canIUse false) degrades instead of crashing;
 //   3. login() calls the LITERAL `login` and keeps the AuthorizationCode;
 //   4. login() is idempotent per session but retries after a failure;
-//   5. with no AdUnitId, isAvailable() is false — this is what makes
-//      ZJTDPlatform fall back to the legacy ad path today;
+//   5. with no AdUnitId, isAvailable() is false — this is what lets the game
+//      fall back to the mock ad before a placement is approved;
 //   6. with an AdUnitId, the ad instance is created ONCE and reused;
 //   7. reward is granted only on isEnded === true;
 //   8. onClose + onError for the same play resolve the callback ONCE, so a player
-//      cannot collect two rewards from one ad.
+//      cannot collect two rewards from one ad;
+//   9. GameStorage (only when assets/scripts/GameStorage.ts exists) saves through
+//      TTMinis storage inside TikTok, falls back to localStorage outside (and when
+//      canIUse is false), maps a missing key to null, survives a throwing host,
+//      and migrates old localStorage saves ONCE without overwriting.
 
 const fs = require('fs');
 const path = require('path');
 const { PROJECT, compileToEsm, runHarness } = require('./lib/esm-harness');
 
+const WITH_STORAGE = fs.existsSync(path.join(PROJECT, 'assets/scripts/GameStorage.ts'));
 const out = compileToEsm([
     'assets/scripts/TikTokApi.ts',
     'assets/scripts/TikTokLogin.ts',
     'assets/scripts/TikTokAds.ts',
+    ...(WITH_STORAGE ? ['assets/scripts/GameStorage.ts'] : []),
 ]);
 
 // Case 6-8 need a configured ad unit. AdUnitId is a module-level const on purpose
@@ -58,6 +64,7 @@ import { ttGame, canUseTikTok } from './TikTokApi.js';
 import { TikTokLogin } from './TikTokLogin.js';
 import { TikTokAds } from './TikTokAds.js';
 import { TikTokAds as ConfiguredAds } from './TikTokAdsConfigured.js';
+const { GameStorage } = ${WITH_STORAGE} ? await import('./GameStorage.js') : {};
 
 let failures = 0;
 const check = (ok, what) => {
@@ -156,6 +163,74 @@ granted = null;
 ConfiguredAds.show((isEnded) => { granted = isEnded; });
 errorCb({ errMsg: 'no fill' });
 check(granted === false, 'ad error grants nothing');
+
+// ── 9. progress storage ──────────────────────────────────────────────────────
+if (GameStorage) {
+    const fakeLocal = (init) => {
+        const m = new Map(Object.entries(init || {}));
+        return {
+            get length() { return m.size; },
+            key: (i) => [...m.keys()][i] ?? null,
+            getItem: (k) => (m.has(k) ? m.get(k) : null),
+            setItem: (k, v) => m.set(k, String(v)),
+            removeItem: (k) => m.delete(k),
+        };
+    };
+    const fakeTT = (canUse = true) => {
+        const m = new Map();
+        return { _m: m, game: {
+            canIUse: () => canUse,
+            // real SDK: missing key -> null (some builds return '')
+            getStorageSync: (k) => (m.has(k) ? m.get(k) : ''),
+            setStorageSync: (k, v) => m.set(k, v),
+            removeStorageSync: (k) => m.delete(k),
+        } };
+    };
+
+    delete globalThis.TTMinis;
+    globalThis.localStorage = fakeLocal();
+    GameStorage.setItem('save_coin', '50');
+    check(globalThis.localStorage.getItem('save_coin') === '50', 'storage: outside TikTok writes localStorage');
+    check(GameStorage.getItem('save_coin') === '50' && GameStorage.getItem('nope') === null, 'storage: localStorage read, missing key -> null');
+
+    let tt = fakeTT();
+    globalThis.TTMinis = tt;
+    globalThis.localStorage = fakeLocal();
+    GameStorage.setItem('save_coin', 120);
+    check(tt._m.get('save_coin') === '120' && globalThis.localStorage.getItem('save_coin') === null,
+        'storage: inside TikTok writes TTMinis storage (as string), not localStorage');
+    check(GameStorage.getItem('save_coin') === '120', 'storage: reads back from TTMinis storage');
+    check(GameStorage.getItem('never_set') === null, "storage: TikTok '' for a missing key maps to null");
+    GameStorage.removeItem('save_coin');
+    check(GameStorage.getItem('save_coin') === null, 'storage: removeItem clears the TikTok key');
+
+    tt = fakeTT(false);
+    globalThis.TTMinis = tt;
+    globalThis.localStorage = fakeLocal();
+    GameStorage.setItem('k', 'v');
+    check(tt._m.size === 0 && globalThis.localStorage.getItem('k') === 'v', 'storage: canIUse false falls back to localStorage');
+
+    globalThis.TTMinis = { game: { canIUse: () => true,
+        getStorageSync: () => { throw new Error('boom'); },
+        setStorageSync: () => { throw new Error('boom'); } } };
+    let threw = false;
+    try { GameStorage.setItem('a', '1'); GameStorage.getItem('a'); } catch (e) { threw = true; }
+    check(!threw, 'storage: a throwing host never crashes the game');
+
+    tt = fakeTT();
+    globalThis.TTMinis = tt;
+    globalThis.localStorage = fakeLocal({ save_coin: '77', save_level: '3', other_app: 'x' });
+    tt._m.set('save_level', '9'); // newer value already in TikTok storage
+    GameStorage.migrateFromLocalStorage('save_');
+    check(tt._m.get('save_coin') === '77', 'storage: migration copies old localStorage saves');
+    check(tt._m.get('save_level') === '9', 'storage: migration never overwrites an existing TikTok key');
+    check(!tt._m.has('other_app'), 'storage: migration only copies the given prefix');
+    globalThis.localStorage.setItem('save_coin', '999');
+    GameStorage.migrateFromLocalStorage('save_');
+    check(tt._m.get('save_coin') === '77', 'storage: migration runs only once');
+} else {
+    console.log('  skip storage checks (assets/scripts/GameStorage.ts not in this project)');
+}
 
 console.log(failures === 0 ? '\\nPASS' : '\\nFAIL: ' + failures + ' check(s)');
 process.exit(failures === 0 ? 0 : 1);

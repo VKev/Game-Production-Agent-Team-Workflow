@@ -29,8 +29,9 @@ rõ điều này với người dùng ngay từ đầu, nó thường đảo ng�
 1. **API giả toàn bộ.** Game có gọi API thì mọi endpoint chạy bằng fixture trong
    `<mirror>/api-mock/`. Project phải chơi được khi **rút mạng**. Endpoint không
    mock được (WebSocket, sau đăng nhập) thì **nêu tên**.
-2. **Quảng cáo giả.** Mọi chỗ "xem quảng cáo nhận thưởng" đi qua `FakeAds` và
-   **luôn trao thưởng ngay**. Không để lại lời gọi SDK thật.
+2. **Quảng cáo giả.** Mọi chỗ "xem quảng cáo nhận thưởng" đi qua `FakeAds`:
+   hiện `MockAdOverlay` (màn đen đếm ngược ~3 giây) rồi **luôn trao thưởng**.
+   Không để lại lời gọi SDK thật. Xem mục *Màn quảng cáo giả* ở GĐ4.
 3. **Comment tiếng Anh, ngắn gọn.** Một câu nói *vì sao*. Comment gốc giữ nguyên.
 4. **Tương thích Android/iOS.** Xem [references/shims-and-mobile.md](references/shims-and-mobile.md).
 
@@ -104,6 +105,7 @@ MCP chưa kết nối được thì **cài extension trước, đừng dựng ta
 ```text
 templates/ApiMock.ts        → assets/scripts/mock/ApiMock.ts
 templates/FakeAds.ts        → assets/scripts/mock/FakeAds.ts
+templates/MockAdOverlay.ts  → assets/scripts/mock/MockAdOverlay.ts
 templates/MobileAdapter.ts  → assets/scripts/mock/MobileAdapter.ts
 <mirror>/api-mock/client/*  → assets/scripts/vendor/
 <mirror>/api-mock/index.inline.json → assets/resources/apimock/index.inline.json
@@ -112,6 +114,25 @@ templates/MobileAdapter.ts  → assets/scripts/mock/MobileAdapter.ts
 `ApiMock` đã có `@executionOrder(-10000)` — giữ nguyên, đừng hạ xuống. Cài lớp
 chặn sau khi game gọi API lần đầu là quá muộn.
 
+### Màn quảng cáo giả (`MockAdOverlay`)
+
+Trao thưởng **tức thì** giấu mất chỗ game gọi quảng cáo và làm nhịp chơi khác hẳn
+bản thật, nên rewarded ad giả là **màn phủ đen, chặn chạm, đếm ngược 3 giây rồi
+trao thưởng**. `FakeAds.showRewarded()` đã gọi nó sẵn.
+
+- Dựng bằng node Cocos (`Graphics` + `Label` + `BlockInputEvents`), **không DOM** —
+  runtime native của mini-game (TikTok `bytedance-mini-game`, WeChat) không có `document`.
+- Node phủ phải `layer = canvas.node.layer` (layer mặc định không được camera UI vẽ)
+  và là con cuối của Canvas; phủ rộng gấp 3 màn hình để che cả vùng letterbox.
+- Đếm bằng `setTimeout`, không bằng scheduler của engine: caller hay `game.pause()`
+  lúc phát quảng cáo, scheduler dừng theo là màn phủ kẹt vĩnh viễn.
+- Chặn gọi chồng: đang hiện thì lần bấm thứ hai bị bỏ qua — không thì bấm nhanh hai
+  lần ăn hai lần thưởng.
+- Tắt nhạc quanh nó ở caller, y như với quảng cáo thật.
+- Game ship lên nền tảng có ad thật (vd TikTok, skill `tiktok-growth-missions`): khi
+  ad unit còn trống thì **cả máy thật** cũng đi màn giả này, để bản test up lên vẫn
+  chơi trọn vòng trước khi placement được duyệt. Có ad unit → đường ad thật.
+
 ## GĐ5 — Verify bằng chạy thật
 
 1. Preview trong Editor → chạy hết một vòng gameplay.
@@ -119,7 +140,8 @@ chặn sau khi game gọi API lần đầu là quá muộn.
 3. **Rút mạng** — game vẫn phải chạy hết vòng lặp. Đây là cách duy nhất chứng
    minh API mock đủ.
 4. `__apiMockReport()` không còn dòng `no fixture for`; `__fakeAdsReport()` cho
-   thấy mọi chỗ quảng cáo đều đã trao thưởng.
+   thấy mọi chỗ quảng cáo đều đã trao thưởng. Bấm một nút xem quảng cáo: phải thấy
+   màn đen đếm 3→1 rồi thưởng về đúng một lần.
 5. Điện thoại thật: xoay máy, âm thanh sau cú chạm đầu, HUD không chui vào tai thỏ.
 6. So A/B với bản gốc bằng `cdp.py` (screenshot từng bước) — "code trông đúng"
    không phải bằng chứng.

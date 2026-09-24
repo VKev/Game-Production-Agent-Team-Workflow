@@ -39,8 +39,10 @@ Chỉ có bản build (không `.meta`, không source) thì **chưa dùng skill n
 2. **API giả toàn bộ.** Game có gọi API thì mọi endpoint chạy bằng fixture.
    Project 3.x phải chơi được khi **rút mạng**. Endpoint không mock được thì
    **nêu tên**.
-3. **Quảng cáo giả.** Mọi chỗ "xem quảng cáo nhận thưởng" đi qua `FakeAds`,
-   **luôn trao thưởng ngay**. Không để lại lời gọi SDK thật.
+3. **Quảng cáo giả.** Mọi chỗ "xem quảng cáo nhận thưởng" đi qua `FakeAds`:
+   hiện `MockAdOverlay` (màn đen đếm ngược ~3 giây) rồi **luôn trao thưởng**.
+   Không để lại lời gọi SDK thật. Quy tắc dựng màn giả: `dev-cocos-port-3x`
+   GĐ4 *Màn quảng cáo giả*.
 4. **Comment tiếng Anh, ngắn gọn.** Một câu nói *vì sao*. Comment gốc giữ nguyên.
 5. **Tương thích Android/iOS.** Xem [references/shims-and-mobile.md](references/shims-and-mobile.md).
 6. **Cổng kiểm phải xanh trước khi build.** `tsc --noEmit`,
@@ -173,6 +175,7 @@ lại. Chưa có thì copy từ `templates/` vào `<script-root>`:
 ```text
 templates/ApiMock.ts        → <script-root>/mock/ApiMock.ts
 templates/FakeAds.ts        → <script-root>/mock/FakeAds.ts
+templates/MockAdOverlay.ts  → <script-root>/mock/MockAdOverlay.ts
 templates/MobileAdapter.ts  → <script-root>/mock/MobileAdapter.ts
 <mirror>/api-mock/client/*  → <script-root>/vendor/
 <mirror>/api-mock/index.inline.json → <resources-root>/apimock/index.inline.json
